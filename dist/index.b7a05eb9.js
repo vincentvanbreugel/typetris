@@ -533,34 +533,36 @@ function hmrAcceptRun(bundle, id) {
 
 },{}],"jeorp":[function(require,module,exports) {
 var _game = require("./game");
-const game = new (0, _game.Game)();
+const game = new (0, _game.Game)("board", "startButton");
 
 },{"./game":"edeGs"}],"edeGs":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Game", ()=>Game);
+var _board = require("./board");
 var _constants = require("./constants");
+var _piece = require("./piece");
 class Game {
-    constructor(){
-        const canvas = document.getElementById("board");
-        const ctx = canvas.getContext("2d");
-        ctx.canvas.width = (0, _constants.COLS) * (0, _constants.BLOCK_SIZE);
-        ctx.canvas.height = (0, _constants.ROWS) * (0, _constants.BLOCK_SIZE);
-        ctx.scale((0, _constants.BLOCK_SIZE), (0, _constants.BLOCK_SIZE));
+    constructor(boardId, startButtonId){
+        this.startButton = document.getElementById(startButtonId);
+        this.board = new (0, _board.Board)(boardId);
+        this.piece = new (0, _piece.Piece)((0, _constants.SHAPES)[0]);
+        this.attachEventHandlers();
+    }
+    attachEventHandlers() {
+        this.startButton.addEventListener("click", ()=>{
+            this.startGame();
+        });
+    }
+    startGame() {
+        this.board.dropNewPiece(this.piece);
+    }
+    getRandomPiece() {
+        this.piece = new (0, _piece.Piece)((0, _constants.SHAPES)[0]);
     }
 }
 
-},{"./constants":"45DZp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"45DZp":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "COLS", ()=>COLS);
-parcelHelpers.export(exports, "ROWS", ()=>ROWS);
-parcelHelpers.export(exports, "BLOCK_SIZE", ()=>BLOCK_SIZE);
-const COLS = 10;
-const ROWS = 20;
-const BLOCK_SIZE = 30;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./board":"7fSWv","./constants":"45DZp","./piece":"7MOtM"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -590,6 +592,60 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
+},{}],"7fSWv":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Board", ()=>Board);
+var _constants = require("./constants");
+class Board {
+    constructor(boardId){
+        this.canvas = document.getElementById(boardId);
+        this.context = this.canvas.getContext("2d");
+        this.drawBoard();
+    }
+    drawBoard() {
+        this.context.canvas.width = (0, _constants.COLS) * (0, _constants.BLOCK_SIZE);
+        this.context.canvas.height = (0, _constants.ROWS) * (0, _constants.BLOCK_SIZE);
+        this.context.scale((0, _constants.BLOCK_SIZE), (0, _constants.BLOCK_SIZE));
+    }
+    dropNewPiece(piece) {
+        this.context.fillRect(5, piece.shape[0].length, piece.shape[0].length, piece.shape[0].length);
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants":"45DZp"}],"45DZp":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "COLS", ()=>COLS);
+parcelHelpers.export(exports, "ROWS", ()=>ROWS);
+parcelHelpers.export(exports, "BLOCK_SIZE", ()=>BLOCK_SIZE);
+parcelHelpers.export(exports, "SHAPES", ()=>SHAPES);
+const COLS = 10;
+const ROWS = 20;
+const BLOCK_SIZE = 30;
+const SHAPES = [
+    [
+        [
+            1,
+            1
+        ],
+        [
+            1,
+            1
+        ]
+    ]
+];
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7MOtM":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Piece", ()=>Piece);
+class Piece {
+    constructor(shape){
+        this.shape = shape;
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
 
 //# sourceMappingURL=index.b7a05eb9.js.map

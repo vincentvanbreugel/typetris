@@ -1,12 +1,31 @@
-import { ROWS, COLS, BLOCK_SIZE } from "./constants";
+import { Board } from "./board";
+import { SHAPES } from "./constants";
+import { Piece } from "./piece";
 
 export class Game {
-  constructor() {
-    const canvas: HTMLCanvasElement = document.getElementById('board') as HTMLCanvasElement;
-    const ctx: CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
+  startButton: HTMLButtonElement;
+  board: Board;
+  piece: Piece;
+
+  constructor(boardId: string, startButtonId: string) {
+    this.startButton = document.getElementById(startButtonId) as HTMLButtonElement;    
+    this.board = new Board(boardId);
+    this.piece = new Piece(SHAPES[0]);
     
-    ctx.canvas.width = COLS * BLOCK_SIZE;
-    ctx.canvas.height = ROWS * BLOCK_SIZE;
-    ctx.scale(BLOCK_SIZE, BLOCK_SIZE);
+    this.attachEventHandlers();
+  }
+
+  attachEventHandlers(): void {
+    this.startButton.addEventListener('click', () => {
+      this.startGame();
+    });
+  }
+
+  startGame(): void {
+    this.board.dropNewPiece(this.piece);
+  }
+
+  getRandomPiece(): void {
+    this.piece = new Piece(SHAPES[0]);
   }
 }

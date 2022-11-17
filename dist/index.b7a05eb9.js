@@ -546,7 +546,7 @@ class Game {
     constructor(boardId, startButtonId){
         this.startButton = document.getElementById(startButtonId);
         this.board = new (0, _board.Board)(boardId);
-        this.piece = new (0, _piece.Piece)((0, _constants.SHAPES)[0]);
+        this.piece = this.getRandomPiece();
         this.attachEventHandlers();
     }
     attachEventHandlers() {
@@ -558,7 +558,7 @@ class Game {
         this.board.dropNewPiece(this.piece);
     }
     getRandomPiece() {
-        this.piece = new (0, _piece.Piece)((0, _constants.SHAPES)[0]);
+        return new (0, _piece.Piece)((0, _constants.SHAPES)[0]);
     }
 }
 

@@ -10,7 +10,7 @@ export class Game {
   constructor(boardId: string, startButtonId: string) {
     this.startButton = document.getElementById(startButtonId) as HTMLButtonElement;    
     this.board = new Board(boardId);
-    this.piece = new Piece(SHAPES[0]);
+    this.piece = this.getRandomPiece();
     
     this.attachEventHandlers();
   }
@@ -25,7 +25,7 @@ export class Game {
     this.board.dropNewPiece(this.piece);
   }
 
-  getRandomPiece(): void {
-    this.piece = new Piece(SHAPES[0]);
+  getRandomPiece(): Piece {
+    return new Piece(SHAPES[0]);
   }
 }

@@ -1,5 +1,5 @@
 import { Board } from "./board";
-import { SHAPES } from "./constants";
+import { TETROMINOS } from "./constants";
 import { Piece } from "./piece";
 
 export class Game {
@@ -22,10 +22,13 @@ export class Game {
   }
 
   startGame(): void {
-    this.board.dropNewPiece(this.piece);
+    this.piece.move({y: 0, x: 0});
+    this.piece.move({y: 1, x: 0});
+    this.board.draw();
   }
 
   getRandomPiece(): Piece {
-    return new Piece(SHAPES[0]);
+    const index = Math.floor(Math.random() * TETROMINOS.length);
+    return new Piece(TETROMINOS[index], this.board);
   }
 }

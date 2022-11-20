@@ -555,14 +555,23 @@ class Game {
         });
     }
     startGame() {
-        this.board.dropNewPiece(this.piece);
+        this.piece.move({
+            y: 0,
+            x: 0
+        });
+        this.piece.move({
+            y: 1,
+            x: 0
+        });
+        this.board.draw();
     }
     getRandomPiece() {
-        return new (0, _piece.Piece)((0, _constants.SHAPES)[0]);
+        const index = Math.floor(Math.random() * (0, _constants.TETROMINOS).length);
+        return new (0, _piece.Piece)((0, _constants.TETROMINOS)[index], this.board);
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./board":"7fSWv","./constants":"45DZp","./piece":"7MOtM"}],"gkKU3":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./board":"7fSWv","./piece":"7MOtM","./constants":"45DZp"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -601,15 +610,23 @@ class Board {
     constructor(boardId){
         this.canvas = document.getElementById(boardId);
         this.context = this.canvas.getContext("2d");
-        this.drawBoard();
+        this.boardState = Array.from(Array((0, _constants.ROWS)), ()=>Array((0, _constants.COLS)).fill(0));
+        this.createBoard();
     }
-    drawBoard() {
+    createBoard() {
         this.context.canvas.width = (0, _constants.COLS) * (0, _constants.BLOCK_SIZE);
         this.context.canvas.height = (0, _constants.ROWS) * (0, _constants.BLOCK_SIZE);
         this.context.scale((0, _constants.BLOCK_SIZE), (0, _constants.BLOCK_SIZE));
     }
-    dropNewPiece(piece) {
-        this.context.fillRect(5, piece.shape[0].length, piece.shape[0].length, piece.shape[0].length);
+    draw() {
+        for(let y = 0; y < this.boardState.length; y++)for(let x = 0; x < this.boardState[0].length; x++){
+            this.context.fillStyle = [
+                "white",
+                "black",
+                "blue"
+            ][this.boardState[y][x]];
+            this.context.fillRect(x, y, 1, 1);
+        }
     }
 }
 
@@ -619,21 +636,53 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLS", ()=>COLS);
 parcelHelpers.export(exports, "ROWS", ()=>ROWS);
 parcelHelpers.export(exports, "BLOCK_SIZE", ()=>BLOCK_SIZE);
-parcelHelpers.export(exports, "SHAPES", ()=>SHAPES);
+parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
 const COLS = 10;
 const ROWS = 20;
 const BLOCK_SIZE = 30;
-const SHAPES = [
-    [
-        [
-            1,
-            1
-        ],
-        [
-            1,
-            1
+const TETROMINOS = [
+    {
+        identifier: 1,
+        position: [
+            {
+                y: 0,
+                x: 4
+            },
+            {
+                y: 0,
+                x: 5
+            },
+            {
+                y: 1,
+                x: 4
+            },
+            {
+                y: 1,
+                x: 5
+            }
         ]
-    ]
+    },
+    {
+        identifier: 2,
+        position: [
+            {
+                y: 0,
+                x: 4
+            },
+            {
+                y: 1,
+                x: 4
+            },
+            {
+                y: 2,
+                x: 4
+            },
+            {
+                y: 2,
+                x: 3
+            }
+        ]
+    }
 ];
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7MOtM":[function(require,module,exports) {
@@ -641,8 +690,22 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Piece", ()=>Piece);
 class Piece {
-    constructor(shape){
-        this.shape = shape;
+    constructor(shape, board){
+        this.piece = shape;
+        this.board = board;
+    }
+    move(direction) {
+        this.clearCurrentPosition();
+        for(let i = 0; i < this.piece.position.length; i++){
+            const point = this.piece.position[i];
+            this.board.boardState[point.y + direction.y][point.x + direction.x] = this.piece.identifier;
+        }
+    }
+    clearCurrentPosition() {
+        for(let i = 0; i < this.piece.position.length; i++){
+            const point = this.piece.position[i];
+            this.board.boardState[point.y][point.x] = 0;
+        }
     }
 }
 

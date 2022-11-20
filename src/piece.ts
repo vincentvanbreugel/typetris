@@ -15,7 +15,13 @@ export class Piece {
 
         for (let i = 0; i < this.piece.position.length; i++) {
             const point = this.piece.position[i];
+
+            this.piece.position[i] = {
+                y: point.y + direction.y,
+                x: point.x + direction.x,
+            },
             this.board.boardState[point.y + direction.y][point.x + direction.x] = this.piece.identifier;
+            this.board.draw();
         }
     }
 

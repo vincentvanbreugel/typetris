@@ -553,17 +553,34 @@ class Game {
         this.startButton.addEventListener("click", ()=>{
             this.startGame();
         });
+        document.addEventListener("keydown", (event)=>{
+            switch(event.key){
+                case "ArrowDown":
+                    this.piece.move({
+                        y: 1,
+                        x: 0
+                    });
+                    break;
+                case "ArrowLeft":
+                    this.piece.move({
+                        y: 0,
+                        x: -1
+                    });
+                    break;
+                case "ArrowRight":
+                    this.piece.move({
+                        y: 0,
+                        x: 1
+                    });
+                    break;
+            }
+        });
     }
     startGame() {
         this.piece.move({
             y: 0,
             x: 0
         });
-        this.piece.move({
-            y: 1,
-            x: 0
-        });
-        this.board.draw();
     }
     getRandomPiece() {
         const index = Math.floor(Math.random() * (0, _constants.TETROMINOS).length);
@@ -620,26 +637,33 @@ class Board {
     }
     draw() {
         for(let y = 0; y < this.boardState.length; y++)for(let x = 0; x < this.boardState[0].length; x++){
-            this.context.fillStyle = [
-                "white",
-                "black",
-                "blue"
-            ][this.boardState[y][x]];
+            this.context.fillStyle = (0, _constants.COLORS)[this.boardState[y][x]];
             this.context.fillRect(x, y, 1, 1);
         }
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants":"45DZp"}],"45DZp":[function(require,module,exports) {
+},{"./constants":"45DZp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"45DZp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLS", ()=>COLS);
 parcelHelpers.export(exports, "ROWS", ()=>ROWS);
 parcelHelpers.export(exports, "BLOCK_SIZE", ()=>BLOCK_SIZE);
+parcelHelpers.export(exports, "COLORS", ()=>COLORS);
 parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
 const COLS = 10;
 const ROWS = 20;
 const BLOCK_SIZE = 30;
+const COLORS = [
+    "#ffffff",
+    "#ff6b6b",
+    "#cc5de8",
+    "#5c7cfa",
+    "#22b8cf",
+    "#51cf66",
+    "#fcc419",
+    "#ff922b"
+];
 const TETROMINOS = [
     {
         identifier: 1,
@@ -698,7 +722,11 @@ class Piece {
         this.clearCurrentPosition();
         for(let i = 0; i < this.piece.position.length; i++){
             const point = this.piece.position[i];
-            this.board.boardState[point.y + direction.y][point.x + direction.x] = this.piece.identifier;
+            this.piece.position[i] = {
+                y: point.y + direction.y,
+                x: point.x + direction.x
+            }, this.board.boardState[point.y + direction.y][point.x + direction.x] = this.piece.identifier;
+            this.board.draw();
         }
     }
     clearCurrentPosition() {

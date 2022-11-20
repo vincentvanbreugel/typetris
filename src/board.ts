@@ -1,4 +1,4 @@
-import { ROWS, COLS, BLOCK_SIZE } from "./constants";
+import { ROWS, COLS, BLOCK_SIZE, COLORS } from "./constants";
 import { Piece } from "./piece";
 
 export class Board {
@@ -22,7 +22,7 @@ export class Board {
     draw(): void {
         for (let y = 0; y < this.boardState.length; y++) {
             for (let x = 0; x < this.boardState[0].length; x++) {
-                this.context.fillStyle = ["white", "black", "blue"][this.boardState[y][x]];
+                this.context.fillStyle = COLORS[this.boardState[y][x]];
                 this.context.fillRect(x, y, 1, 1);
             }
         }

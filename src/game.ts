@@ -19,12 +19,24 @@ export class Game {
     this.startButton.addEventListener('click', () => {
       this.startGame();
     });
+
+    document.addEventListener('keydown', event => {
+      switch(event.key) {
+        case "ArrowDown":
+          this.piece.move({y: 1, x: 0});
+          break;
+        case "ArrowLeft":
+          this.piece.move({y: 0, x: -1});
+          break;
+        case "ArrowRight":
+          this.piece.move({y: 0, x: 1});
+          break;
+      }
+    })
   }
 
   startGame(): void {
     this.piece.move({y: 0, x: 0});
-    this.piece.move({y: 1, x: 0});
-    this.board.draw();
   }
 
   getRandomPiece(): Piece {

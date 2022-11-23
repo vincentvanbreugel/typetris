@@ -1,10 +1,9 @@
-import { ROWS, COLS, BLOCK_SIZE, COLORS } from "./constants";
-import { Piece } from "./piece";
+import { ROWS, COLS, BLOCK_SIZE, COLORS } from './constants';
 
 export class Board {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
-    boardState: number[][]
+    boardState: number[][];
 
     constructor(boardId: string) {
         this.canvas = document.getElementById(boardId) as HTMLCanvasElement;

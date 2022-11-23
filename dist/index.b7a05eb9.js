@@ -581,10 +581,24 @@ class Game {
             y: 0,
             x: 0
         });
+        const gameInterval = window.setInterval(()=>{
+            this.piece.move({
+                y: 1,
+                x: 0
+            });
+            if (this.piece.isLocked) {
+                this.piece = this.getRandomPiece();
+                this.piece.move({
+                    y: 0,
+                    x: 0
+                });
+            }
+        }, 400);
     }
     getRandomPiece() {
         const index = Math.floor(Math.random() * (0, _constants.TETROMINOS).length);
-        return new (0, _piece.Piece)((0, _constants.TETROMINOS)[index], this.board);
+        const tetromino = JSON.parse(JSON.stringify((0, _constants.TETROMINOS)[index]));
+        return new (0, _piece.Piece)(tetromino, this.board);
     }
 }
 
@@ -643,7 +657,7 @@ class Board {
     }
 }
 
-},{"./constants":"45DZp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"45DZp":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants":"45DZp"}],"45DZp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLS", ()=>COLS);
@@ -667,7 +681,7 @@ const COLORS = [
 const TETROMINOS = [
     {
         identifier: 1,
-        position: [
+        shape: [
             {
                 y: 0,
                 x: 4
@@ -688,7 +702,7 @@ const TETROMINOS = [
     },
     {
         identifier: 2,
-        position: [
+        shape: [
             {
                 y: 0,
                 x: 4
@@ -713,30 +727,81 @@ const TETROMINOS = [
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Piece", ()=>Piece);
+var _constants = require("./constants");
 class Piece {
-    constructor(shape, board){
-        this.piece = shape;
+    isLocked = false;
+    constructor(tetromino, board){
+        this.position = tetromino.shape;
+        this.identifier = tetromino.identifier;
         this.board = board;
     }
     move(direction) {
         this.clearCurrentPosition();
-        for(let i = 0; i < this.piece.position.length; i++){
-            const point = this.piece.position[i];
-            this.piece.position[i] = {
-                y: point.y + direction.y,
-                x: point.x + direction.x
-            }, this.board.boardState[point.y + direction.y][point.x + direction.x] = this.piece.identifier;
-            this.board.draw();
+        if (!this.isMoveValid(direction)) {
+            this.updatePosition({
+                newValue: this.identifier
+            });
+            return;
         }
+        this.updatePosition({
+            direction,
+            newValue: this.identifier
+        });
+        this.board.draw();
+    }
+    isMoveValid(direction) {
+        if (!this.isBetweenWalls(direction) || !this.isBetweenOtherPieces(direction)) return false;
+        if (!this.isAboveFloor(direction) || !this.isAboveOtherPieces(direction)) {
+            this.isLocked = true;
+            return false;
+        }
+        return true;
+    }
+    lockPiece() {
+        this.isLocked = true;
+    }
+    isBetweenOtherPieces(direction) {
+        return this.position.every((point)=>{
+            const xPosition = point.x + direction.x;
+            return this.board.boardState[point.y][xPosition] === 0;
+        });
+    }
+    isAboveOtherPieces(direction) {
+        return this.position.every((point)=>{
+            const yPosition = point.y + direction.y;
+            return this.board.boardState[yPosition][point.x] === 0;
+        });
+    }
+    isBetweenWalls(direction) {
+        return this.position.every((point)=>{
+            const xPosition = point.x + direction.x;
+            return xPosition >= 0 && xPosition < (0, _constants.COLS);
+        });
+    }
+    isAboveFloor(direction) {
+        return this.position.every((point)=>{
+            const yPosition = point.y + direction.y;
+            return yPosition < (0, _constants.ROWS);
+        });
     }
     clearCurrentPosition() {
-        for(let i = 0; i < this.piece.position.length; i++){
-            const point = this.piece.position[i];
-            this.board.boardState[point.y][point.x] = 0;
+        this.updatePosition({});
+    }
+    updatePosition({ direction ={
+        y: 0,
+        x: 0
+    } , newValue =0  }) {
+        for(let i = 0; i < this.position.length; i++){
+            const point = this.position[i];
+            this.position[i] = {
+                y: point.y + direction.y,
+                x: point.x + direction.x
+            };
+            this.board.boardState[point.y + direction.y][point.x + direction.x] = newValue;
         }
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants":"45DZp"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
 
 //# sourceMappingURL=index.b7a05eb9.js.map

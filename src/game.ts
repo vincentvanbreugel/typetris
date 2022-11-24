@@ -1,11 +1,11 @@
 import { Board } from './board';
-import { TETROMINOS } from './constants';
+import { TETROMINOS, Point } from './constants/tetrominos';
 import { Piece } from './piece';
 
 export class Game {
-    startButton: HTMLButtonElement;
-    board: Board;
-    piece: Piece;
+    private startButton: HTMLButtonElement;
+    private board: Board;
+    private piece: Piece;
 
     constructor(boardId: string, startButtonId: string) {
         this.startButton = document.getElementById(startButtonId) as HTMLButtonElement;
@@ -15,7 +15,20 @@ export class Game {
         this.attachEventHandlers();
     }
 
-    attachEventHandlers(): void {
+    startGame(): void {
+        this.movePiece({ y: 0, x: 0 });
+
+        const gameInterval = window.setInterval(() => {
+            this.movePiece({ y: 1, x: 0 });
+
+            if (this.piece.isLocked) {
+                this.piece = this.getRandomPiece();
+                this.movePiece({ y: 0, x: 0 });
+            }
+        }, 400);
+    }
+
+    private attachEventHandlers(): void {
         this.startButton.addEventListener('click', () => {
             this.startGame();
         });
@@ -23,32 +36,32 @@ export class Game {
         document.addEventListener('keydown', (event) => {
             switch (event.key) {
                 case 'ArrowDown':
-                    this.piece.move({ y: 1, x: 0 });
+                    this.movePiece({ y: 1, x: 0 });
                     break;
                 case 'ArrowLeft':
-                    this.piece.move({ y: 0, x: -1 });
+                    this.movePiece({ y: 0, x: -1 });
                     break;
                 case 'ArrowRight':
-                    this.piece.move({ y: 0, x: 1 });
+                    this.movePiece({ y: 0, x: 1 });
+                    break;
+                case ' ':
+                    this.rotatePiece();
                     break;
             }
         });
     }
 
-    startGame(): void {
-        this.piece.move({ y: 0, x: 0 });
-
-        const gameInterval = window.setInterval(() => {
-            this.piece.move({ y: 1, x: 0 });
-
-            if (this.piece.isLocked) {
-                this.piece = this.getRandomPiece();
-                this.piece.move({ y: 0, x: 0 });
-            }
-        }, 400);
+    private movePiece(direction: Point): void {
+        this.piece.move(direction);
+        this.board.draw();
     }
 
-    getRandomPiece(): Piece {
+    private rotatePiece(): void {
+        this.piece.rotate();
+        this.board.draw();
+    }
+
+    private getRandomPiece(): Piece {
         const index = Math.floor(Math.random() * TETROMINOS.length);
         const tetromino = JSON.parse(JSON.stringify(TETROMINOS[index]));
 

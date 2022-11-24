@@ -540,7 +540,7 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Game", ()=>Game);
 var _board = require("./board");
-var _constants = require("./constants");
+var _tetrominos = require("./constants/tetrominos");
 var _piece = require("./piece");
 class Game {
     constructor(boardId, startButtonId){
@@ -549,6 +549,25 @@ class Game {
         this.piece = this.getRandomPiece();
         this.attachEventHandlers();
     }
+    startGame() {
+        this.movePiece({
+            y: 0,
+            x: 0
+        });
+        const gameInterval = window.setInterval(()=>{
+            this.movePiece({
+                y: 1,
+                x: 0
+            });
+            if (this.piece.isLocked) {
+                this.piece = this.getRandomPiece();
+                this.movePiece({
+                    y: 0,
+                    x: 0
+                });
+            }
+        }, 400);
+    }
     attachEventHandlers() {
         this.startButton.addEventListener("click", ()=>{
             this.startGame();
@@ -556,53 +575,45 @@ class Game {
         document.addEventListener("keydown", (event)=>{
             switch(event.key){
                 case "ArrowDown":
-                    this.piece.move({
+                    this.movePiece({
                         y: 1,
                         x: 0
                     });
                     break;
                 case "ArrowLeft":
-                    this.piece.move({
+                    this.movePiece({
                         y: 0,
                         x: -1
                     });
                     break;
                 case "ArrowRight":
-                    this.piece.move({
+                    this.movePiece({
                         y: 0,
                         x: 1
                     });
                     break;
+                case " ":
+                    this.rotatePiece();
+                    break;
             }
         });
     }
-    startGame() {
-        this.piece.move({
-            y: 0,
-            x: 0
-        });
-        const gameInterval = window.setInterval(()=>{
-            this.piece.move({
-                y: 1,
-                x: 0
-            });
-            if (this.piece.isLocked) {
-                this.piece = this.getRandomPiece();
-                this.piece.move({
-                    y: 0,
-                    x: 0
-                });
-            }
-        }, 400);
+    movePiece(direction) {
+        this.piece.move(direction);
+        this.board.draw();
+    }
+    rotatePiece() {
+        this.piece.rotate();
+        this.board.draw();
     }
     getRandomPiece() {
-        const index = Math.floor(Math.random() * (0, _constants.TETROMINOS).length);
-        const tetromino = JSON.parse(JSON.stringify((0, _constants.TETROMINOS)[index]));
+        const index = Math.floor(Math.random() * (0, _tetrominos.TETROMINOS).length);
+        const tetromino = JSON.parse(JSON.stringify((0, _tetrominos.TETROMINOS)[index]));
         return new (0, _piece.Piece)(tetromino, this.board);
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./board":"7fSWv","./piece":"7MOtM","./constants":"45DZp"}],"gkKU3":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./board":"7fSWv","./piece":"7MOtM","./constants/tetrominos":"dVpHQ"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -641,30 +652,29 @@ class Board {
     constructor(boardId){
         this.canvas = document.getElementById(boardId);
         this.context = this.canvas.getContext("2d");
-        this.boardState = Array.from(Array((0, _constants.ROWS)), ()=>Array((0, _constants.COLS)).fill(0));
-        this.createBoard();
+        this.state = Array.from(Array((0, _constants.ROWS)), ()=>Array((0, _constants.COLS)).fill(0));
+        this.create();
     }
-    createBoard() {
+    draw() {
+        for(let y = 0; y < this.state.length; y++)for(let x = 0; x < this.state[0].length; x++){
+            this.context.fillStyle = (0, _constants.COLORS)[this.state[y][x]];
+            this.context.fillRect(x, y, 1, 1);
+        }
+    }
+    create() {
         this.context.canvas.width = (0, _constants.COLS) * (0, _constants.BLOCK_SIZE);
         this.context.canvas.height = (0, _constants.ROWS) * (0, _constants.BLOCK_SIZE);
         this.context.scale((0, _constants.BLOCK_SIZE), (0, _constants.BLOCK_SIZE));
     }
-    draw() {
-        for(let y = 0; y < this.boardState.length; y++)for(let x = 0; x < this.boardState[0].length; x++){
-            this.context.fillStyle = (0, _constants.COLORS)[this.boardState[y][x]];
-            this.context.fillRect(x, y, 1, 1);
-        }
-    }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants":"45DZp"}],"45DZp":[function(require,module,exports) {
+},{"./constants":"45DZp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"45DZp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLS", ()=>COLS);
 parcelHelpers.export(exports, "ROWS", ()=>ROWS);
 parcelHelpers.export(exports, "BLOCK_SIZE", ()=>BLOCK_SIZE);
 parcelHelpers.export(exports, "COLORS", ()=>COLORS);
-parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
 const COLS = 10;
 const ROWS = 20;
 const BLOCK_SIZE = 30;
@@ -677,50 +687,6 @@ const COLORS = [
     "#51cf66",
     "#fcc419",
     "#ff922b"
-];
-const TETROMINOS = [
-    {
-        identifier: 1,
-        shape: [
-            {
-                y: 0,
-                x: 4
-            },
-            {
-                y: 0,
-                x: 5
-            },
-            {
-                y: 1,
-                x: 4
-            },
-            {
-                y: 1,
-                x: 5
-            }
-        ]
-    },
-    {
-        identifier: 2,
-        shape: [
-            {
-                y: 0,
-                x: 4
-            },
-            {
-                y: 1,
-                x: 4
-            },
-            {
-                y: 2,
-                x: 4
-            },
-            {
-                y: 2,
-                x: 3
-            }
-        ]
-    }
 ];
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7MOtM":[function(require,module,exports) {
@@ -747,12 +713,14 @@ class Piece {
             direction,
             newValue: this.identifier
         });
-        this.board.draw();
+    }
+    rotate() {
+        console.log("rotate");
     }
     isMoveValid(direction) {
         if (!this.isBetweenWalls(direction) || !this.isBetweenOtherPieces(direction)) return false;
         if (!this.isAboveFloor(direction) || !this.isAboveOtherPieces(direction)) {
-            this.isLocked = true;
+            this.lockPiece();
             return false;
         }
         return true;
@@ -763,13 +731,13 @@ class Piece {
     isBetweenOtherPieces(direction) {
         return this.position.every((point)=>{
             const xPosition = point.x + direction.x;
-            return this.board.boardState[point.y][xPosition] === 0;
+            return this.board.state[point.y][xPosition] === 0;
         });
     }
     isAboveOtherPieces(direction) {
         return this.position.every((point)=>{
             const yPosition = point.y + direction.y;
-            return this.board.boardState[yPosition][point.x] === 0;
+            return this.board.state[yPosition][point.x] === 0;
         });
     }
     isBetweenWalls(direction) {
@@ -797,11 +765,87 @@ class Piece {
                 y: point.y + direction.y,
                 x: point.x + direction.x
             };
-            this.board.boardState[point.y + direction.y][point.x + direction.x] = newValue;
+            this.board.state[point.y + direction.y][point.x + direction.x] = newValue;
         }
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants":"45DZp"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants":"45DZp"}],"dVpHQ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
+const TETROMINOS = [
+    {
+        identifier: 1,
+        canRotate: false,
+        rotatePointIndex: null,
+        shape: [
+            {
+                y: 0,
+                x: 4
+            },
+            {
+                y: 0,
+                x: 5
+            },
+            {
+                y: 1,
+                x: 4
+            },
+            {
+                y: 1,
+                x: 5
+            }
+        ]
+    },
+    {
+        identifier: 2,
+        canRotate: true,
+        rotatePointIndex: 2,
+        shape: [
+            {
+                y: 0,
+                x: 4
+            },
+            {
+                y: 1,
+                x: 4
+            },
+            {
+                y: 2,
+                x: 4
+            },
+            {
+                y: 2,
+                x: 3
+            }
+        ]
+    },
+    {
+        identifier: 3,
+        canRotate: true,
+        rotatePointIndex: 2,
+        shape: [
+            {
+                y: 0,
+                x: 3
+            },
+            {
+                y: 1,
+                x: 3
+            },
+            {
+                y: 2,
+                x: 3
+            },
+            {
+                y: 2,
+                x: 4
+            }
+        ]
+    }
+];
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
 
 //# sourceMappingURL=index.b7a05eb9.js.map

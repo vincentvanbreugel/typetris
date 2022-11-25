@@ -566,10 +566,11 @@ class Game {
                     x: 0
                 });
             }
-        }, 400);
+        }, 1000);
     }
     attachEventHandlers() {
-        this.startButton.addEventListener("click", ()=>{
+        this.startButton.addEventListener("click", (e)=>{
+            e.preventDefault();
             this.startGame();
         });
         document.addEventListener("keydown", (event)=>{
@@ -592,7 +593,7 @@ class Game {
                         x: 1
                     });
                     break;
-                case " ":
+                case "s":
                     this.rotatePiece();
                     break;
             }
@@ -647,75 +648,670 @@ exports.export = function(dest, destName, get) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Board", ()=>Board);
-var _constants = require("./constants");
+var _game = require("./constants/game");
+var _colors = require("./constants/colors");
+var _tetrominos = require("./constants/tetrominos");
 class Board {
     constructor(boardId){
         this.canvas = document.getElementById(boardId);
         this.context = this.canvas.getContext("2d");
-        this.state = Array.from(Array((0, _constants.ROWS)), ()=>Array((0, _constants.COLS)).fill(0));
+        this.state = Array.from(Array((0, _game.ROWS)), ()=>Array((0, _game.COLS)).fill(0));
         this.create();
     }
     draw() {
         for(let y = 0; y < this.state.length; y++)for(let x = 0; x < this.state[0].length; x++){
-            this.context.fillStyle = (0, _constants.COLORS)[this.state[y][x]];
+            const tetromino = (0, _tetrominos.TETROMINOS).find((tetromino)=>{
+                return tetromino.id === this.state[y][x];
+            });
+            if (tetromino) this.context.fillStyle = tetromino.color;
+            else this.context.fillStyle = (0, _colors.COLORS).white;
             this.context.fillRect(x, y, 1, 1);
         }
     }
     create() {
-        this.context.canvas.width = (0, _constants.COLS) * (0, _constants.BLOCK_SIZE);
-        this.context.canvas.height = (0, _constants.ROWS) * (0, _constants.BLOCK_SIZE);
-        this.context.scale((0, _constants.BLOCK_SIZE), (0, _constants.BLOCK_SIZE));
+        this.context.canvas.width = (0, _game.COLS) * (0, _game.BLOCK_SIZE);
+        this.context.canvas.height = (0, _game.ROWS) * (0, _game.BLOCK_SIZE);
+        this.context.scale((0, _game.BLOCK_SIZE), (0, _game.BLOCK_SIZE));
     }
 }
 
-},{"./constants":"45DZp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"45DZp":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants/game":"be0O0","./constants/tetrominos":"dVpHQ","./constants/colors":"dVpQr"}],"be0O0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLS", ()=>COLS);
 parcelHelpers.export(exports, "ROWS", ()=>ROWS);
 parcelHelpers.export(exports, "BLOCK_SIZE", ()=>BLOCK_SIZE);
-parcelHelpers.export(exports, "COLORS", ()=>COLORS);
+parcelHelpers.export(exports, "SPAWN_POSITION", ()=>SPAWN_POSITION);
 const COLS = 10;
 const ROWS = 20;
 const BLOCK_SIZE = 30;
-const COLORS = [
-    "#ffffff",
-    "#ff6b6b",
-    "#cc5de8",
-    "#5c7cfa",
-    "#22b8cf",
-    "#51cf66",
-    "#fcc419",
-    "#ff922b"
+const SPAWN_POSITION = {
+    x: 4,
+    y: 0
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpHQ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
+var _colors = require("./colors");
+const TETROMINOS = [
+    {
+        id: 1,
+        color: (0, _colors.COLORS).red,
+        shapes: [
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ]
+        ]
+    },
+    {
+        id: 2,
+        color: (0, _colors.COLORS).grape,
+        shapes: [
+            [
+                [
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 3,
+        color: (0, _colors.COLORS).indigo,
+        shapes: [
+            [
+                [
+                    0,
+                    0,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 4,
+        color: (0, _colors.COLORS).cyan,
+        shapes: [
+            [
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 5,
+        color: (0, _colors.COLORS).green,
+        shapes: [
+            [
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    0,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 6,
+        color: (0, _colors.COLORS).yellow,
+        shapes: [
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 7,
+        color: (0, _colors.COLORS).orange,
+        shapes: [
+            [
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ]
+            ]
+        ]
+    }
 ];
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./colors":"dVpQr"}],"dVpQr":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "COLORS", ()=>COLORS);
+const COLORS = {
+    white: "#ffffff",
+    red: "#ff6b6b",
+    grape: "#cc5de8",
+    indigo: "#5c7cfa",
+    cyan: "#22b8cf",
+    green: "#51cf66",
+    yellow: "#fcc419",
+    orange: "#ff922b"
+};
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7MOtM":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Piece", ()=>Piece);
-var _constants = require("./constants");
+var _game = require("./constants/game");
 class Piece {
     isLocked = false;
     constructor(tetromino, board){
-        this.position = tetromino.shape;
-        this.identifier = tetromino.identifier;
+        this.id = tetromino.id;
+        this.shapePosition = (0, _game.SPAWN_POSITION);
+        this.piecePosition = [];
+        this.shapes = tetromino.shapes;
+        this.shapeIndex = 0;
         this.board = board;
     }
     move(direction) {
-        this.clearCurrentPosition();
+        this.clearBoardPosition();
         if (!this.isMoveValid(direction)) {
-            this.updatePosition({
-                newValue: this.identifier
+            this.updateBoardPosition({
+                value: this.id
             });
             return;
         }
-        this.updatePosition({
+        this.updateBoardPosition({
             direction,
-            newValue: this.identifier
+            value: this.id
         });
     }
     rotate() {
-        console.log("rotate");
+        this.clearBoardPosition();
+        this.incrementShapeIndex();
+        this.updatePiecePosition();
+        if (!this.isMoveValid({
+            y: 0,
+            x: 0
+        })) {
+            this.decrementShapeIndex();
+            this.updateBoardPosition({
+                value: this.id
+            });
+            return;
+        }
+        this.updateBoardPosition({
+            direction: {
+                y: 0,
+                x: 0
+            },
+            value: this.id
+        });
+    }
+    updatePiecePosition() {
+        this.piecePosition = [];
+        this.shapes[this.shapeIndex].forEach((row, rowIndex)=>{
+            row.forEach((value, valueIndex)=>{
+                if (value === 1) this.piecePosition.push({
+                    x: this.shapePosition.x + valueIndex,
+                    y: this.shapePosition.y + rowIndex
+                });
+            });
+        });
+    }
+    updateBoardPosition({ direction ={
+        y: 0,
+        x: 0
+    } , value =0  }) {
+        this.shapePosition = {
+            x: this.shapePosition.x + direction.x,
+            y: this.shapePosition.y + direction.y
+        };
+        this.updatePiecePosition();
+        this.piecePosition.forEach((pos)=>{
+            this.board.state[pos.y][pos.x] = value;
+        });
     }
     isMoveValid(direction) {
         if (!this.isBetweenWalls(direction) || !this.isBetweenOtherPieces(direction)) return false;
@@ -728,124 +1324,41 @@ class Piece {
     lockPiece() {
         this.isLocked = true;
     }
+    incrementShapeIndex() {
+        this.shapeIndex !== 3 ? this.shapeIndex++ : this.shapeIndex = 0;
+    }
+    decrementShapeIndex() {
+        this.shapeIndex !== 0 ? this.shapeIndex-- : this.shapeIndex = 3;
+    }
     isBetweenOtherPieces(direction) {
-        return this.position.every((point)=>{
+        return this.piecePosition.every((point)=>{
             const xPosition = point.x + direction.x;
             return this.board.state[point.y][xPosition] === 0;
         });
     }
     isAboveOtherPieces(direction) {
-        return this.position.every((point)=>{
+        return this.piecePosition.every((point)=>{
             const yPosition = point.y + direction.y;
             return this.board.state[yPosition][point.x] === 0;
         });
     }
     isBetweenWalls(direction) {
-        return this.position.every((point)=>{
+        return this.piecePosition.every((point)=>{
             const xPosition = point.x + direction.x;
-            return xPosition >= 0 && xPosition < (0, _constants.COLS);
+            return xPosition >= 0 && xPosition < (0, _game.COLS);
         });
     }
     isAboveFloor(direction) {
-        return this.position.every((point)=>{
+        return this.piecePosition.every((point)=>{
             const yPosition = point.y + direction.y;
-            return yPosition < (0, _constants.ROWS);
+            return yPosition < (0, _game.ROWS);
         });
     }
-    clearCurrentPosition() {
-        this.updatePosition({});
-    }
-    updatePosition({ direction ={
-        y: 0,
-        x: 0
-    } , newValue =0  }) {
-        for(let i = 0; i < this.position.length; i++){
-            const point = this.position[i];
-            this.position[i] = {
-                y: point.y + direction.y,
-                x: point.x + direction.x
-            };
-            this.board.state[point.y + direction.y][point.x + direction.x] = newValue;
-        }
+    clearBoardPosition() {
+        this.updateBoardPosition({});
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants":"45DZp"}],"dVpHQ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
-const TETROMINOS = [
-    {
-        identifier: 1,
-        canRotate: false,
-        rotatePointIndex: null,
-        shape: [
-            {
-                y: 0,
-                x: 4
-            },
-            {
-                y: 0,
-                x: 5
-            },
-            {
-                y: 1,
-                x: 4
-            },
-            {
-                y: 1,
-                x: 5
-            }
-        ]
-    },
-    {
-        identifier: 2,
-        canRotate: true,
-        rotatePointIndex: 2,
-        shape: [
-            {
-                y: 0,
-                x: 4
-            },
-            {
-                y: 1,
-                x: 4
-            },
-            {
-                y: 2,
-                x: 4
-            },
-            {
-                y: 2,
-                x: 3
-            }
-        ]
-    },
-    {
-        identifier: 3,
-        canRotate: true,
-        rotatePointIndex: 2,
-        shape: [
-            {
-                y: 0,
-                x: 3
-            },
-            {
-                y: 1,
-                x: 3
-            },
-            {
-                y: 2,
-                x: 3
-            },
-            {
-                y: 2,
-                x: 4
-            }
-        ]
-    }
-];
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants/game":"be0O0"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
 
 //# sourceMappingURL=index.b7a05eb9.js.map

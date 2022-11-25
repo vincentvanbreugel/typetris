@@ -1,32 +1,75 @@
-import { COLS, ROWS } from './constants';
-import type { Tetromino, Point } from './constants/tetrominos';
+import { COLS, ROWS, SPAWN_POSITION } from './constants/game';
+import type { Tetromino, Point, Shape } from './constants/tetrominos';
 import { Board } from './board';
 
 export class Piece {
     isLocked = false;
-    private position: Point[];
-    private identifier: number;
+    private id: number;
+    private shapePosition: Point;
+    private piecePosition: Point[];
+    private shapes: Shape[];
+    private shapeIndex: number;
     private board: Board;
 
     constructor(tetromino: Tetromino, board: Board) {
-        this.position = tetromino.shape;
-        this.identifier = tetromino.identifier;
+        this.id = tetromino.id;
+        this.shapePosition = SPAWN_POSITION;
+        this.piecePosition = [];
+        this.shapes = tetromino.shapes;
+        this.shapeIndex = 0;
         this.board = board;
     }
 
     move(direction: Point): void {
-        this.clearCurrentPosition();
+        this.clearBoardPosition();
 
         if (!this.isMoveValid(direction)) {
-            this.updatePosition({ newValue: this.identifier });
+            this.updateBoardPosition({ value: this.id });
             return;
         }
 
-        this.updatePosition({ direction, newValue: this.identifier });
+        this.updateBoardPosition({ direction, value: this.id });
     }
 
     rotate(): void {
-        console.log('rotate');
+        this.clearBoardPosition();
+        this.incrementShapeIndex();
+        this.updatePiecePosition();
+
+        if (!this.isMoveValid({ y: 0, x: 0 })) {       
+            this.decrementShapeIndex(); 
+            this.updateBoardPosition({ value: this.id });
+            return;
+        }
+
+        this.updateBoardPosition({ direction: { y: 0, x: 0 }, value: this.id });
+    }
+
+    private updatePiecePosition(): void {
+        this.piecePosition = [];
+        this.shapes[this.shapeIndex].forEach((row, rowIndex) => {
+            row.forEach((value, valueIndex) => {
+                if (value === 1) {
+                    this.piecePosition.push({
+                        x: this.shapePosition.x + valueIndex,
+                        y: this.shapePosition.y + rowIndex,
+                    })
+                }
+            })
+        });
+    }
+
+    private updateBoardPosition({ direction = { y: 0, x: 0 }, value = 0 }): void {
+        this.shapePosition = {
+            x: this.shapePosition.x + direction.x,
+            y: this.shapePosition.y + direction.y,
+        }
+
+        this.updatePiecePosition();
+        
+        this.piecePosition.forEach(pos => {            
+            this.board.state[pos.y][pos.x] = value;
+        });
     }
 
     private isMoveValid(direction: Point): boolean {
@@ -46,48 +89,43 @@ export class Piece {
         this.isLocked = true;
     }
 
+    private incrementShapeIndex(): void {
+        this.shapeIndex !== 3 ? this.shapeIndex++ : this.shapeIndex = 0;
+    }
+
+    private decrementShapeIndex(): void {
+        this.shapeIndex !== 0 ? this.shapeIndex-- : this.shapeIndex = 3; 
+    }
+
     private isBetweenOtherPieces(direction: Point): boolean {
-        return this.position.every((point) => {
+        return this.piecePosition.every((point) => {
             const xPosition = point.x + direction.x;
             return this.board.state[point.y][xPosition] === 0;
         });
     }
 
     private isAboveOtherPieces(direction: Point): boolean {
-        return this.position.every((point) => {
+        return this.piecePosition.every((point) => {
             const yPosition = point.y + direction.y;
             return this.board.state[yPosition][point.x] === 0;
         });
     }
 
     private isBetweenWalls(direction: Point): boolean {
-        return this.position.every((point) => {
+        return this.piecePosition.every((point) => {
             const xPosition = point.x + direction.x;
             return xPosition >= 0 && xPosition < COLS;
         });
     }
 
     private isAboveFloor(direction: Point) {
-        return this.position.every((point) => {
+        return this.piecePosition.every((point) => {
             const yPosition = point.y + direction.y;
             return yPosition < ROWS;
         });
     }
 
-    private clearCurrentPosition() {
-        this.updatePosition({});
-    }
-
-    private updatePosition({ direction = { y: 0, x: 0 }, newValue = 0 }): void {
-        for (let i = 0; i < this.position.length; i++) {
-            const point = this.position[i];
-
-            this.position[i] = {
-                y: point.y + direction.y,
-                x: point.x + direction.x,
-            };
-
-            this.board.state[point.y + direction.y][point.x + direction.x] = newValue;
-        }
+    private clearBoardPosition() {
+        this.updateBoardPosition({});
     }
 }

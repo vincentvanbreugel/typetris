@@ -1,4 +1,6 @@
-import { ROWS, COLS, BLOCK_SIZE, COLORS } from './constants';
+import { ROWS, COLS, BLOCK_SIZE } from './constants/game';
+import { COLORS } from './constants/colors';
+import { TETROMINOS } from './constants/tetrominos';
 
 export class Board {
     state: number[][];
@@ -15,7 +17,15 @@ export class Board {
     draw(): void {
         for (let y = 0; y < this.state.length; y++) {
             for (let x = 0; x < this.state[0].length; x++) {
-                this.context.fillStyle = COLORS[this.state[y][x]];
+                const tetromino = TETROMINOS.find((tetromino) => {
+                    return tetromino.id === this.state[y][x];
+                });
+
+                if (tetromino) {
+                    this.context.fillStyle = tetromino.color;
+                } else {
+                    this.context.fillStyle = COLORS.white;
+                }
                 this.context.fillRect(x, y, 1, 1);
             }
         }

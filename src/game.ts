@@ -18,18 +18,19 @@ export class Game {
     startGame(): void {
         this.movePiece({ y: 0, x: 0 });
 
-        const gameInterval = window.setInterval(() => {
+        const gameInterval = window.setInterval(() => {            
             this.movePiece({ y: 1, x: 0 });
 
             if (this.piece.isLocked) {
                 this.piece = this.getRandomPiece();
                 this.movePiece({ y: 0, x: 0 });
             }
-        }, 400);
+        }, 1000);
     }
 
     private attachEventHandlers(): void {
-        this.startButton.addEventListener('click', () => {
+        this.startButton.addEventListener('click', (e) => {
+            e.preventDefault();
             this.startGame();
         });
 
@@ -44,7 +45,7 @@ export class Game {
                 case 'ArrowRight':
                     this.movePiece({ y: 0, x: 1 });
                     break;
-                case ' ':
+                case 's':
                     this.rotatePiece();
                     break;
             }

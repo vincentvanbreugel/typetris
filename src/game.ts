@@ -19,14 +19,15 @@ export class Game {
     }
 
     startGame(): void {
-        this.movePiece({ y: 0, x: 0 });
+        this.movePiece(DIRECTIONS.NO_CHANGE);
 
         this.gameInterval = setInterval(() => {            
-            this.movePiece({ y: 1, x: 0 });
+            this.movePiece(DIRECTIONS.DOWN);
+            this.board.checkLineClear();
 
             if (this.piece.isLocked) {
                 this.piece = this.getRandomPiece();
-                this.movePiece({ y: 0, x: 0 }, true);
+                this.movePiece(DIRECTIONS.NO_CHANGE, true);
             }
         }, 1000);
     }
@@ -58,9 +59,9 @@ export class Game {
         });
     }
 
-    private movePiece(direction: Point, newPiece = false): void {
+    private movePiece(direction: Point, initialDrop = false): void {
         if (!this.piece.isMoveValid({ direction })) {
-            if (newPiece) {
+            if (initialDrop) {
                 this.gameOver()
             }
             return;

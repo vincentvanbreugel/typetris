@@ -31,6 +31,37 @@ export class Board {
         }
     }
 
+    checkLineClear(): void {
+        const linesCleared = this.state.reduce((array, row, index) => {
+            if (row.every((col) => col !== 0)) {
+                array.push(index);
+            }
+            return array;
+        }, []);
+
+        if (linesCleared.length) {
+            this.clearLines(linesCleared);
+        }
+    }
+
+    private clearLines(lines: number[]) {
+        lines.forEach((line) => {
+            const currentState = JSON.parse(JSON.stringify(this.state)) as number[][];
+            this.state.forEach((row, rowIndex) => {
+                if (rowIndex === 0) {
+                    for (let i = 0; i < row.length; i++) {
+                        row[i] = 0;
+                    }
+                }
+                if (rowIndex > 0 && rowIndex <= line) {
+                    for (let i = 0; i < row.length; i++) {
+                        row[i] = currentState[rowIndex - 1][i];
+                    }
+                }
+            });
+        });
+    }
+
     private create(): void {
         this.context.canvas.width = COLS * BLOCK_SIZE;
         this.context.canvas.height = ROWS * BLOCK_SIZE;

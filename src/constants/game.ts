@@ -12,10 +12,10 @@ export const DIRECTIONS = {
     RIGHT: { y: 0, x: 1 },
 };
 export const KEYS = {
-    LEFT: 'a',
-    DOWN: 's',
-    RIGHT: 'd',
-    ROTATE_CLOCKWISE: 'k',
-    ROTATE_COUNTER_CLOCKWISE: 'j',
-    HARD_DROP: 'w',
+    LEFT: 'j',
+    DOWN: 'k',
+    RIGHT: 'l',
+    ROTATE_CLOCKWISE: 'd',
+    ROTATE_COUNTER_CLOCKWISE: 's',
+    HARD_DROP: 'i',
 }

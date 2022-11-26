@@ -551,21 +551,13 @@ class Game {
         this.attachEventHandlers();
     }
     startGame() {
-        this.movePiece({
-            y: 0,
-            x: 0
-        });
+        this.movePiece((0, _game.DIRECTIONS).NO_CHANGE);
         this.gameInterval = setInterval(()=>{
-            this.movePiece({
-                y: 1,
-                x: 0
-            });
+            this.movePiece((0, _game.DIRECTIONS).DOWN);
+            this.board.checkLineClear();
             if (this.piece.isLocked) {
                 this.piece = this.getRandomPiece();
-                this.movePiece({
-                    y: 0,
-                    x: 0
-                }, true);
+                this.movePiece((0, _game.DIRECTIONS).NO_CHANGE, true);
             }
         }, 1000);
     }
@@ -594,11 +586,11 @@ class Game {
             }
         });
     }
-    movePiece(direction, newPiece = false) {
+    movePiece(direction, initialDrop = false) {
         if (!this.piece.isMoveValid({
             direction
         })) {
-            if (newPiece) this.gameOver();
+            if (initialDrop) this.gameOver();
             return;
         }
         this.piece.move(direction);
@@ -676,6 +668,22 @@ class Board {
             this.context.fillRect(x, y, 1, 1);
         }
     }
+    checkLineClear() {
+        const linesCleared = this.state.reduce((array, row, index)=>{
+            if (row.every((col)=>col !== 0)) array.push(index);
+            return array;
+        }, []);
+        if (linesCleared.length) this.clearLines(linesCleared);
+    }
+    clearLines(lines) {
+        lines.forEach((line)=>{
+            const currentState = JSON.parse(JSON.stringify(this.state));
+            this.state.forEach((row, rowIndex)=>{
+                if (rowIndex === 0) for(let i = 0; i < row.length; i++)row[i] = 0;
+                if (rowIndex > 0 && rowIndex <= line) for(let i1 = 0; i1 < row.length; i1++)row[i1] = currentState[rowIndex - 1][i1];
+            });
+        });
+    }
     create() {
         this.context.canvas.width = (0, _game.COLS) * (0, _game.BLOCK_SIZE);
         this.context.canvas.height = (0, _game.ROWS) * (0, _game.BLOCK_SIZE);
@@ -718,12 +726,12 @@ const DIRECTIONS = {
     }
 };
 const KEYS = {
-    LEFT: "a",
-    DOWN: "s",
-    RIGHT: "d",
-    ROTATE_CLOCKWISE: "k",
-    ROTATE_COUNTER_CLOCKWISE: "j",
-    HARD_DROP: "w"
+    LEFT: "j",
+    DOWN: "k",
+    RIGHT: "l",
+    ROTATE_CLOCKWISE: "d",
+    ROTATE_COUNTER_CLOCKWISE: "s",
+    HARD_DROP: "i"
 };
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpHQ":[function(require,module,exports) {

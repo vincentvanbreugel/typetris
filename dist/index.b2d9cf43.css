@@ -4,4 +4,8 @@
   display: flex;
 }
 
+.board {
+  border: 2px solid #212529;
+}
+
 /*# sourceMappingURL=index.b2d9cf43.css.map */

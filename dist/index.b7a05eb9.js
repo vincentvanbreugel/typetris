@@ -541,6 +541,7 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Game", ()=>Game);
 var _board = require("./board");
 var _tetrominos = require("./constants/tetrominos");
+var _game = require("./constants/game");
 var _piece = require("./piece");
 class Game {
     constructor(boardId, startButtonId){
@@ -554,7 +555,7 @@ class Game {
             y: 0,
             x: 0
         });
-        const gameInterval = window.setInterval(()=>{
+        this.gameInterval = setInterval(()=>{
             this.movePiece({
                 y: 1,
                 x: 0
@@ -564,7 +565,7 @@ class Game {
                 this.movePiece({
                     y: 0,
                     x: 0
-                });
+                }, true);
             }
         }, 1000);
     }
@@ -576,35 +577,35 @@ class Game {
         document.addEventListener("keydown", (event)=>{
             switch(event.key){
                 case "ArrowDown":
-                    this.movePiece({
-                        y: 1,
-                        x: 0
-                    });
+                    this.movePiece((0, _game.DIRECTIONS).DOWN);
                     break;
                 case "ArrowLeft":
-                    this.movePiece({
-                        y: 0,
-                        x: -1
-                    });
+                    this.movePiece((0, _game.DIRECTIONS).LEFT);
                     break;
                 case "ArrowRight":
-                    this.movePiece({
-                        y: 0,
-                        x: 1
-                    });
+                    this.movePiece((0, _game.DIRECTIONS).RIGHT);
                     break;
                 case "s":
-                    this.rotatePiece();
+                    this.rotatePiece("clockwise");
                     break;
             }
         });
     }
-    movePiece(direction) {
+    movePiece(direction, newPiece = false) {
+        if (!this.piece.isMoveValid({
+            direction
+        })) {
+            if (newPiece) this.gameOver();
+            return;
+        }
         this.piece.move(direction);
         this.board.draw();
     }
-    rotatePiece() {
-        this.piece.rotate();
+    rotatePiece(rotation) {
+        if (!this.piece.isMoveValid({
+            rotation
+        })) return;
+        this.piece.rotate(rotation);
         this.board.draw();
     }
     getRandomPiece() {
@@ -612,9 +613,13 @@ class Game {
         const tetromino = JSON.parse(JSON.stringify((0, _tetrominos.TETROMINOS)[index]));
         return new (0, _piece.Piece)(tetromino, this.board);
     }
+    gameOver() {
+        alert("game over");
+        clearInterval(this.gameInterval);
+    }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./board":"7fSWv","./piece":"7MOtM","./constants/tetrominos":"dVpHQ"}],"gkKU3":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./board":"7fSWv","./piece":"7MOtM","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -682,12 +687,31 @@ parcelHelpers.export(exports, "COLS", ()=>COLS);
 parcelHelpers.export(exports, "ROWS", ()=>ROWS);
 parcelHelpers.export(exports, "BLOCK_SIZE", ()=>BLOCK_SIZE);
 parcelHelpers.export(exports, "SPAWN_POSITION", ()=>SPAWN_POSITION);
+parcelHelpers.export(exports, "DIRECTIONS", ()=>DIRECTIONS);
 const COLS = 10;
 const ROWS = 20;
 const BLOCK_SIZE = 30;
 const SPAWN_POSITION = {
     x: 4,
     y: 0
+};
+const DIRECTIONS = {
+    NO_CHANGE: {
+        y: 0,
+        x: 0
+    },
+    LEFT: {
+        y: 0,
+        x: -1
+    },
+    DOWN: {
+        y: 1,
+        x: 0
+    },
+    RIGHT: {
+        y: 0,
+        x: 1
+    }
 };
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpHQ":[function(require,module,exports) {
@@ -1255,39 +1279,57 @@ class Piece {
         this.board = board;
     }
     move(direction) {
-        this.clearBoardPosition();
-        if (!this.isMoveValid(direction)) {
-            this.updateBoardPosition({
-                value: this.id
-            });
-            return;
-        }
+        this.clearPiecePosition();
         this.updateBoardPosition({
             direction,
             value: this.id
         });
     }
-    rotate() {
-        this.clearBoardPosition();
-        this.incrementShapeIndex();
-        this.updatePiecePosition();
-        if (!this.isMoveValid({
-            y: 0,
-            x: 0
-        })) {
-            this.decrementShapeIndex();
+    rotate(rotation) {
+        if (rotation === "clockwise") this.incrementShapeIndex();
+        else this.decrementShapeIndex();
+        this.move((0, _game.DIRECTIONS).NO_CHANGE);
+    }
+    isMoveValid(params) {
+        this.clearPiecePosition();
+        const { direction , rotation  } = params;
+        const tempPiecePosition = [];
+        let tempShapeIndex = this.shapeIndex;
+        if (rotation) {
+            if (rotation === "clockwise") this.shapeIndex !== 3 ? tempShapeIndex++ : tempShapeIndex = 0;
+            else this.shapeIndex !== 0 ? tempShapeIndex-- : tempShapeIndex = 3;
+        }
+        this.shapes[tempShapeIndex].forEach((row, rowIndex)=>{
+            row.forEach((value, valueIndex)=>{
+                if (value === 1) tempPiecePosition.push({
+                    x: this.shapePosition.x + valueIndex,
+                    y: this.shapePosition.y + rowIndex
+                });
+            });
+        });
+        const config = {
+            ...direction && {
+                direction
+            },
+            piecePosition: tempPiecePosition
+        };
+        if (!this.isBetweenWalls(config) || !this.isBetweenOtherPieces(config)) {
             this.updateBoardPosition({
                 value: this.id
             });
-            return;
+            return false;
+        }
+        if (!this.isAboveFloor(config) || !this.isAboveOtherPieces(config)) {
+            this.updateBoardPosition({
+                value: this.id
+            });
+            this.lockPiece();
+            return false;
         }
         this.updateBoardPosition({
-            direction: {
-                y: 0,
-                x: 0
-            },
             value: this.id
         });
+        return true;
     }
     updatePiecePosition() {
         this.piecePosition = [];
@@ -1300,10 +1342,7 @@ class Piece {
             });
         });
     }
-    updateBoardPosition({ direction ={
-        y: 0,
-        x: 0
-    } , value =0  }) {
+    updateBoardPosition({ direction =(0, _game.DIRECTIONS).NO_CHANGE , value =0  }) {
         this.shapePosition = {
             x: this.shapePosition.x + direction.x,
             y: this.shapePosition.y + direction.y
@@ -1312,14 +1351,6 @@ class Piece {
         this.piecePosition.forEach((pos)=>{
             this.board.state[pos.y][pos.x] = value;
         });
-    }
-    isMoveValid(direction) {
-        if (!this.isBetweenWalls(direction) || !this.isBetweenOtherPieces(direction)) return false;
-        if (!this.isAboveFloor(direction) || !this.isAboveOtherPieces(direction)) {
-            this.lockPiece();
-            return false;
-        }
-        return true;
     }
     lockPiece() {
         this.isLocked = true;
@@ -1330,32 +1361,38 @@ class Piece {
     decrementShapeIndex() {
         this.shapeIndex !== 0 ? this.shapeIndex-- : this.shapeIndex = 3;
     }
-    isBetweenOtherPieces(direction) {
-        return this.piecePosition.every((point)=>{
-            const xPosition = point.x + direction.x;
+    isBetweenOtherPieces(params) {
+        const { direction , piecePosition  } = params;
+        return piecePosition.every((point)=>{
+            const xPosition = direction ? point.x + direction.x : point.x;
             return this.board.state[point.y][xPosition] === 0;
         });
     }
-    isAboveOtherPieces(direction) {
-        return this.piecePosition.every((point)=>{
-            const yPosition = point.y + direction.y;
+    isAboveOtherPieces(params) {
+        const { direction , piecePosition  } = params;
+        return piecePosition.every((point)=>{
+            const yPosition = direction ? point.y + direction.y : point.y;
             return this.board.state[yPosition][point.x] === 0;
         });
     }
-    isBetweenWalls(direction) {
-        return this.piecePosition.every((point)=>{
-            const xPosition = point.x + direction.x;
+    isBetweenWalls(params) {
+        const { direction , piecePosition  } = params;
+        return piecePosition.every((point)=>{
+            const xPosition = direction ? point.x + direction.x : point.x;
             return xPosition >= 0 && xPosition < (0, _game.COLS);
         });
     }
-    isAboveFloor(direction) {
-        return this.piecePosition.every((point)=>{
-            const yPosition = point.y + direction.y;
+    isAboveFloor(params) {
+        const { direction , piecePosition  } = params;
+        return piecePosition.every((point)=>{
+            const yPosition = direction ? point.y + direction.y : point.y;
             return yPosition < (0, _game.ROWS);
         });
     }
-    clearBoardPosition() {
-        this.updateBoardPosition({});
+    clearPiecePosition() {
+        this.piecePosition.forEach((pos)=>{
+            this.board.state[pos.y][pos.x] = 0;
+        });
     }
 }
 

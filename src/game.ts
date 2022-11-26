@@ -1,6 +1,6 @@
 import { Board } from './board';
 import { TETROMINOS, Point } from './constants/tetrominos';
-import { DIRECTIONS } from './constants/game';
+import { DIRECTIONS, KEYS } from './constants/game';
 import type { Rotations } from './types';
 import { Piece } from './piece';
 
@@ -39,17 +39,20 @@ export class Game {
 
         document.addEventListener('keydown', (event) => {
             switch (event.key) {
-                case 'ArrowDown':
+                case KEYS.DOWN:
                     this.movePiece(DIRECTIONS.DOWN);
                     break;
-                case 'ArrowLeft':
+                case KEYS.LEFT:
                     this.movePiece(DIRECTIONS.LEFT);
                     break;
-                case 'ArrowRight':
+                case KEYS.RIGHT:
                     this.movePiece(DIRECTIONS.RIGHT);
                     break;
-                case 's':
+                case KEYS.ROTATE_CLOCKWISE:
                     this.rotatePiece('clockwise');
+                    break;
+                case KEYS.ROTATE_COUNTER_CLOCKWISE:
+                    this.rotatePiece('counterClockwise');
                     break;
             }
         });

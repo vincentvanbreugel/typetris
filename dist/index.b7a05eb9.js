@@ -576,17 +576,20 @@ class Game {
         });
         document.addEventListener("keydown", (event)=>{
             switch(event.key){
-                case "ArrowDown":
+                case (0, _game.KEYS).DOWN:
                     this.movePiece((0, _game.DIRECTIONS).DOWN);
                     break;
-                case "ArrowLeft":
+                case (0, _game.KEYS).LEFT:
                     this.movePiece((0, _game.DIRECTIONS).LEFT);
                     break;
-                case "ArrowRight":
+                case (0, _game.KEYS).RIGHT:
                     this.movePiece((0, _game.DIRECTIONS).RIGHT);
                     break;
-                case "s":
+                case (0, _game.KEYS).ROTATE_CLOCKWISE:
                     this.rotatePiece("clockwise");
+                    break;
+                case (0, _game.KEYS).ROTATE_COUNTER_CLOCKWISE:
+                    this.rotatePiece("counterClockwise");
                     break;
             }
         });
@@ -688,6 +691,7 @@ parcelHelpers.export(exports, "ROWS", ()=>ROWS);
 parcelHelpers.export(exports, "BLOCK_SIZE", ()=>BLOCK_SIZE);
 parcelHelpers.export(exports, "SPAWN_POSITION", ()=>SPAWN_POSITION);
 parcelHelpers.export(exports, "DIRECTIONS", ()=>DIRECTIONS);
+parcelHelpers.export(exports, "KEYS", ()=>KEYS);
 const COLS = 10;
 const ROWS = 20;
 const BLOCK_SIZE = 30;
@@ -712,6 +716,14 @@ const DIRECTIONS = {
         y: 0,
         x: 1
     }
+};
+const KEYS = {
+    LEFT: "a",
+    DOWN: "s",
+    RIGHT: "d",
+    ROTATE_CLOCKWISE: "k",
+    ROTATE_COUNTER_CLOCKWISE: "j",
+    HARD_DROP: "w"
 };
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpHQ":[function(require,module,exports) {

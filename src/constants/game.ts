@@ -11,3 +11,11 @@ export const DIRECTIONS = {
     DOWN: { y: 1, x: 0 },
     RIGHT: { y: 0, x: 1 },
 };
+export const KEYS = {
+    LEFT: 'a',
+    DOWN: 's',
+    RIGHT: 'd',
+    ROTATE_CLOCKWISE: 'k',
+    ROTATE_COUNTER_CLOCKWISE: 'j',
+    HARD_DROP: 'w',
+}

@@ -542,52 +542,64 @@ parcelHelpers.export(exports, "Game", ()=>Game);
 var _board = require("./board");
 var _tetrominos = require("./constants/tetrominos");
 var _game = require("./constants/game");
+var _game1 = require("./templates/game");
 var _piece = require("./piece");
 class Game {
     startButtonId = "startButton";
     scoreId = "score";
     clearedLinesId = "clearedLines";
+    pauseId = "pauseOverlay";
+    gameOverId = "gameOverOverlay";
     boardId = "board";
     newLinesCleared = 0;
     totalLinesCleared = 0;
     softDropCount = 0;
+    isRunning = false;
     constructor(){
         this.score = 0;
         this.level = 0;
+        this.speed = (0, _game.GAME_SPEEDS)[this.level];
         this.renderTemplate();
         this.startButton = document.getElementById(this.startButtonId);
         this.scoreElement = document.getElementById(this.scoreId);
         this.clearedlinesElement = document.getElementById(this.clearedLinesId);
+        this.pauseElement = document.getElementById(this.pauseId);
+        this.gameOverElement = document.getElementById(this.gameOverId);
         this.board = new (0, _board.Board)(this.boardId, this);
         this.piece = this.getRandomPiece();
         this.attachEventHandlers();
     }
     renderTemplate() {
-        const template = `
-            <div class="container">
-                <canvas id="board" class="board"></canvas>
-                <div>
-                    <button type="button" id="startButton">Start</button>
-                    <div>Score</div>
-                    <div id="score" class="score">0</div>
-                    <div>Lines Cleared</div>
-                    <div id="clearedLines" class="clearedLines">0</div>
-                </div>
-            </div>
-        `;
         const body = document.querySelector("body");
-        body.insertAdjacentHTML("afterbegin", template);
+        body.insertAdjacentHTML("afterbegin", (0, _game1.gameTemplate));
     }
     startGame() {
+        this.resetGame();
+        this.isRunning = true;
+        this.startButton.innerHTML = "Restart";
         this.movePiece({
             direction: (0, _game.DIRECTIONS).NO_CHANGE
         });
+        this.startGameLoop();
+    }
+    resetGame() {
+        clearInterval(this.gameLoop);
+        this.pauseElement.classList.remove("is-visible");
+        this.gameOverElement.classList.remove("is-visible");
+        this.totalLinesCleared = 0;
+        this.softDropCount = 0;
+        this.score = 0;
+        this.updateScore();
+        this.board = new (0, _board.Board)(this.boardId, this);
+        this.piece = this.getRandomPiece();
+    }
+    startGameLoop() {
         this.gameLoop = setInterval(()=>{
             this.movePiece({
                 direction: (0, _game.DIRECTIONS).DOWN
             });
-            this.board.checkLineClear();
             if (this.piece.isLocked) {
+                this.board.checkLineClear();
                 this.updateScore();
                 this.piece = this.getRandomPiece();
                 this.movePiece({
@@ -595,12 +607,15 @@ class Game {
                     initialDrop: true
                 });
             }
-        }, 1000);
+        }, this.speed);
     }
     attachEventHandlers() {
         this.startButton.addEventListener("click", (e)=>{
             e.preventDefault();
             this.startGame();
+        });
+        document.addEventListener("keydown", (event)=>{
+            if (event.key === "p") this.togglePause();
         });
         document.addEventListener("keydown", (event)=>{
             switch(event.key){
@@ -633,7 +648,7 @@ class Game {
     }
     movePiece(params) {
         const { direction , initialDrop , userInput  } = params;
-        if (!this.piece.isMoveValid({
+        if (!this.isRunning || !this.piece.isMoveValid({
             direction
         })) {
             if (initialDrop) this.gameOver();
@@ -644,16 +659,24 @@ class Game {
         this.board.draw();
     }
     rotatePiece(rotation) {
-        if (!this.piece.isMoveValid({
+        if (!this.isRunning || !this.piece.isMoveValid({
             rotation
         })) return;
         this.piece.rotate(rotation);
         this.board.draw();
     }
     getRandomPiece() {
-        const index = Math.floor(Math.random() * (0, _tetrominos.TETROMINOS).length);
-        const tetromino = JSON.parse(JSON.stringify((0, _tetrominos.TETROMINOS)[index]));
+        let tetromino = this.getRandomTetromino();
+        // re-roll once
+        if (this.piece && tetromino.id === this.piece.id) {
+            console.log("reroll");
+            tetromino = this.getRandomTetromino();
+        }
         return new (0, _piece.Piece)(tetromino, this.board);
+    }
+    getRandomTetromino() {
+        const index = Math.floor(Math.random() * (0, _tetrominos.TETROMINOS).length);
+        return JSON.parse(JSON.stringify((0, _tetrominos.TETROMINOS)[index]));
     }
     updateScore() {
         if (this.newLinesCleared) {
@@ -666,13 +689,19 @@ class Game {
         this.scoreElement.innerHTML = `${this.score}`;
         this.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
     }
+    togglePause() {
+        this.isRunning = !this.isRunning;
+        this.pauseElement.classList.toggle("is-visible");
+        if (this.isRunning) this.startGameLoop();
+        else clearInterval(this.gameLoop);
+    }
     gameOver() {
-        alert("game over");
+        this.gameOverElement.classList.add("is-visible");
         clearInterval(this.gameLoop);
     }
 }
 
-},{"./board":"7fSWv","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./piece":"7MOtM","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7fSWv":[function(require,module,exports) {
+},{"./board":"7fSWv","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./piece":"7MOtM","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./templates/game":"gPbNQ"}],"7fSWv":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Board", ()=>Board);
@@ -732,6 +761,7 @@ parcelHelpers.export(exports, "DIRECTIONS", ()=>DIRECTIONS);
 parcelHelpers.export(exports, "KEYS", ()=>KEYS);
 parcelHelpers.export(exports, "BASE_SCORES_LINE_CLEAR", ()=>BASE_SCORES_LINE_CLEAR);
 parcelHelpers.export(exports, "BASE_SCORE_SOFT_DROP", ()=>BASE_SCORE_SOFT_DROP);
+parcelHelpers.export(exports, "GAME_SPEEDS", ()=>GAME_SPEEDS);
 const COLS = 10;
 const ROWS = 20;
 const BLOCK_SIZE = 30;
@@ -772,6 +802,21 @@ const BASE_SCORES_LINE_CLEAR = [
     1200
 ];
 const BASE_SCORE_SOFT_DROP = 1;
+const getSpeedinMilliSeconds = (frames)=>{
+    return frames / 60 * 1000;
+};
+const GAME_SPEEDS = [
+    getSpeedinMilliSeconds(48),
+    getSpeedinMilliSeconds(43),
+    getSpeedinMilliSeconds(38),
+    getSpeedinMilliSeconds(33),
+    getSpeedinMilliSeconds(28),
+    getSpeedinMilliSeconds(23),
+    getSpeedinMilliSeconds(18),
+    getSpeedinMilliSeconds(13),
+    getSpeedinMilliSeconds(8),
+    getSpeedinMilliSeconds(6)
+];
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
@@ -1485,6 +1530,35 @@ class Piece {
     }
 }
 
-},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
+},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gPbNQ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "gameTemplate", ()=>gameTemplate);
+const gameTemplate = `
+<div class="container">
+    <div class="board-wrapper">
+        <canvas id="board" class="board"></canvas>
+        <div id="pauseOverlay" class="pause-overlay">
+            <span>Paused</span>
+        </div>
+        <div id="gameOverOverlay" class="game-over-overlay">
+            <span>Game over</span>
+        </div>
+    </div>
+    <div class="game-info">
+        <button type="button" id="startButton" class="start-button">Start</button>
+        <div class="game-score">
+          <div>Score</div>
+          <div id="score" class="score">0</div>
+        </div>
+        <div class="line-score">
+          <div>Lines Cleared</div>
+          <div id="clearedLines" class="cleared-lines">0</div>
+        </div>
+    </div>
+</div>
+`;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
 
 //# sourceMappingURL=index.b7a05eb9.js.map

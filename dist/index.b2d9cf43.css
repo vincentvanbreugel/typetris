@@ -1,11 +1,40 @@
 .container {
   width: 600px;
-  margin: auto;
+  margin: 40px auto auto;
   display: flex;
 }
 
-.board {
+.board-wrapper {
+  box-sizing: border-box;
+  height: 604px;
   border: 2px solid #212529;
+  position: relative;
+}
+
+.pause-overlay, .game-over-overlay {
+  background: #fff;
+  justify-content: center;
+  align-items: center;
+  display: none;
+  position: absolute;
+  inset: 0;
+}
+
+.pause-overlay.is-visible, .game-over-overlay.is-visible {
+  display: flex;
+}
+
+.game-info {
+  margin-left: 20px;
+}
+
+.start-button {
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.game-score {
+  margin-bottom: 10px;
 }
 
 /*# sourceMappingURL=index.b2d9cf43.css.map */

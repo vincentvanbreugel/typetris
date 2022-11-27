@@ -2,8 +2,43 @@
   display: flex;
   margin: auto;
   width: 600px;
+  margin-top: 40px;
 }
 
-.board {
+.board-wrapper {
+  position: relative;
   border: solid 2px #212529;
+  box-sizing: border-box;
+  height: 604px;
 }
+
+.pause-overlay,
+.game-over-overlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+
+    &.is-visible {
+      display: flex;
+    }
+}
+
+.game-info {
+  margin-left: 20px;
+}
+
+.start-button {
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.game-score {
+  margin-bottom: 10px;
+}
+

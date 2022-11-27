@@ -5,7 +5,7 @@ import { Board } from './board';
 
 export class Piece {
     isLocked = false;
-    private id: number;
+    id: number;
     private shapePosition: Point;
     private piecePosition: Point[];
     private shapes: Shape[];

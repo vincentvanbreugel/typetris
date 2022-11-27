@@ -1,49 +1,40 @@
 import { Board } from './board';
 import { TETROMINOS, Tetromino, Point } from './constants/tetrominos';
-import {
-    DIRECTIONS,
-    KEYS,
-    BASE_SCORES_LINE_CLEAR,
-    BASE_SCORE_SOFT_DROP,
-    GAME_SPEEDS,
-} from './constants/game';
+import { DIRECTIONS, KEYS } from './constants/game';
 import { gameTemplate } from './templates/game';
 import type { Rotations } from './types';
 import { Piece } from './piece';
+import { GameState } from './gameState';
 
 export class Game {
     private startButtonId = 'startButton';
     private startButton: HTMLButtonElement;
     private scoreId = 'score';
-    private scoreElement: HTMLElement;
+    scoreElement: HTMLElement;
     private clearedLinesId = 'clearedLines';
-    private clearedlinesElement: HTMLElement;
+    clearedlinesElement: HTMLElement;
+    private levelId = 'level';
+    levelElement: HTMLElement;
     private pauseId = 'pauseOverlay';
     private pauseElement: HTMLElement;
     private gameOverId = 'gameOverOverlay';
     private gameOverElement: HTMLElement;
+    state: GameState;
     private boardId = 'board';
     private board: Board;
     private piece: Piece;
-    private score: number;
-    private level: number;
-    private speed: number;
     private gameLoop!: number;
-    newLinesCleared = 0;
-    private totalLinesCleared = 0;
-    private softDropCount = 0;
     private isRunning = false;
 
     constructor() {
-        this.score = 0;
-        this.level = 0;
-        this.speed = GAME_SPEEDS[this.level];
         this.renderTemplate();
         this.startButton = document.getElementById(this.startButtonId) as HTMLButtonElement;
         this.scoreElement = document.getElementById(this.scoreId) as HTMLElement;
         this.clearedlinesElement = document.getElementById(this.clearedLinesId) as HTMLElement;
+        this.levelElement = document.getElementById(this.levelId) as HTMLElement;
         this.pauseElement = document.getElementById(this.pauseId) as HTMLElement;
         this.gameOverElement = document.getElementById(this.gameOverId) as HTMLElement;
+        this.state = new GameState(this);
         this.board = new Board(this.boardId, this);
         this.piece = this.getRandomPiece();
         this.attachEventHandlers();
@@ -63,28 +54,32 @@ export class Game {
     }
 
     private resetGame(): void {
-        clearInterval(this.gameLoop);
+        this.stopGameLoop();
         this.pauseElement.classList.remove('is-visible');
         this.gameOverElement.classList.remove('is-visible');
-        this.totalLinesCleared = 0;
-        this.softDropCount = 0;
-        this.score = 0;
-        this.updateScore();
+        this.state.reset();
         this.board = new Board(this.boardId, this);
         this.piece = this.getRandomPiece();
     }
 
-    private startGameLoop(): void {
+    startGameLoop(): void {
+        console.log(this.state.speed);
+        
         this.gameLoop = setInterval(() => {
             this.movePiece({ direction: DIRECTIONS.DOWN });
 
             if (this.piece.isLocked) {
                 this.board.checkLineClear();
-                this.updateScore();
+                this.state.updateScore();
+                this.state.checkLevelChange();
                 this.piece = this.getRandomPiece();
                 this.movePiece({ direction: DIRECTIONS.NO_CHANGE, initialDrop: true });
             }
-        }, this.speed);
+        }, this.state.speed);
+    }
+
+    stopGameLoop(): void {
+        clearInterval(this.gameLoop);
     }
 
     private attachEventHandlers(): void {
@@ -94,7 +89,7 @@ export class Game {
         });
 
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'p') {
+            if (event.key === KEYS.PAUSE) {
                 this.togglePause();
             }
         });
@@ -137,7 +132,7 @@ export class Game {
         this.piece.move(direction);
 
         if (userInput && direction === DIRECTIONS.DOWN) {
-            this.softDropCount++;
+            this.state.softDropCount++;
         }
 
         this.board.draw();
@@ -154,11 +149,9 @@ export class Game {
 
     private getRandomPiece(): Piece {
         let tetromino = this.getRandomTetromino();
-        
+
         // re-roll once
         if (this.piece && tetromino.id === this.piece.id) {
-            console.log('reroll');
-            
             tetromino = this.getRandomTetromino();
         }
 
@@ -170,35 +163,18 @@ export class Game {
         return JSON.parse(JSON.stringify(TETROMINOS[index])) as Tetromino;
     }
 
-    private updateScore() {
-        if (this.newLinesCleared) {
-            this.score =
-                this.score + BASE_SCORES_LINE_CLEAR[this.newLinesCleared - 1] * (this.level + 1);
-            this.totalLinesCleared = this.totalLinesCleared + this.newLinesCleared;
-        }
-
-        if (this.softDropCount) {
-            this.score = this.score + this.softDropCount * BASE_SCORE_SOFT_DROP;
-        }
-
-        this.newLinesCleared = 0;
-        this.softDropCount = 0;
-        this.scoreElement.innerHTML = `${this.score}`;
-        this.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
-    }
-
     private togglePause() {
         this.isRunning = !this.isRunning;
         this.pauseElement.classList.toggle('is-visible');
         if (this.isRunning) {
             this.startGameLoop();
         } else {
-            clearInterval(this.gameLoop);
+            this.stopGameLoop();
         }
     }
 
     private gameOver() {
         this.gameOverElement.classList.add('is-visible');
-        clearInterval(this.gameLoop);
+        this.stopGameLoop();
     }
 }

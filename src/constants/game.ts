@@ -19,6 +19,7 @@ export const KEYS = {
     ROTATE_CLOCKWISE: 'd',
     ROTATE_COUNTER_CLOCKWISE: 's',
     HARD_DROP: 'i',
+    PAUSE: 'p',
 };
 
 export const BASE_SCORES_LINE_CLEAR = [40, 100, 300, 1200];
@@ -38,4 +39,6 @@ export const GAME_SPEEDS = [
     getSpeedinMilliSeconds(13),
     getSpeedinMilliSeconds(8),
     getSpeedinMilliSeconds(6),
-]
+];
+export const MAX_LEVEL = 9;
+export const LEVEL_LIMIT = 10;

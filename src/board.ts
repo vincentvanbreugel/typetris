@@ -64,7 +64,7 @@ export class Board {
             });
         });
 
-        this.game.newLinesCleared = lines.length;
+        this.game.state.newLinesCleared = lines.length;
     }
 
     private create(): void {

@@ -544,27 +544,25 @@ var _tetrominos = require("./constants/tetrominos");
 var _game = require("./constants/game");
 var _game1 = require("./templates/game");
 var _piece = require("./piece");
+var _gameState = require("./gameState");
 class Game {
     startButtonId = "startButton";
     scoreId = "score";
     clearedLinesId = "clearedLines";
+    levelId = "level";
     pauseId = "pauseOverlay";
     gameOverId = "gameOverOverlay";
     boardId = "board";
-    newLinesCleared = 0;
-    totalLinesCleared = 0;
-    softDropCount = 0;
     isRunning = false;
     constructor(){
-        this.score = 0;
-        this.level = 0;
-        this.speed = (0, _game.GAME_SPEEDS)[this.level];
         this.renderTemplate();
         this.startButton = document.getElementById(this.startButtonId);
         this.scoreElement = document.getElementById(this.scoreId);
         this.clearedlinesElement = document.getElementById(this.clearedLinesId);
+        this.levelElement = document.getElementById(this.levelId);
         this.pauseElement = document.getElementById(this.pauseId);
         this.gameOverElement = document.getElementById(this.gameOverId);
+        this.state = new (0, _gameState.GameState)(this);
         this.board = new (0, _board.Board)(this.boardId, this);
         this.piece = this.getRandomPiece();
         this.attachEventHandlers();
@@ -583,31 +581,33 @@ class Game {
         this.startGameLoop();
     }
     resetGame() {
-        clearInterval(this.gameLoop);
+        this.stopGameLoop();
         this.pauseElement.classList.remove("is-visible");
         this.gameOverElement.classList.remove("is-visible");
-        this.totalLinesCleared = 0;
-        this.softDropCount = 0;
-        this.score = 0;
-        this.updateScore();
+        this.state.reset();
         this.board = new (0, _board.Board)(this.boardId, this);
         this.piece = this.getRandomPiece();
     }
     startGameLoop() {
+        console.log(this.state.speed);
         this.gameLoop = setInterval(()=>{
             this.movePiece({
                 direction: (0, _game.DIRECTIONS).DOWN
             });
             if (this.piece.isLocked) {
                 this.board.checkLineClear();
-                this.updateScore();
+                this.state.updateScore();
+                this.state.checkLevelChange();
                 this.piece = this.getRandomPiece();
                 this.movePiece({
                     direction: (0, _game.DIRECTIONS).NO_CHANGE,
                     initialDrop: true
                 });
             }
-        }, this.speed);
+        }, this.state.speed);
+    }
+    stopGameLoop() {
+        clearInterval(this.gameLoop);
     }
     attachEventHandlers() {
         this.startButton.addEventListener("click", (e)=>{
@@ -615,7 +615,7 @@ class Game {
             this.startGame();
         });
         document.addEventListener("keydown", (event)=>{
-            if (event.key === "p") this.togglePause();
+            if (event.key === (0, _game.KEYS).PAUSE) this.togglePause();
         });
         document.addEventListener("keydown", (event)=>{
             switch(event.key){
@@ -655,7 +655,7 @@ class Game {
             return;
         }
         this.piece.move(direction);
-        if (userInput && direction === (0, _game.DIRECTIONS).DOWN) this.softDropCount++;
+        if (userInput && direction === (0, _game.DIRECTIONS).DOWN) this.state.softDropCount++;
         this.board.draw();
     }
     rotatePiece(rotation) {
@@ -668,40 +668,26 @@ class Game {
     getRandomPiece() {
         let tetromino = this.getRandomTetromino();
         // re-roll once
-        if (this.piece && tetromino.id === this.piece.id) {
-            console.log("reroll");
-            tetromino = this.getRandomTetromino();
-        }
+        if (this.piece && tetromino.id === this.piece.id) tetromino = this.getRandomTetromino();
         return new (0, _piece.Piece)(tetromino, this.board);
     }
     getRandomTetromino() {
         const index = Math.floor(Math.random() * (0, _tetrominos.TETROMINOS).length);
         return JSON.parse(JSON.stringify((0, _tetrominos.TETROMINOS)[index]));
     }
-    updateScore() {
-        if (this.newLinesCleared) {
-            this.score = this.score + (0, _game.BASE_SCORES_LINE_CLEAR)[this.newLinesCleared - 1] * (this.level + 1);
-            this.totalLinesCleared = this.totalLinesCleared + this.newLinesCleared;
-        }
-        if (this.softDropCount) this.score = this.score + this.softDropCount * (0, _game.BASE_SCORE_SOFT_DROP);
-        this.newLinesCleared = 0;
-        this.softDropCount = 0;
-        this.scoreElement.innerHTML = `${this.score}`;
-        this.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
-    }
     togglePause() {
         this.isRunning = !this.isRunning;
         this.pauseElement.classList.toggle("is-visible");
         if (this.isRunning) this.startGameLoop();
-        else clearInterval(this.gameLoop);
+        else this.stopGameLoop();
     }
     gameOver() {
         this.gameOverElement.classList.add("is-visible");
-        clearInterval(this.gameLoop);
+        this.stopGameLoop();
     }
 }
 
-},{"./board":"7fSWv","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./piece":"7MOtM","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./templates/game":"gPbNQ"}],"7fSWv":[function(require,module,exports) {
+},{"./board":"7fSWv","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./piece":"7MOtM","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./templates/game":"gPbNQ","./gameState":"khpOy"}],"7fSWv":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Board", ()=>Board);
@@ -741,7 +727,7 @@ class Board {
                 if (rowIndex > 0 && rowIndex <= line) for(let i1 = 0; i1 < row.length; i1++)row[i1] = currentState[rowIndex - 1][i1];
             });
         });
-        this.game.newLinesCleared = lines.length;
+        this.game.state.newLinesCleared = lines.length;
     }
     create() {
         this.context.canvas.width = (0, _game.COLS) * (0, _game.BLOCK_SIZE);
@@ -762,6 +748,8 @@ parcelHelpers.export(exports, "KEYS", ()=>KEYS);
 parcelHelpers.export(exports, "BASE_SCORES_LINE_CLEAR", ()=>BASE_SCORES_LINE_CLEAR);
 parcelHelpers.export(exports, "BASE_SCORE_SOFT_DROP", ()=>BASE_SCORE_SOFT_DROP);
 parcelHelpers.export(exports, "GAME_SPEEDS", ()=>GAME_SPEEDS);
+parcelHelpers.export(exports, "MAX_LEVEL", ()=>MAX_LEVEL);
+parcelHelpers.export(exports, "LEVEL_LIMIT", ()=>LEVEL_LIMIT);
 const COLS = 10;
 const ROWS = 20;
 const BLOCK_SIZE = 30;
@@ -793,7 +781,8 @@ const KEYS = {
     RIGHT: "l",
     ROTATE_CLOCKWISE: "d",
     ROTATE_COUNTER_CLOCKWISE: "s",
-    HARD_DROP: "i"
+    HARD_DROP: "i",
+    PAUSE: "p"
 };
 const BASE_SCORES_LINE_CLEAR = [
     40,
@@ -817,6 +806,8 @@ const GAME_SPEEDS = [
     getSpeedinMilliSeconds(8),
     getSpeedinMilliSeconds(6)
 ];
+const MAX_LEVEL = 9;
+const LEVEL_LIMIT = 10;
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
@@ -1555,10 +1546,58 @@ const gameTemplate = `
           <div>Lines Cleared</div>
           <div id="clearedLines" class="cleared-lines">0</div>
         </div>
+        <div class="level">
+            <div>Level</div>
+            <div id="level" class="level">0</div>
+        </div>
     </div>
 </div>
 `;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"khpOy":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "GameState", ()=>GameState);
+var _game = require("./constants/game");
+class GameState {
+    score = 0;
+    level = 0;
+    totalLinesCleared = 0;
+    softDropCount = 0;
+    newLinesCleared = 0;
+    constructor(game){
+        this.game = game;
+        this.speed = (0, _game.GAME_SPEEDS)[this.level];
+    }
+    reset() {
+        this.totalLinesCleared = 0;
+        this.softDropCount = 0;
+        this.score = 0;
+        this.updateScore();
+    }
+    updateScore() {
+        if (this.newLinesCleared) {
+            this.score = this.score + (0, _game.BASE_SCORES_LINE_CLEAR)[this.newLinesCleared - 1] * (this.level + 1);
+            this.totalLinesCleared = this.totalLinesCleared + this.newLinesCleared;
+        }
+        if (this.softDropCount) this.score = this.score + this.softDropCount * (0, _game.BASE_SCORE_SOFT_DROP);
+        this.newLinesCleared = 0;
+        this.softDropCount = 0;
+        this.game.scoreElement.innerHTML = `${this.score}`;
+        this.game.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
+    }
+    checkLevelChange() {
+        if (this.totalLinesCleared > (this.level + 1) * (0, _game.LEVEL_LIMIT) && this.level < (0, _game.MAX_LEVEL)) this.updateLevel();
+    }
+    updateLevel() {
+        this.level++;
+        this.game.levelElement.innerHTML = `${this.level}`;
+        this.speed = (0, _game.GAME_SPEEDS)[this.level];
+        this.game.stopGameLoop();
+        this.game.startGameLoop();
+    }
+}
+
+},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
 
 //# sourceMappingURL=index.b7a05eb9.js.map

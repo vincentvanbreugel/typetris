@@ -19,6 +19,10 @@ export const gameTemplate = `
           <div>Lines Cleared</div>
           <div id="clearedLines" class="cleared-lines">0</div>
         </div>
+        <div class="level">
+            <div>Level</div>
+            <div id="level" class="level">0</div>
+        </div>
     </div>
 </div>
 `;

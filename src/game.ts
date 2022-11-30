@@ -23,8 +23,8 @@ export class Game {
     private boardId = 'board';
     private board: Board;
     private piece: Piece;
-    private gameLoop!: number;
     private isRunning = false;
+    private isGameOver = false;
 
     constructor() {
         this.renderTemplate();
@@ -50,22 +50,24 @@ export class Game {
         this.isRunning = true;
         this.startButton.innerHTML = 'Restart';
         this.movePiece({ direction: DIRECTIONS.NO_CHANGE });
-        this.startGameLoop();
+        requestAnimationFrame(() => this.gameLoop());
     }
 
     private resetGame(): void {
-        this.stopGameLoop();
         this.pauseElement.classList.remove('is-visible');
         this.gameOverElement.classList.remove('is-visible');
+        this.isGameOver = false;
         this.state.reset();
         this.board = new Board(this.boardId, this);
         this.piece = this.getRandomPiece();
     }
 
-    startGameLoop(): void {
-        console.log(this.state.speed);
-        
-        this.gameLoop = setInterval(() => {
+    gameLoop(): void {
+        if (this.isGameOver) {
+            return;
+        }
+
+        if (this.isRunning) {
             this.movePiece({ direction: DIRECTIONS.DOWN });
 
             if (this.piece.isLocked) {
@@ -75,11 +77,11 @@ export class Game {
                 this.piece = this.getRandomPiece();
                 this.movePiece({ direction: DIRECTIONS.NO_CHANGE, initialDrop: true });
             }
-        }, this.state.speed);
-    }
 
-    stopGameLoop(): void {
-        clearInterval(this.gameLoop);
+            setTimeout(() => requestAnimationFrame(() => this.gameLoop()), this.state.speed);
+        } else {
+            setTimeout(() => this.gameLoop(), this.state.speed);
+        }
     }
 
     private attachEventHandlers(): void {
@@ -166,15 +168,11 @@ export class Game {
     private togglePause() {
         this.isRunning = !this.isRunning;
         this.pauseElement.classList.toggle('is-visible');
-        if (this.isRunning) {
-            this.startGameLoop();
-        } else {
-            this.stopGameLoop();
-        }
     }
 
     private gameOver() {
         this.gameOverElement.classList.add('is-visible');
-        this.stopGameLoop();
+        this.isGameOver = true;
+        this.isRunning = false;
     }
 }

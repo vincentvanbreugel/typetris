@@ -554,6 +554,7 @@ class Game {
     gameOverId = "gameOverOverlay";
     boardId = "board";
     isRunning = false;
+    isGameOver = false;
     constructor(){
         this.renderTemplate();
         this.startButton = document.getElementById(this.startButtonId);
@@ -578,19 +579,19 @@ class Game {
         this.movePiece({
             direction: (0, _game.DIRECTIONS).NO_CHANGE
         });
-        this.startGameLoop();
+        requestAnimationFrame(()=>this.gameLoop());
     }
     resetGame() {
-        this.stopGameLoop();
         this.pauseElement.classList.remove("is-visible");
         this.gameOverElement.classList.remove("is-visible");
+        this.isGameOver = false;
         this.state.reset();
         this.board = new (0, _board.Board)(this.boardId, this);
         this.piece = this.getRandomPiece();
     }
-    startGameLoop() {
-        console.log(this.state.speed);
-        this.gameLoop = setInterval(()=>{
+    gameLoop() {
+        if (this.isGameOver) return;
+        if (this.isRunning) {
             this.movePiece({
                 direction: (0, _game.DIRECTIONS).DOWN
             });
@@ -604,10 +605,8 @@ class Game {
                     initialDrop: true
                 });
             }
-        }, this.state.speed);
-    }
-    stopGameLoop() {
-        clearInterval(this.gameLoop);
+            setTimeout(()=>requestAnimationFrame(()=>this.gameLoop()), this.state.speed);
+        } else setTimeout(()=>this.gameLoop(), this.state.speed);
     }
     attachEventHandlers() {
         this.startButton.addEventListener("click", (e)=>{
@@ -678,12 +677,11 @@ class Game {
     togglePause() {
         this.isRunning = !this.isRunning;
         this.pauseElement.classList.toggle("is-visible");
-        if (this.isRunning) this.startGameLoop();
-        else this.stopGameLoop();
     }
     gameOver() {
         this.gameOverElement.classList.add("is-visible");
-        this.stopGameLoop();
+        this.isGameOver = true;
+        this.isRunning = false;
     }
 }
 

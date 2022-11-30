@@ -25,6 +25,8 @@ export class GameState {
         this.totalLinesCleared = 0;
         this.dropScore = 0;
         this.score = 0;
+        this.level = 0;
+        this.game.levelElement.innerHTML = `${this.level}`;
         this.updateScore();
     }
 

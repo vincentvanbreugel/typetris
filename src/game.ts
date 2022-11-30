@@ -85,9 +85,9 @@ export class Game {
     }
 
     private attachEventHandlers(): void {
-        this.startButton.addEventListener('click', (e) => {
-            e.preventDefault();
+        this.startButton.addEventListener('click', (e: Event) => {
             this.startGame();
+            (e.target as HTMLElement).blur();
         });
 
         document.addEventListener('keydown', (event) => {

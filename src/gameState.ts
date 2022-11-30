@@ -13,7 +13,7 @@ export class GameState {
     level = 0;
     speed: number;
     totalLinesCleared = 0;
-    softDropCount = 0;
+    dropScore = 0;
     newLinesCleared = 0;
 
     constructor(game: Game) {
@@ -23,7 +23,7 @@ export class GameState {
 
     reset() {
         this.totalLinesCleared = 0;
-        this.softDropCount = 0;
+        this.dropScore = 0;
         this.score = 0;
         this.updateScore();
     }
@@ -35,12 +35,12 @@ export class GameState {
             this.totalLinesCleared = this.totalLinesCleared + this.newLinesCleared;
         }
 
-        if (this.softDropCount) {
-            this.score = this.score + this.softDropCount * BASE_SCORE_SOFT_DROP;
+        if (this.dropScore) {
+            this.score = this.score + this.dropScore * BASE_SCORE_SOFT_DROP;
         }
 
         this.newLinesCleared = 0;
-        this.softDropCount = 0;
+        this.dropScore = 0;
         this.game.scoreElement.innerHTML = `${this.score}`;
         this.game.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
     }
@@ -55,7 +55,5 @@ export class GameState {
       this.level++;
       this.game.levelElement.innerHTML = `${this.level}`;
       this.speed = GAME_SPEEDS[this.level];
-      this.game.stopGameLoop();
-      this.game.startGameLoop();
     }
 }

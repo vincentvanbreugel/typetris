@@ -36,6 +36,16 @@ export class Piece {
         this.move(DIRECTIONS.NO_CHANGE);
     }
 
+    hardDrop(): number {
+        let cellsDropped = 0;
+        while(this.isMoveValid({direction: DIRECTIONS.DOWN})) {
+            this.move(DIRECTIONS.DOWN);
+            cellsDropped++;
+        }
+
+        return cellsDropped;
+    }
+
     isMoveValid(params: { direction?: Point; rotation?: Rotations }): boolean {
         this.clearPiecePosition();
 

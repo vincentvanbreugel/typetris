@@ -1,6 +1,6 @@
 import { Board } from './board';
 import { TETROMINOS, Tetromino, Point } from './constants/tetrominos';
-import { DIRECTIONS, KEYS } from './constants/game';
+import { BASE_SCORE_HARD_DROP, DIRECTIONS, KEYS } from './constants/game';
 import { gameTemplate } from './templates/game';
 import type { Rotations } from './types';
 import { Piece } from './piece';
@@ -91,13 +91,13 @@ export class Game {
         });
 
         document.addEventListener('keydown', (event) => {
-            if (event.key === KEYS.PAUSE) {
-                this.togglePause();
-            }
-        });
-
-        document.addEventListener('keydown', (event) => {
             switch (event.key) {
+                case KEYS.PAUSE:
+                    this.togglePause();
+                    break;
+                case KEYS.HARD_DROP: 
+                    this.hardDropPiece();
+                    break;    
                 case KEYS.DOWN:
                     this.movePiece({ direction: DIRECTIONS.DOWN, userInput: true });
                     break;
@@ -134,7 +134,7 @@ export class Game {
         this.piece.move(direction);
 
         if (userInput && direction === DIRECTIONS.DOWN) {
-            this.state.softDropCount++;
+            this.state.dropScore++;
         }
 
         this.board.draw();
@@ -146,6 +146,12 @@ export class Game {
         }
 
         this.piece.rotate(rotation);
+        this.board.draw();
+    }
+
+    private hardDropPiece(): void {
+        const cellsDropped = this.piece.hardDrop();
+        this.state.dropScore = this.state.dropScore + cellsDropped * BASE_SCORE_HARD_DROP;
         this.board.draw();
     }
 

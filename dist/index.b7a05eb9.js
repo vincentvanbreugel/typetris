@@ -614,10 +614,13 @@ class Game {
             this.startGame();
         });
         document.addEventListener("keydown", (event)=>{
-            if (event.key === (0, _game.KEYS).PAUSE) this.togglePause();
-        });
-        document.addEventListener("keydown", (event)=>{
             switch(event.key){
+                case (0, _game.KEYS).PAUSE:
+                    this.togglePause();
+                    break;
+                case (0, _game.KEYS).HARD_DROP:
+                    this.hardDropPiece();
+                    break;
                 case (0, _game.KEYS).DOWN:
                     this.movePiece({
                         direction: (0, _game.DIRECTIONS).DOWN,
@@ -654,7 +657,7 @@ class Game {
             return;
         }
         this.piece.move(direction);
-        if (userInput && direction === (0, _game.DIRECTIONS).DOWN) this.state.softDropCount++;
+        if (userInput && direction === (0, _game.DIRECTIONS).DOWN) this.state.dropScore++;
         this.board.draw();
     }
     rotatePiece(rotation) {
@@ -662,6 +665,11 @@ class Game {
             rotation
         })) return;
         this.piece.rotate(rotation);
+        this.board.draw();
+    }
+    hardDropPiece() {
+        const cellsDropped = this.piece.hardDrop();
+        this.state.dropScore = this.state.dropScore + cellsDropped * (0, _game.BASE_SCORE_HARD_DROP);
         this.board.draw();
     }
     getRandomPiece() {
@@ -745,6 +753,7 @@ parcelHelpers.export(exports, "DIRECTIONS", ()=>DIRECTIONS);
 parcelHelpers.export(exports, "KEYS", ()=>KEYS);
 parcelHelpers.export(exports, "BASE_SCORES_LINE_CLEAR", ()=>BASE_SCORES_LINE_CLEAR);
 parcelHelpers.export(exports, "BASE_SCORE_SOFT_DROP", ()=>BASE_SCORE_SOFT_DROP);
+parcelHelpers.export(exports, "BASE_SCORE_HARD_DROP", ()=>BASE_SCORE_HARD_DROP);
 parcelHelpers.export(exports, "GAME_SPEEDS", ()=>GAME_SPEEDS);
 parcelHelpers.export(exports, "MAX_LEVEL", ()=>MAX_LEVEL);
 parcelHelpers.export(exports, "LEVEL_LIMIT", ()=>LEVEL_LIMIT);
@@ -789,6 +798,7 @@ const BASE_SCORES_LINE_CLEAR = [
     1200
 ];
 const BASE_SCORE_SOFT_DROP = 1;
+const BASE_SCORE_HARD_DROP = 2;
 const getSpeedinMilliSeconds = (frames)=>{
     return frames / 60 * 1000;
 };
@@ -1413,6 +1423,16 @@ class Piece {
         else this.decrementShapeIndex();
         this.move((0, _game.DIRECTIONS).NO_CHANGE);
     }
+    hardDrop() {
+        let cellsDropped = 0;
+        while(this.isMoveValid({
+            direction: (0, _game.DIRECTIONS).DOWN
+        })){
+            this.move((0, _game.DIRECTIONS).DOWN);
+            cellsDropped++;
+        }
+        return cellsDropped;
+    }
     isMoveValid(params) {
         this.clearPiecePosition();
         const { direction , rotation  } = params;
@@ -1561,7 +1581,7 @@ class GameState {
     score = 0;
     level = 0;
     totalLinesCleared = 0;
-    softDropCount = 0;
+    dropScore = 0;
     newLinesCleared = 0;
     constructor(game){
         this.game = game;
@@ -1569,7 +1589,7 @@ class GameState {
     }
     reset() {
         this.totalLinesCleared = 0;
-        this.softDropCount = 0;
+        this.dropScore = 0;
         this.score = 0;
         this.updateScore();
     }
@@ -1578,9 +1598,9 @@ class GameState {
             this.score = this.score + (0, _game.BASE_SCORES_LINE_CLEAR)[this.newLinesCleared - 1] * (this.level + 1);
             this.totalLinesCleared = this.totalLinesCleared + this.newLinesCleared;
         }
-        if (this.softDropCount) this.score = this.score + this.softDropCount * (0, _game.BASE_SCORE_SOFT_DROP);
+        if (this.dropScore) this.score = this.score + this.dropScore * (0, _game.BASE_SCORE_SOFT_DROP);
         this.newLinesCleared = 0;
-        this.softDropCount = 0;
+        this.dropScore = 0;
         this.game.scoreElement.innerHTML = `${this.score}`;
         this.game.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
     }
@@ -1591,8 +1611,6 @@ class GameState {
         this.level++;
         this.game.levelElement.innerHTML = `${this.level}`;
         this.speed = (0, _game.GAME_SPEEDS)[this.level];
-        this.game.stopGameLoop();
-        this.game.startGameLoop();
     }
 }
 

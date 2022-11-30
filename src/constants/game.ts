@@ -24,6 +24,7 @@ export const KEYS = {
 
 export const BASE_SCORES_LINE_CLEAR = [40, 100, 300, 1200];
 export const BASE_SCORE_SOFT_DROP = 1;
+export const BASE_SCORE_HARD_DROP = 2;
 
 const getSpeedinMilliSeconds = (frames: number): number => {
     return (frames / 60) * 1000;

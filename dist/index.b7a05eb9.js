@@ -532,19 +532,19 @@ function hmrAcceptRun(bundle, id) {
 }
 
 },{}],"jeorp":[function(require,module,exports) {
-var _game = require("./game");
+var _game = require("./Game");
 const game = new (0, _game.Game)();
 
-},{"./game":"edeGs"}],"edeGs":[function(require,module,exports) {
+},{"./Game":"TyEjs"}],"TyEjs":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Game", ()=>Game);
-var _board = require("./board");
+var _board = require("./Board");
 var _tetrominos = require("./constants/tetrominos");
 var _game = require("./constants/game");
 var _game1 = require("./templates/game");
-var _piece = require("./piece");
-var _gameState = require("./gameState");
+var _piece = require("./Piece");
+var _gameState = require("./GameState");
 class Game {
     startButtonId = "startButton";
     scoreId = "score";
@@ -553,8 +553,6 @@ class Game {
     pauseId = "pauseOverlay";
     gameOverId = "gameOverOverlay";
     boardId = "board";
-    isRunning = false;
-    isGameOver = false;
     constructor(){
         this.renderTemplate();
         this.startButton = document.getElementById(this.startButtonId);
@@ -564,49 +562,22 @@ class Game {
         this.pauseElement = document.getElementById(this.pauseId);
         this.gameOverElement = document.getElementById(this.gameOverId);
         this.state = new (0, _gameState.GameState)(this);
-        this.board = new (0, _board.Board)(this.boardId, this);
+        this.board = new (0, _board.Board)(this.boardId);
         this.piece = this.getRandomPiece();
         this.attachEventHandlers();
     }
-    renderTemplate() {
-        const body = document.querySelector("body");
-        body.insertAdjacentHTML("afterbegin", (0, _game1.gameTemplate));
-    }
     startGame() {
+        if (this.timeoutId) this.stopGameLoop();
         this.resetGame();
-        this.isRunning = true;
         this.startButton.innerHTML = "Restart";
         this.movePiece({
             direction: (0, _game.DIRECTIONS).NO_CHANGE
         });
-        requestAnimationFrame(()=>this.gameLoop());
+        this.startGameLoop();
     }
-    resetGame() {
-        this.pauseElement.classList.remove("is-visible");
-        this.gameOverElement.classList.remove("is-visible");
-        this.isGameOver = false;
-        this.state.reset();
-        this.board = new (0, _board.Board)(this.boardId, this);
-        this.piece = this.getRandomPiece();
-    }
-    gameLoop() {
-        if (this.isGameOver) return;
-        if (this.isRunning) {
-            this.movePiece({
-                direction: (0, _game.DIRECTIONS).DOWN
-            });
-            if (this.piece.isLocked) {
-                this.board.checkLineClear();
-                this.state.updateScore();
-                this.state.checkLevelChange();
-                this.piece = this.getRandomPiece();
-                this.movePiece({
-                    direction: (0, _game.DIRECTIONS).NO_CHANGE,
-                    initialDrop: true
-                });
-            }
-            setTimeout(()=>requestAnimationFrame(()=>this.gameLoop()), this.state.speed);
-        } else setTimeout(()=>this.gameLoop(), this.state.speed);
+    renderTemplate() {
+        const body = document.querySelector("body");
+        body.insertAdjacentHTML("afterbegin", (0, _game1.gameTemplate));
     }
     attachEventHandlers() {
         this.startButton.addEventListener("click", (e)=>{
@@ -616,10 +587,10 @@ class Game {
         document.addEventListener("keydown", (event)=>{
             switch(event.key){
                 case (0, _game.KEYS).PAUSE:
-                    this.togglePause();
+                    this.handleClickPause();
                     break;
                 case (0, _game.KEYS).HARD_DROP:
-                    this.hardDropPiece();
+                    this.hardDrop();
                     break;
                 case (0, _game.KEYS).DOWN:
                     this.movePiece({
@@ -648,26 +619,54 @@ class Game {
             }
         });
     }
+    startGameLoop() {
+        this.timeoutId = setTimeout(async ()=>{
+            this.movePiece({
+                direction: (0, _game.DIRECTIONS).DOWN
+            });
+            if (this.piece.isLocked) {
+                await this.checkLinesClear();
+                this.state.updateScore();
+                this.state.checkLevelChange();
+                this.piece = this.getRandomPiece();
+                this.movePiece({
+                    direction: (0, _game.DIRECTIONS).NO_CHANGE,
+                    initialDrop: true
+                });
+            }
+            requestAnimationFrame(()=>this.startGameLoop());
+        }, this.state.speed);
+    }
+    stopGameLoop() {
+        clearTimeout(this.timeoutId);
+    }
+    resetGame() {
+        this.pauseElement.classList.remove("is-visible");
+        this.gameOverElement.classList.remove("is-visible");
+        this.state.reset();
+        this.board = new (0, _board.Board)(this.boardId);
+        this.piece = this.getRandomPiece();
+    }
     movePiece(params) {
         const { direction , initialDrop , userInput  } = params;
-        if (!this.isRunning || !this.piece.isMoveValid({
+        if (this.state.isPaused || !this.piece.isMoveValid({
             direction
         })) {
             if (initialDrop) this.gameOver();
             return;
         }
         this.piece.move(direction);
-        if (userInput && direction === (0, _game.DIRECTIONS).DOWN) this.state.dropScore++;
         this.board.draw();
+        if (userInput && direction === (0, _game.DIRECTIONS).DOWN) this.state.dropScore++;
     }
     rotatePiece(rotation) {
-        if (!this.isRunning || !this.piece.isMoveValid({
+        if (this.state.isPaused || !this.piece.isMoveValid({
             rotation
         })) return;
         this.piece.rotate(rotation);
         this.board.draw();
     }
-    hardDropPiece() {
+    hardDrop() {
         const cellsDropped = this.piece.hardDrop();
         this.state.dropScore = this.state.dropScore + cellsDropped * (0, _game.BASE_SCORE_HARD_DROP);
         this.board.draw();
@@ -682,30 +681,38 @@ class Game {
         const index = Math.floor(Math.random() * (0, _tetrominos.TETROMINOS).length);
         return JSON.parse(JSON.stringify((0, _tetrominos.TETROMINOS)[index]));
     }
-    togglePause() {
-        this.isRunning = !this.isRunning;
+    async checkLinesClear() {
+        const linesCleared = this.board.getLinesCleared();
+        if (linesCleared.length) {
+            await this.board.handleClearLines(linesCleared);
+            this.state.newLinesCleared = linesCleared.length;
+        }
+    }
+    handleClickPause() {
+        this.state.togglePause();
         this.pauseElement.classList.toggle("is-visible");
+        if (!this.state.isPaused) this.startGameLoop();
+        else this.stopGameLoop();
     }
     gameOver() {
+        this.stopGameLoop();
         this.gameOverElement.classList.add("is-visible");
-        this.isGameOver = true;
-        this.isRunning = false;
     }
 }
 
-},{"./board":"7fSWv","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./piece":"7MOtM","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./templates/game":"gPbNQ","./gameState":"khpOy"}],"7fSWv":[function(require,module,exports) {
+},{"./Board":"4daYq","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./templates/game":"gPbNQ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./GameState":"4wLIF","./Piece":"6E5CQ"}],"4daYq":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Board", ()=>Board);
 var _game = require("./constants/game");
 var _colors = require("./constants/colors");
 var _tetrominos = require("./constants/tetrominos");
+var _utils = require("./Utils");
 class Board {
-    constructor(boardId, game){
+    constructor(boardId){
         this.canvas = document.getElementById(boardId);
         this.context = this.canvas.getContext("2d");
         this.state = Array.from(Array((0, _game.ROWS)), ()=>Array((0, _game.COLS)).fill(0));
-        this.game = game;
         this.create();
     }
     draw() {
@@ -718,12 +725,18 @@ class Board {
             this.context.fillRect(x, y, 1, 1);
         }
     }
-    checkLineClear() {
+    async handleClearLines(lines) {
+        const animation = this.animateClearedLines(lines);
+        await (0, _utils.Utils).sleep((0, _game.LINE_CLEAR_DELAY));
+        clearInterval(animation);
+        this.clearLines(lines);
+    }
+    getLinesCleared() {
         const linesCleared = this.state.reduce((array, row, index)=>{
             if (row.every((col)=>col !== 0)) array.push(index);
             return array;
         }, []);
-        if (linesCleared.length) this.clearLines(linesCleared);
+        return linesCleared || [];
     }
     clearLines(lines) {
         lines.forEach((line)=>{
@@ -733,7 +746,28 @@ class Board {
                 if (rowIndex > 0 && rowIndex <= line) for(let i1 = 0; i1 < row.length; i1++)row[i1] = currentState[rowIndex - 1][i1];
             });
         });
-        this.game.state.newLinesCleared = lines.length;
+    }
+    animateClearedLines(lines) {
+        let brighten = true;
+        let x = 99;
+        return setInterval(()=>{
+            lines.forEach((line)=>{
+                this.state[line].forEach((cell, index)=>{
+                    const tetromino = (0, _tetrominos.TETROMINOS).find((tetromino)=>{
+                        return tetromino.id === cell;
+                    });
+                    if (tetromino) {
+                        this.context.fillStyle = tetromino.color + x;
+                        this.context.clearRect(index, line, 1, 1);
+                        this.context.fillRect(index, line, 1, 1);
+                    }
+                });
+            });
+            if (brighten && x > 25) x--;
+            else brighten = false;
+            if (!brighten && x < 99) x++;
+            else brighten = true;
+        }, 2);
     }
     create() {
         this.context.canvas.width = (0, _game.COLS) * (0, _game.BLOCK_SIZE);
@@ -742,7 +776,7 @@ class Board {
     }
 }
 
-},{"./constants/game":"be0O0","./constants/colors":"dVpQr","./constants/tetrominos":"dVpHQ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"be0O0":[function(require,module,exports) {
+},{"./constants/game":"be0O0","./constants/colors":"dVpQr","./constants/tetrominos":"dVpHQ","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"be0O0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLS", ()=>COLS);
@@ -757,6 +791,7 @@ parcelHelpers.export(exports, "BASE_SCORE_HARD_DROP", ()=>BASE_SCORE_HARD_DROP);
 parcelHelpers.export(exports, "GAME_SPEEDS", ()=>GAME_SPEEDS);
 parcelHelpers.export(exports, "MAX_LEVEL", ()=>MAX_LEVEL);
 parcelHelpers.export(exports, "LEVEL_LIMIT", ()=>LEVEL_LIMIT);
+parcelHelpers.export(exports, "LINE_CLEAR_DELAY", ()=>LINE_CLEAR_DELAY);
 const COLS = 10;
 const ROWS = 20;
 const BLOCK_SIZE = 30;
@@ -816,6 +851,7 @@ const GAME_SPEEDS = [
 ];
 const MAX_LEVEL = 9;
 const LEVEL_LIMIT = 10;
+const LINE_CLEAR_DELAY = 1800;
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
@@ -1396,7 +1432,131 @@ const TETROMINOS = [
     }
 ];
 
-},{"./colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7MOtM":[function(require,module,exports) {
+},{"./colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7ma2M":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Utils", ()=>Utils);
+class Utils {
+    static sleep(ms) {
+        return new Promise((resolve)=>setTimeout(resolve, ms));
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gPbNQ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "gameTemplate", ()=>gameTemplate);
+const gameTemplate = `
+<div class="container">
+    <div class="board-wrapper">
+        <canvas id="board" class="board"></canvas>
+        <div id="pauseOverlay" class="pause-overlay">
+            <span>Paused</span>
+        </div>
+        <div id="gameOverOverlay" class="game-over-overlay">
+            <span>Game over</span>
+        </div>
+    </div>
+    <div class="game-info">
+        <button type="button" id="startButton" class="start-button">Start</button>
+        <div class="game-score">
+          <div>Score</div>
+          <div id="score" class="score">0</div>
+        </div>
+        <div class="line-score">
+          <div>Lines Cleared</div>
+          <div id="clearedLines" class="cleared-lines">0</div>
+        </div>
+        <div class="level">
+            <div>Level</div>
+            <div id="level" class="level">0</div>
+        </div>
+        <div>
+            <div>Controls</div>
+            <div class="control">
+                <span class="button">J</span>
+                <span class="action">Move Left</span>
+            </div>
+            <div class="control">
+                <span class="button">L</span>
+                <span class="action">Move Right</span>
+            </div>
+            <div class="control">
+                <span class="button">K</span>
+                <span class="action">Move Down</span>
+            </div>
+            <div class="control">
+                <span class="button">D</span>
+                <span class="action">Rotate Clockwise</span>
+            </div>
+            <div class="control">
+                <span class="button">S</span>
+                <span class="action">Rotate Counter Clockwise</span>
+            </div>
+            <div class="control">
+                <span class="button">I</span>
+                <span class="action">Hard Drop</span>
+            </div>
+            <div class="control">
+                <span class="button">P</span>
+                <span class="action">Pause</span>
+            </div>
+        </div>
+    </div>
+</div>
+`;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4wLIF":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "GameState", ()=>GameState);
+var _game = require("./constants/game");
+class GameState {
+    score = 0;
+    level = 0;
+    isPaused = false;
+    totalLinesCleared = 0;
+    dropScore = 0;
+    newLinesCleared = 0;
+    constructor(game){
+        this.game = game;
+        this.speed = (0, _game.GAME_SPEEDS)[this.level];
+    }
+    reset() {
+        this.totalLinesCleared = 0;
+        this.dropScore = 0;
+        this.score = 0;
+        this.level = 0;
+        this.speed = (0, _game.GAME_SPEEDS)[this.level];
+        this.isPaused = false;
+        this.game.levelElement.innerHTML = `${this.level}`;
+        this.updateScore();
+    }
+    updateScore() {
+        if (this.newLinesCleared) {
+            this.score = this.score + (0, _game.BASE_SCORES_LINE_CLEAR)[this.newLinesCleared - 1] * (this.level + 1);
+            this.totalLinesCleared = this.totalLinesCleared + this.newLinesCleared;
+        }
+        if (this.dropScore) this.score = this.score + this.dropScore * (0, _game.BASE_SCORE_SOFT_DROP);
+        this.newLinesCleared = 0;
+        this.dropScore = 0;
+        this.game.scoreElement.innerHTML = `${this.score}`;
+        this.game.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
+    }
+    checkLevelChange() {
+        if (this.totalLinesCleared > (this.level + 1) * (0, _game.LEVEL_LIMIT) && this.level < (0, _game.MAX_LEVEL)) this.updateLevel();
+    }
+    updateLevel() {
+        this.level++;
+        this.game.levelElement.innerHTML = `${this.level}`;
+        this.speed = (0, _game.GAME_SPEEDS)[this.level];
+    }
+    togglePause() {
+        this.isPaused = !this.isPaused;
+    }
+}
+
+},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6E5CQ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Piece", ()=>Piece);
@@ -1436,15 +1596,15 @@ class Piece {
     isMoveValid(params) {
         this.clearPiecePosition();
         const { direction , rotation  } = params;
-        const tempPiecePosition = [];
-        let tempShapeIndex = this.shapeIndex;
+        const newPiecePosition = [];
+        let newShapeIndex = this.shapeIndex;
         if (rotation) {
-            if (rotation === "clockwise") this.shapeIndex !== 3 ? tempShapeIndex++ : tempShapeIndex = 0;
-            else this.shapeIndex !== 0 ? tempShapeIndex-- : tempShapeIndex = 3;
+            if (rotation === "clockwise") this.shapeIndex !== 3 ? newShapeIndex++ : newShapeIndex = 0;
+            else this.shapeIndex !== 0 ? newShapeIndex-- : newShapeIndex = 3;
         }
-        this.shapes[tempShapeIndex].forEach((row, rowIndex)=>{
+        this.shapes[newShapeIndex].forEach((row, rowIndex)=>{
             row.forEach((value, valueIndex)=>{
-                if (value === 1) tempPiecePosition.push({
+                if (value === 1) newPiecePosition.push({
                     x: this.shapePosition.x + valueIndex,
                     y: this.shapePosition.y + rowIndex
                 });
@@ -1454,7 +1614,7 @@ class Piece {
             ...direction && {
                 direction
             },
-            piecePosition: tempPiecePosition
+            piecePosition: newPiecePosition
         };
         if (!this.isBetweenWalls(config) || !this.isBetweenOtherPieces(config)) {
             this.updateBoardPosition({
@@ -1536,114 +1696,6 @@ class Piece {
         this.piecePosition.forEach((pos)=>{
             this.board.state[pos.y][pos.x] = 0;
         });
-    }
-}
-
-},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gPbNQ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "gameTemplate", ()=>gameTemplate);
-const gameTemplate = `
-<div class="container">
-    <div class="board-wrapper">
-        <canvas id="board" class="board"></canvas>
-        <div id="pauseOverlay" class="pause-overlay">
-            <span>Paused</span>
-        </div>
-        <div id="gameOverOverlay" class="game-over-overlay">
-            <span>Game over</span>
-        </div>
-    </div>
-    <div class="game-info">
-        <button type="button" id="startButton" class="start-button">Start</button>
-        <div class="game-score">
-          <div>Score</div>
-          <div id="score" class="score">0</div>
-        </div>
-        <div class="line-score">
-          <div>Lines Cleared</div>
-          <div id="clearedLines" class="cleared-lines">0</div>
-        </div>
-        <div class="level">
-            <div>Level</div>
-            <div id="level" class="level">0</div>
-        </div>
-        <div>
-            <div>Controls</div>
-            <div class="control">
-                <span class="button">J</span>
-                <span class="action">Move Left</span>
-            </div>
-            <div class="control">
-                <span class="button">L</span>
-                <span class="action">Move Right</span>
-            </div>
-            <div class="control">
-                <span class="button">K</span>
-                <span class="action">Move Down</span>
-            </div>
-            <div class="control">
-                <span class="button">D</span>
-                <span class="action">Rotate Clockwise</span>
-            </div>
-            <div class="control">
-                <span class="button">S</span>
-                <span class="action">Rotate Counter Clockwise</span>
-            </div>
-            <div class="control">
-                <span class="button">I</span>
-                <span class="action">Hard Drop</span>
-            </div>
-            <div class="control">
-                <span class="button">P</span>
-                <span class="action">Pause</span>
-            </div>
-        </div>
-    </div>
-</div>
-`;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"khpOy":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "GameState", ()=>GameState);
-var _game = require("./constants/game");
-class GameState {
-    score = 0;
-    level = 0;
-    totalLinesCleared = 0;
-    dropScore = 0;
-    newLinesCleared = 0;
-    constructor(game){
-        this.game = game;
-        this.speed = (0, _game.GAME_SPEEDS)[this.level];
-    }
-    reset() {
-        this.totalLinesCleared = 0;
-        this.dropScore = 0;
-        this.score = 0;
-        this.level = 0;
-        this.game.levelElement.innerHTML = `${this.level}`;
-        this.updateScore();
-    }
-    updateScore() {
-        if (this.newLinesCleared) {
-            this.score = this.score + (0, _game.BASE_SCORES_LINE_CLEAR)[this.newLinesCleared - 1] * (this.level + 1);
-            this.totalLinesCleared = this.totalLinesCleared + this.newLinesCleared;
-        }
-        if (this.dropScore) this.score = this.score + this.dropScore * (0, _game.BASE_SCORE_SOFT_DROP);
-        this.newLinesCleared = 0;
-        this.dropScore = 0;
-        this.game.scoreElement.innerHTML = `${this.score}`;
-        this.game.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
-    }
-    checkLevelChange() {
-        if (this.totalLinesCleared > (this.level + 1) * (0, _game.LEVEL_LIMIT) && this.level < (0, _game.MAX_LEVEL)) this.updateLevel();
-    }
-    updateLevel() {
-        this.level++;
-        this.game.levelElement.innerHTML = `${this.level}`;
-        this.speed = (0, _game.GAME_SPEEDS)[this.level];
     }
 }
 

@@ -1,4 +1,4 @@
-import { Game } from './game';
+import { Game } from './Game';
 import {
     GAME_SPEEDS,
     BASE_SCORES_LINE_CLEAR,
@@ -27,6 +27,7 @@ export class GameState {
         this.dropScore = 0;
         this.score = 0;
         this.level = 0;
+        this.speed = GAME_SPEEDS[this.level];
         this.isPaused = false;
         this.game.levelElement.innerHTML = `${this.level}`;
         this.updateScore();

@@ -1,7 +1,7 @@
 import { COLS, ROWS, SPAWN_POSITION, DIRECTIONS } from './constants/game';
 import type { Tetromino, Point, Shape } from './constants/tetrominos';
 import type { Rotations } from './types';
-import { Board } from './board';
+import { Board } from './Board';
 
 export class Piece {
     isLocked = false;

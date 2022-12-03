@@ -1,10 +1,10 @@
-import { Board } from './board';
+import { Board } from './Board';
 import { TETROMINOS, Tetromino, Point } from './constants/tetrominos';
 import { BASE_SCORE_HARD_DROP, DIRECTIONS, KEYS } from './constants/game';
 import { gameTemplate } from './templates/game';
 import type { Rotations } from './types';
-import { Piece } from './piece';
-import { GameState } from './gameState';
+import { Piece } from './Piece';
+import { GameState } from './GameState';
 
 export class Game {
     private startButtonId = 'startButton';
@@ -39,11 +39,6 @@ export class Game {
         this.attachEventHandlers();
     }
 
-    private renderTemplate() {
-        const body = document.querySelector('body') as HTMLBodyElement;
-        body.insertAdjacentHTML('afterbegin', gameTemplate);
-    }
-
     startGame(): void {
         if (this.timeoutId) {
             this.stopGameLoop();
@@ -54,40 +49,9 @@ export class Game {
         this.startGameLoop();
     }
 
-    private resetGame(): void {
-        this.pauseElement.classList.remove('is-visible');
-        this.gameOverElement.classList.remove('is-visible');
-        this.state.reset();
-        this.board = new Board(this.boardId);
-        this.piece = this.getRandomPiece();
-    }
-
-    private startGameLoop(): void {
-        this.timeoutId = setTimeout(async () => {
-            this.movePiece({ direction: DIRECTIONS.DOWN });
-
-            if (this.piece.isLocked) {
-                await this.checkLinesClear();
-                this.state.updateScore();
-                this.state.checkLevelChange();
-                this.piece = this.getRandomPiece();
-                this.movePiece({ direction: DIRECTIONS.NO_CHANGE, initialDrop: true });
-            }
-
-            requestAnimationFrame(() => this.startGameLoop());
-        }, this.state.speed);
-    }
-
-    private stopGameLoop(): void {
-        clearTimeout(this.timeoutId);
-    }
-
-    private async checkLinesClear() {
-        const linesCleared = this.board.getLinesCleared();
-        if (linesCleared.length) {
-            await this.board.handleClearLines(linesCleared);
-            this.state.newLinesCleared = linesCleared.length;
-        }
+    private renderTemplate() {
+        const body = document.querySelector('body') as HTMLBodyElement;
+        body.insertAdjacentHTML('afterbegin', gameTemplate);
     }
 
     private attachEventHandlers(): void {
@@ -121,6 +85,34 @@ export class Game {
                     break;
             }
         });
+    }
+
+    private startGameLoop(): void {
+        this.timeoutId = setTimeout(async () => {
+            this.movePiece({ direction: DIRECTIONS.DOWN });
+
+            if (this.piece.isLocked) {
+                await this.checkLinesClear();
+                this.state.updateScore();
+                this.state.checkLevelChange();
+                this.piece = this.getRandomPiece();
+                this.movePiece({ direction: DIRECTIONS.NO_CHANGE, initialDrop: true });
+            }
+
+            requestAnimationFrame(() => this.startGameLoop());
+        }, this.state.speed);
+    }
+
+    private stopGameLoop(): void {
+        clearTimeout(this.timeoutId);
+    }
+
+    private resetGame(): void {
+        this.pauseElement.classList.remove('is-visible');
+        this.gameOverElement.classList.remove('is-visible');
+        this.state.reset();
+        this.board = new Board(this.boardId);
+        this.piece = this.getRandomPiece();
     }
 
     private movePiece(params: {
@@ -174,6 +166,14 @@ export class Game {
     private getRandomTetromino(): Tetromino {
         const index = Math.floor(Math.random() * TETROMINOS.length);
         return JSON.parse(JSON.stringify(TETROMINOS[index])) as Tetromino;
+    }
+
+    private async checkLinesClear() {
+        const linesCleared = this.board.getLinesCleared();
+        if (linesCleared.length) {
+            await this.board.handleClearLines(linesCleared);
+            this.state.newLinesCleared = linesCleared.length;
+        }
     }
 
     private handleClickPause() {

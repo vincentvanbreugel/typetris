@@ -1,6 +1,7 @@
 import { ROWS, COLS, BLOCK_SIZE, LINE_CLEAR_DELAY } from './constants/game';
 import { COLORS } from './constants/colors';
 import { TETROMINOS } from './constants/tetrominos';
+import { Utils } from './Utils';
 
 export class Board {
     state: number[][];
@@ -32,8 +33,9 @@ export class Board {
     }
 
     async handleClearLines(lines: number[]): Promise<void> {
-        this.highlightClearedLines(lines);
-        await this.sleep(LINE_CLEAR_DELAY);
+        const animation = this.animateClearedLines(lines);
+        await Utils.sleep(LINE_CLEAR_DELAY);
+        clearInterval(animation);
         this.clearLines(lines);
     }
 
@@ -66,23 +68,37 @@ export class Board {
         });
     }
 
-    private highlightClearedLines(lines: number[]): void {
-        lines.forEach((line) => {
-            this.state[line].forEach((cell, index) => {
-                const tetromino = TETROMINOS.find((tetromino) => {
-                    return tetromino.id === cell;
+    private animateClearedLines(lines: number[]): number {
+        let brighten = true;
+        let x = 99;
+        return setInterval(() => {
+            lines.forEach((line) => {
+                this.state[line].forEach((cell, index) => {
+                    const tetromino = TETROMINOS.find((tetromino) => {
+                        return tetromino.id === cell;
+                    });
+                    if (tetromino) {
+                        this.context.fillStyle = tetromino.color + x;
+                        this.context.clearRect(index, line, 1, 1);
+                        this.context.fillRect(index, line, 1, 1);
+                    }
                 });
-                if (tetromino) {
-                    this.context.fillStyle = tetromino.color + '75';
-                    this.context.clearRect(index, line, 1, 1);
-                    this.context.fillRect(index, line, 1, 1);
-                }
             });
-        });
-    }
 
-    private sleep(ms: number): Promise<number> {
-        return new Promise((resolve) => setTimeout(resolve, ms));
+            if (brighten && x > 25) {
+                x--
+            } else {
+                brighten = false
+            }
+
+
+            if (!brighten && x < 99) {
+                x++
+            } else {
+                brighten = true
+            }
+            
+        }, 2);
     }
 
     private create(): void {

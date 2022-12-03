@@ -50,21 +50,21 @@ export class Piece {
         this.clearPiecePosition();
 
         const { direction, rotation } = params;
-        const tempPiecePosition: Point[] = [];
-        let tempShapeIndex = this.shapeIndex;
+        const newPiecePosition: Point[] = [];
+        let newShapeIndex = this.shapeIndex;
 
         if (rotation) {
             if (rotation === 'clockwise') {
-                this.shapeIndex !== 3 ? tempShapeIndex++ : (tempShapeIndex = 0);
+                this.shapeIndex !== 3 ? newShapeIndex++ : (newShapeIndex = 0);
             } else {
-                this.shapeIndex !== 0 ? tempShapeIndex-- : (tempShapeIndex = 3);
+                this.shapeIndex !== 0 ? newShapeIndex-- : (newShapeIndex = 3);
             }
         }
 
-        this.shapes[tempShapeIndex].forEach((row, rowIndex) => {
+        this.shapes[newShapeIndex].forEach((row, rowIndex) => {
             row.forEach((value, valueIndex) => {
                 if (value === 1) {
-                    tempPiecePosition.push({
+                    newPiecePosition.push({
                         x: this.shapePosition.x + valueIndex,
                         y: this.shapePosition.y + rowIndex,
                     });
@@ -74,7 +74,7 @@ export class Piece {
 
         const config = {
             ...(direction && { direction }),
-            piecePosition: tempPiecePosition,
+            piecePosition: newPiecePosition,
         };
 
         if (!this.isBetweenWalls(config) || !this.isBetweenOtherPieces(config)) {
@@ -119,7 +119,7 @@ export class Piece {
         });
     }
 
-    private lockPiece() {
+    private lockPiece() {    
         this.isLocked = true;
     }
 

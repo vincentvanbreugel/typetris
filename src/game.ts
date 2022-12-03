@@ -23,8 +23,7 @@ export class Game {
     private boardId = 'board';
     private board: Board;
     private piece: Piece;
-    private isRunning = false;
-    private isGameOver = false;
+    private timeoutId: number | undefined;
 
     constructor() {
         this.renderTemplate();
@@ -35,52 +34,59 @@ export class Game {
         this.pauseElement = document.getElementById(this.pauseId) as HTMLElement;
         this.gameOverElement = document.getElementById(this.gameOverId) as HTMLElement;
         this.state = new GameState(this);
-        this.board = new Board(this.boardId, this);
+        this.board = new Board(this.boardId);
         this.piece = this.getRandomPiece();
         this.attachEventHandlers();
     }
 
-    renderTemplate() {
+    private renderTemplate() {
         const body = document.querySelector('body') as HTMLBodyElement;
         body.insertAdjacentHTML('afterbegin', gameTemplate);
     }
 
     startGame(): void {
+        if (this.timeoutId) {
+            this.stopGameLoop();
+        }
         this.resetGame();
-        this.isRunning = true;
         this.startButton.innerHTML = 'Restart';
         this.movePiece({ direction: DIRECTIONS.NO_CHANGE });
-        requestAnimationFrame(() => this.gameLoop());
+        this.startGameLoop();
     }
 
     private resetGame(): void {
         this.pauseElement.classList.remove('is-visible');
         this.gameOverElement.classList.remove('is-visible');
-        this.isGameOver = false;
         this.state.reset();
-        this.board = new Board(this.boardId, this);
+        this.board = new Board(this.boardId);
         this.piece = this.getRandomPiece();
     }
 
-    gameLoop(): void {
-        if (this.isGameOver) {
-            return;
-        }
-
-        if (this.isRunning) {
+    private startGameLoop(): void {
+        this.timeoutId = setTimeout(async () => {
             this.movePiece({ direction: DIRECTIONS.DOWN });
 
             if (this.piece.isLocked) {
-                this.board.checkLineClear();
+                await this.checkLinesClear();
                 this.state.updateScore();
                 this.state.checkLevelChange();
                 this.piece = this.getRandomPiece();
                 this.movePiece({ direction: DIRECTIONS.NO_CHANGE, initialDrop: true });
             }
 
-            setTimeout(() => requestAnimationFrame(() => this.gameLoop()), this.state.speed);
-        } else {
-            setTimeout(() => this.gameLoop(), this.state.speed);
+            requestAnimationFrame(() => this.startGameLoop());
+        }, this.state.speed);
+    }
+
+    private stopGameLoop(): void {
+        clearTimeout(this.timeoutId);
+    }
+
+    private async checkLinesClear() {
+        const linesCleared = this.board.getLinesCleared();
+        if (linesCleared.length) {
+            await this.board.handleClearLines(linesCleared);
+            this.state.newLinesCleared = linesCleared.length;
         }
     }
 
@@ -93,11 +99,11 @@ export class Game {
         document.addEventListener('keydown', (event) => {
             switch (event.key) {
                 case KEYS.PAUSE:
-                    this.togglePause();
+                    this.handleClickPause();
                     break;
-                case KEYS.HARD_DROP: 
-                    this.hardDropPiece();
-                    break;    
+                case KEYS.HARD_DROP:
+                    this.hardDrop();
+                    break;
                 case KEYS.DOWN:
                     this.movePiece({ direction: DIRECTIONS.DOWN, userInput: true });
                     break;
@@ -124,7 +130,7 @@ export class Game {
     }): void {
         const { direction, initialDrop, userInput } = params;
 
-        if (!this.isRunning || !this.piece.isMoveValid({ direction })) {
+        if (this.state.isPaused || !this.piece.isMoveValid({ direction })) {
             if (initialDrop) {
                 this.gameOver();
             }
@@ -132,16 +138,15 @@ export class Game {
         }
 
         this.piece.move(direction);
+        this.board.draw();
 
         if (userInput && direction === DIRECTIONS.DOWN) {
             this.state.dropScore++;
         }
-
-        this.board.draw();
     }
 
     private rotatePiece(rotation: Rotations): void {
-        if (!this.isRunning || !this.piece.isMoveValid({ rotation })) {
+        if (this.state.isPaused || !this.piece.isMoveValid({ rotation })) {
             return;
         }
 
@@ -149,7 +154,7 @@ export class Game {
         this.board.draw();
     }
 
-    private hardDropPiece(): void {
+    private hardDrop(): void {
         const cellsDropped = this.piece.hardDrop();
         this.state.dropScore = this.state.dropScore + cellsDropped * BASE_SCORE_HARD_DROP;
         this.board.draw();
@@ -171,14 +176,19 @@ export class Game {
         return JSON.parse(JSON.stringify(TETROMINOS[index])) as Tetromino;
     }
 
-    private togglePause() {
-        this.isRunning = !this.isRunning;
+    private handleClickPause() {
+        this.state.togglePause();
         this.pauseElement.classList.toggle('is-visible');
+
+        if (!this.state.isPaused) {
+            this.startGameLoop();
+        } else {
+            this.stopGameLoop();
+        }
     }
 
     private gameOver() {
+        this.stopGameLoop();
         this.gameOverElement.classList.add('is-visible');
-        this.isGameOver = true;
-        this.isRunning = false;
     }
 }

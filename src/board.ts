@@ -1,19 +1,16 @@
-import { ROWS, COLS, BLOCK_SIZE } from './constants/game';
+import { ROWS, COLS, BLOCK_SIZE, LINE_CLEAR_DELAY } from './constants/game';
 import { COLORS } from './constants/colors';
 import { TETROMINOS } from './constants/tetrominos';
-import { Game } from './game';
 
 export class Board {
     state: number[][];
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
-    private game: Game;
 
-    constructor(boardId: string, game: Game) {
+    constructor(boardId: string) {
         this.canvas = document.getElementById(boardId) as HTMLCanvasElement;
         this.context = this.canvas.getContext('2d') as CanvasRenderingContext2D;
         this.state = Array.from(Array(ROWS), () => Array(COLS).fill(0));
-        this.game = game;
         this.create();
     }
 
@@ -34,7 +31,13 @@ export class Board {
         }
     }
 
-    checkLineClear(): void {
+    async handleClearLines(lines: number[]): Promise<void> {
+        this.highlightClearedLines(lines);
+        await this.sleep(LINE_CLEAR_DELAY);
+        this.clearLines(lines);
+    }
+
+    getLinesCleared(): number[] {
         const linesCleared = this.state.reduce((array, row, index) => {
             if (row.every((col) => col !== 0)) {
                 array.push(index);
@@ -42,9 +45,7 @@ export class Board {
             return array;
         }, []);
 
-        if (linesCleared.length) {
-            this.clearLines(linesCleared);
-        }
+        return linesCleared || [];
     }
 
     private clearLines(lines: number[]) {
@@ -63,8 +64,25 @@ export class Board {
                 }
             });
         });
+    }
 
-        this.game.state.newLinesCleared = lines.length;
+    private highlightClearedLines(lines: number[]): void {
+        lines.forEach((line) => {
+            this.state[line].forEach((cell, index) => {
+                const tetromino = TETROMINOS.find((tetromino) => {
+                    return tetromino.id === cell;
+                });
+                if (tetromino) {
+                    this.context.fillStyle = tetromino.color + '75';
+                    this.context.clearRect(index, line, 1, 1);
+                    this.context.fillRect(index, line, 1, 1);
+                }
+            });
+        });
+    }
+
+    private sleep(ms: number): Promise<number> {
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
     private create(): void {

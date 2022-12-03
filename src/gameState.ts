@@ -12,6 +12,7 @@ export class GameState {
     score = 0;
     level = 0;
     speed: number;
+    isPaused = false;
     totalLinesCleared = 0;
     dropScore = 0;
     newLinesCleared = 0;
@@ -26,6 +27,7 @@ export class GameState {
         this.dropScore = 0;
         this.score = 0;
         this.level = 0;
+        this.isPaused = false;
         this.game.levelElement.innerHTML = `${this.level}`;
         this.updateScore();
     }
@@ -57,5 +59,9 @@ export class GameState {
       this.level++;
       this.game.levelElement.innerHTML = `${this.level}`;
       this.speed = GAME_SPEEDS[this.level];
+    }
+
+    togglePause() {
+        this.isPaused = !this.isPaused;
     }
 }

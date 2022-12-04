@@ -115,7 +115,7 @@ export class Game {
         });
     }
 
-    private async startGameLoop(timeStamp: DOMHighResTimeStamp): Promise<void> {
+    private async startGameLoop(timeStamp: DOMHighResTimeStamp = 0): Promise<void> {
         this.gameTimer.elapsed = timeStamp - this.gameTimer.start;
         
         if (this.gameTimer.elapsed > this.state.speed) {            

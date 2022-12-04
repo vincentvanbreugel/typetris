@@ -7,6 +7,9 @@ export class Board {
     state: number[][];
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
+    private animatedLines: number[] = [];
+    private animationTimer = { start: 0, elapsed: 0 };
+    private requestId: number | undefined;
 
     constructor(boardId: string) {
         this.canvas = document.getElementById(boardId) as HTMLCanvasElement;
@@ -34,9 +37,11 @@ export class Board {
     }
 
     async handleClearLines(lines: number[]): Promise<void> {
-        const animation = this.animateClearedLines(lines);
+        this.animatedLines = lines;
+        this.animateClearedLines();
         await Utils.sleep(LINE_CLEAR_DELAY);
-        clearInterval(animation);
+        cancelAnimationFrame(this.requestId as number);
+        this.animatedLines = [];
         this.clearLines(lines);
     }
 
@@ -69,11 +74,12 @@ export class Board {
         });
     }
 
-    private animateClearedLines(lines: number[]): number {
+    private animateClearedLines(timeStamp: DOMHighResTimeStamp = 0): void {
+        this.animationTimer.elapsed = timeStamp - this.animationTimer.start;
         let brighten = true;
         let x = 99;
-        return setInterval(() => {
-            lines.forEach((line) => {
+        if (this.animationTimer.elapsed > 2) { 
+            this.animatedLines.forEach((line) => {
                 this.state[line].forEach((cell, index) => {
                     const tetromino = TETROMINOS.find((tetromino) => {
                         return tetromino.id === cell;
@@ -88,8 +94,10 @@ export class Board {
 
             brighten && x > 25 ? x-- : brighten = false;
             !brighten && x < 99 ? x++ : brighten = true;
-            
-        }, 1);
+
+        }
+
+        this.requestId = requestAnimationFrame(this.animateClearedLines.bind(this));
     }
 
     private create(): void {

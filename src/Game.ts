@@ -4,13 +4,14 @@ import { BASE_SCORE_HARD_DROP, DIRECTIONS, KEYS } from './constants/game';
 import { gameTemplate } from './templates/game';
 import type { Rotations } from './types';
 import { Piece } from './Piece';
+import { NextPieceBoard } from './NextPieceBoard';
 import { GameState } from './GameState';
 
 export class Game {
     private startButtonId = 'startButton';
     private startButton: HTMLButtonElement;
-    private restartButtonId = 'restartButton';
-    private restartButton: HTMLButtonElement;
+    private restartButtonAttr = 'data-restart-button';
+    private restartButton: NodeListOf<HTMLButtonElement>;
     private scoreId = 'score';
     scoreElement: HTMLElement;
     private clearedLinesId = 'clearedLines';
@@ -26,13 +27,16 @@ export class Game {
     state: GameState;
     private boardId = 'board';
     private board: Board;
+    private nextPieceBoardId = 'nextPieceBoard';
+    private nextPieceBoard: NextPieceBoard;
     private piece: Piece;
+    private nextPiece: Piece;
     private timeoutId: number | undefined;
 
     constructor() {
         this.renderTemplate();
         this.startButton = document.getElementById(this.startButtonId) as HTMLButtonElement;
-        this.restartButton = document.getElementById(this.restartButtonId) as HTMLButtonElement;
+        this.restartButton = document.querySelectorAll<HTMLButtonElement>(`[${this.restartButtonAttr}]`);
         this.scoreElement = document.getElementById(this.scoreId) as HTMLElement;
         this.clearedlinesElement = document.getElementById(this.clearedLinesId) as HTMLElement;
         this.newGameElement = document.getElementById(this.newGameId) as HTMLElement;
@@ -41,7 +45,9 @@ export class Game {
         this.gameOverElement = document.getElementById(this.gameOverId) as HTMLElement;
         this.state = new GameState(this);
         this.board = new Board(this.boardId);
+        this.nextPieceBoard = new NextPieceBoard(this.nextPieceBoardId);
         this.piece = this.getRandomPiece();
+        this.nextPiece = this.getRandomPiece();
         this.attachEventHandlers();
     }
 
@@ -49,14 +55,18 @@ export class Game {
         this.setGameOptions();
         this.newGameElement.classList.remove('is-visible');
         this.movePiece({ direction: DIRECTIONS.NO_CHANGE });
+        this.nextPieceBoard.draw(this.nextPiece);
         this.startGameLoop();
     }
 
     restartGame(): void {
+        console.log('click');
+        
         this.stopGameLoop();
         this.resetGame();
         this.newGameElement.classList.add('is-visible');
         this.pauseElement.classList.remove('is-visible');
+        this.gameOverElement.classList.remove('is-visible');
     }
 
     private renderTemplate() {
@@ -70,10 +80,13 @@ export class Game {
             (e.target as HTMLElement).blur();
         });
 
-        this.restartButton.addEventListener('click', (e: Event) => {
-            this.restartGame();
-            (e.target as HTMLElement).blur();
-        });
+        this.restartButton.forEach((button) => {
+            button.addEventListener('click', (e: Event) => {
+                this.restartGame();
+                (e.target as HTMLElement).blur();
+            });
+        })
+
 
         document.addEventListener('keydown', (event) => {
             switch (event.key) {
@@ -102,19 +115,25 @@ export class Game {
         });
     }
 
-    private startGameLoop(): void {
+    private startGameLoop(): void {  
         this.timeoutId = setTimeout(async () => {
             this.movePiece({ direction: DIRECTIONS.DOWN });
+
+            if (this.state.isGameOver) {
+                return;
+            }
 
             if (this.piece.isLocked) {
                 await this.checkLinesClear();
                 this.state.updateScore();
                 this.state.checkLevelChange();
-                this.piece = this.getRandomPiece();
+                this.piece = this.nextPiece;
+                this.nextPiece = this.getRandomPiece();
+                this.nextPieceBoard.draw(this.nextPiece);
                 this.movePiece({ direction: DIRECTIONS.NO_CHANGE, initialDrop: true });
             }
 
-            this.startGameLoop();
+            requestAnimationFrame(() => this.startGameLoop());
         }, this.state.speed);
     }
 
@@ -128,6 +147,7 @@ export class Game {
         this.state.reset();
         this.board = new Board(this.boardId);
         this.piece = this.getRandomPiece();
+        this.nextPiece = this.getRandomPiece();
     }
 
     private setGameOptions(): void {
@@ -210,7 +230,8 @@ export class Game {
     }
 
     private gameOver() {
-        this.stopGameLoop();
+        this.state.isGameOver = true;     
+        this.nextPieceBoard.clear();
         this.gameOverElement.classList.add('is-visible');
     }
 }

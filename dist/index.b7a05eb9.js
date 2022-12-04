@@ -544,36 +544,52 @@ var _tetrominos = require("./constants/tetrominos");
 var _game = require("./constants/game");
 var _game1 = require("./templates/game");
 var _piece = require("./Piece");
+var _nextPieceBoard = require("./NextPieceBoard");
 var _gameState = require("./GameState");
 class Game {
     startButtonId = "startButton";
+    restartButtonAttr = "data-restart-button";
     scoreId = "score";
     clearedLinesId = "clearedLines";
     levelId = "level";
+    newGameId = "newGameOverlay";
     pauseId = "pauseOverlay";
     gameOverId = "gameOverOverlay";
     boardId = "board";
+    nextPieceBoardId = "nextPieceBoard";
     constructor(){
         this.renderTemplate();
         this.startButton = document.getElementById(this.startButtonId);
+        this.restartButton = document.querySelectorAll(`[${this.restartButtonAttr}]`);
         this.scoreElement = document.getElementById(this.scoreId);
         this.clearedlinesElement = document.getElementById(this.clearedLinesId);
+        this.newGameElement = document.getElementById(this.newGameId);
         this.levelElement = document.getElementById(this.levelId);
         this.pauseElement = document.getElementById(this.pauseId);
         this.gameOverElement = document.getElementById(this.gameOverId);
         this.state = new (0, _gameState.GameState)(this);
         this.board = new (0, _board.Board)(this.boardId);
+        this.nextPieceBoard = new (0, _nextPieceBoard.NextPieceBoard)(this.nextPieceBoardId);
         this.piece = this.getRandomPiece();
+        this.nextPiece = this.getRandomPiece();
         this.attachEventHandlers();
     }
     startGame() {
-        if (this.timeoutId) this.stopGameLoop();
-        this.resetGame();
-        this.startButton.innerHTML = "Restart";
+        this.setGameOptions();
+        this.newGameElement.classList.remove("is-visible");
         this.movePiece({
             direction: (0, _game.DIRECTIONS).NO_CHANGE
         });
+        this.nextPieceBoard.draw(this.nextPiece);
         this.startGameLoop();
+    }
+    restartGame() {
+        console.log("click");
+        this.stopGameLoop();
+        this.resetGame();
+        this.newGameElement.classList.add("is-visible");
+        this.pauseElement.classList.remove("is-visible");
+        this.gameOverElement.classList.remove("is-visible");
     }
     renderTemplate() {
         const body = document.querySelector("body");
@@ -583,6 +599,12 @@ class Game {
         this.startButton.addEventListener("click", (e)=>{
             this.startGame();
             e.target.blur();
+        });
+        this.restartButton.forEach((button)=>{
+            button.addEventListener("click", (e)=>{
+                this.restartGame();
+                e.target.blur();
+            });
         });
         document.addEventListener("keydown", (event)=>{
             switch(event.key){
@@ -624,11 +646,14 @@ class Game {
             this.movePiece({
                 direction: (0, _game.DIRECTIONS).DOWN
             });
+            if (this.state.isGameOver) return;
             if (this.piece.isLocked) {
                 await this.checkLinesClear();
                 this.state.updateScore();
                 this.state.checkLevelChange();
-                this.piece = this.getRandomPiece();
+                this.piece = this.nextPiece;
+                this.nextPiece = this.getRandomPiece();
+                this.nextPieceBoard.draw(this.nextPiece);
                 this.movePiece({
                     direction: (0, _game.DIRECTIONS).NO_CHANGE,
                     initialDrop: true
@@ -646,6 +671,11 @@ class Game {
         this.state.reset();
         this.board = new (0, _board.Board)(this.boardId);
         this.piece = this.getRandomPiece();
+        this.nextPiece = this.getRandomPiece();
+    }
+    setGameOptions() {
+        const selectedLevel = document.querySelector('input[name="level-select"]:checked')?.value;
+        this.state.setLevel(parseInt(selectedLevel, 10));
     }
     movePiece(params) {
         const { direction , initialDrop , userInput  } = params;
@@ -695,12 +725,13 @@ class Game {
         else this.stopGameLoop();
     }
     gameOver() {
-        this.stopGameLoop();
+        this.state.isGameOver = true;
+        this.nextPieceBoard.clear();
         this.gameOverElement.classList.add("is-visible");
     }
 }
 
-},{"./Board":"4daYq","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./templates/game":"gPbNQ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./GameState":"4wLIF","./Piece":"6E5CQ"}],"4daYq":[function(require,module,exports) {
+},{"./Board":"4daYq","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./templates/game":"gPbNQ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./GameState":"4wLIF","./Piece":"6E5CQ","./NextPieceBoard":"dSE8P"}],"4daYq":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Board", ()=>Board);
@@ -763,11 +794,9 @@ class Board {
                     }
                 });
             });
-            if (brighten && x > 25) x--;
-            else brighten = false;
-            if (!brighten && x < 99) x++;
-            else brighten = true;
-        }, 2);
+            brighten && x > 25 ? x-- : brighten = false;
+            !brighten && x < 99 ? x++ : brighten = true;
+        }, 1);
     }
     create() {
         this.context.canvas.width = (0, _game.COLS) * (0, _game.BLOCK_SIZE);
@@ -851,7 +880,7 @@ const GAME_SPEEDS = [
 ];
 const MAX_LEVEL = 9;
 const LEVEL_LIMIT = 10;
-const LINE_CLEAR_DELAY = 1800;
+const LINE_CLEAR_DELAY = 1200;
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
@@ -1450,15 +1479,68 @@ const gameTemplate = `
 <div class="container">
     <div class="board-wrapper">
         <canvas id="board" class="board"></canvas>
+        <div id="newGameOverlay" class="new-game-overlay is-visible">
+            <form>
+            <fieldset>
+                <legend>Level select</legend>
+                <div>
+                    <label for="level0">0</label>
+                    <input type="radio" name="level-select" id="level0" value="0" checked></input>
+                </div>
+                <div>
+                    <label for="level1">1</label>
+                    <input type="radio" name="level-select" id="level1" value="1"></input>
+                </div>
+                <div>
+                    <label for="level2">2</label>
+                    <input type="radio" name="level-select" id="level2" value="2"></input>
+                </div>
+                <div>
+                    <label for="level3">3</label>
+                    <input type="radio" name="level-select" id="level3" value="3"></input>
+                </div>
+                <div>
+                    <label for="level4">4</label>
+                    <input type="radio" name="level-select" id="level4" value="4"></input>
+                </div>
+                <div>
+                    <label for="level5">5</label>
+                    <input type="radio" name="level-select" id="level5" value="5"></input>
+                </div>
+                <div>
+                    <label for="level6">6</label>
+                    <input type="radio" name="level-select" id="level6" value="6"></input>
+                </div>
+                <div>
+                    <label for="level7">7</label>
+                    <input type="radio" name="level-select" id="level7" value="7"></input>
+                </div>
+                <div>
+                    <label for="level8">8</label>
+                    <input type="radio" name="level-select" id="level8" value="8"></input>
+                </div>
+                <div>
+                    <label for="level9">9</label>
+                    <input type="radio" name="level-select" id="level9" value="9"></input>
+                </div>
+            </fieldset>
+
+            </form>
+            <button type="button" id="startButton" class="start-button">Start</button>
+        </div>
         <div id="pauseOverlay" class="pause-overlay">
             <span>Paused</span>
+            <button type="button" data-restart-button class="restart-button">Restart Game</button>
         </div>
         <div id="gameOverOverlay" class="game-over-overlay">
             <span>Game over</span>
+            <button type="button" data-restart-button class="restart-button">Restart Game</button>
         </div>
     </div>
     <div class="game-info">
-        <button type="button" id="startButton" class="start-button">Start</button>
+        <div class="next-piece-container">
+            <canvas id="nextPieceBoard" class="next-piece-canvas"></canvas>
+        </div>
         <div class="game-score">
           <div>Score</div>
           <div id="score" class="score">0</div>
@@ -1515,6 +1597,7 @@ class GameState {
     score = 0;
     level = 0;
     isPaused = false;
+    isGameOver = false;
     totalLinesCleared = 0;
     dropScore = 0;
     newLinesCleared = 0;
@@ -1529,6 +1612,7 @@ class GameState {
         this.level = 0;
         this.speed = (0, _game.GAME_SPEEDS)[this.level];
         this.isPaused = false;
+        this.isGameOver = false;
         this.game.levelElement.innerHTML = `${this.level}`;
         this.updateScore();
     }
@@ -1543,13 +1627,13 @@ class GameState {
         this.game.scoreElement.innerHTML = `${this.score}`;
         this.game.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
     }
-    checkLevelChange() {
-        if (this.totalLinesCleared > (this.level + 1) * (0, _game.LEVEL_LIMIT) && this.level < (0, _game.MAX_LEVEL)) this.updateLevel();
-    }
-    updateLevel() {
-        this.level++;
-        this.game.levelElement.innerHTML = `${this.level}`;
+    setLevel(level) {
+        this.level = level;
         this.speed = (0, _game.GAME_SPEEDS)[this.level];
+        this.game.levelElement.innerHTML = `${this.level}`;
+    }
+    checkLevelChange() {
+        if (this.totalLinesCleared > (this.level + 1) * (0, _game.LEVEL_LIMIT) && this.level < (0, _game.MAX_LEVEL)) this.setLevel(this.level + 1);
     }
     togglePause() {
         this.isPaused = !this.isPaused;
@@ -1568,6 +1652,7 @@ class Piece {
         this.shapePosition = (0, _game.SPAWN_POSITION);
         this.piecePosition = [];
         this.shapes = tetromino.shapes;
+        this.color = tetromino.color;
         this.shapeIndex = 0;
         this.board = board;
     }
@@ -1699,6 +1784,64 @@ class Piece {
     }
 }
 
-},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
+},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dSE8P":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "NextPieceBoard", ()=>NextPieceBoard);
+var _game = require("./constants/game");
+var _colors = require("./constants/colors");
+class NextPieceBoard {
+    clearState = [
+        [
+            0,
+            0,
+            0,
+            0
+        ],
+        [
+            0,
+            0,
+            0,
+            0
+        ],
+        [
+            0,
+            0,
+            0,
+            0
+        ],
+        [
+            0,
+            0,
+            0,
+            0
+        ]
+    ];
+    constructor(boardId){
+        this.canvas = document.getElementById(boardId);
+        this.context = this.canvas.getContext("2d");
+    }
+    draw(piece) {
+        const shape = piece.shapes[0];
+        this.setCanvasDimensions(shape);
+        for(let y = 0; y < shape.length; y++)for(let x = 0; x < shape[0].length; x++){
+            if (shape[y][x] !== 0) this.context.fillStyle = piece.color;
+            else this.context.fillStyle = (0, _colors.COLORS).white;
+            this.context.fillRect(x, y, 1, 1);
+        }
+    }
+    clear() {
+        this.context.fillStyle = (0, _colors.COLORS).white;
+        for(let y = 0; y < this.clearState.length; y++)for(let x = 0; x < this.clearState[0].length; x++)this.context.fillRect(x, y, 1, 1);
+    }
+    setCanvasDimensions(shape) {
+        const height = shape.length === 2 ? 2 : shape.length - 1;
+        this.context.canvas.width = shape.length * (0, _game.BLOCK_SIZE);
+        this.context.canvas.height = height * (0, _game.BLOCK_SIZE);
+        this.context.scale((0, _game.BLOCK_SIZE), (0, _game.BLOCK_SIZE));
+    }
+}
+
+},{"./constants/game":"be0O0","./constants/colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
 
 //# sourceMappingURL=index.b7a05eb9.js.map

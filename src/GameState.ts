@@ -13,6 +13,7 @@ export class GameState {
     level = 0;
     speed: number;
     isPaused = false;
+    isGameOver = false;
     totalLinesCleared = 0;
     dropScore = 0;
     newLinesCleared = 0;
@@ -29,6 +30,7 @@ export class GameState {
         this.level = 0;
         this.speed = GAME_SPEEDS[this.level];
         this.isPaused = false;
+        this.isGameOver = false;
         this.game.levelElement.innerHTML = `${this.level}`;
         this.updateScore();
     }

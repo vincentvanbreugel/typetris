@@ -8,7 +8,8 @@ export class Piece {
     id: number;
     private shapePosition: Point;
     private piecePosition: Point[];
-    private shapes: Shape[];
+    shapes: Shape[];
+    color: string;
     private shapeIndex: number;
     private board: Board;
 
@@ -17,6 +18,7 @@ export class Piece {
         this.shapePosition = SPAWN_POSITION;
         this.piecePosition = [];
         this.shapes = tetromino.shapes;
+        this.color = tetromino.color;
         this.shapeIndex = 0;
         this.board = board;
     }

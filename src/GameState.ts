@@ -52,7 +52,12 @@ export class GameState {
         this.game.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
     }
 
-    setLevel(level: number): void {
+    setGameOptions(config: { level: number }): void {
+        const { level } = config;
+        this.setLevel(level);
+    }
+
+    private setLevel(level: number): void {
         this.level = level;
         this.speed = GAME_SPEEDS[this.level];
         this.game.levelElement.innerHTML = `${this.level}`;

@@ -36,7 +36,9 @@ export class Game {
     constructor() {
         this.renderTemplate();
         this.startButton = document.getElementById(this.startButtonId) as HTMLButtonElement;
-        this.restartButton = document.querySelectorAll<HTMLButtonElement>(`[${this.restartButtonAttr}]`);
+        this.restartButton = document.querySelectorAll<HTMLButtonElement>(
+            `[${this.restartButtonAttr}]`
+        );
         this.scoreElement = document.getElementById(this.scoreId) as HTMLElement;
         this.clearedlinesElement = document.getElementById(this.clearedLinesId) as HTMLElement;
         this.newGameElement = document.getElementById(this.newGameId) as HTMLElement;
@@ -61,7 +63,7 @@ export class Game {
 
     restartGame(): void {
         console.log('click');
-        
+
         this.stopGameLoop();
         this.resetGame();
         this.newGameElement.classList.add('is-visible');
@@ -85,8 +87,7 @@ export class Game {
                 this.restartGame();
                 (e.target as HTMLElement).blur();
             });
-        })
-
+        });
 
         document.addEventListener('keydown', (event) => {
             switch (event.key) {
@@ -115,7 +116,7 @@ export class Game {
         });
     }
 
-    private startGameLoop(): void {  
+    private startGameLoop(): void {
         this.timeoutId = setTimeout(async () => {
             this.movePiece({ direction: DIRECTIONS.DOWN });
 
@@ -154,7 +155,7 @@ export class Game {
         const selectedLevel = (<HTMLOptionElement>(
             document.querySelector('input[name="level-select"]:checked')
         ))?.value;
-        this.state.setLevel(parseInt(selectedLevel, 10));
+        this.state.setGameOptions({ level: parseInt(selectedLevel, 10) });
     }
 
     private movePiece(params: {
@@ -230,7 +231,7 @@ export class Game {
     }
 
     private gameOver() {
-        this.state.isGameOver = true;     
+        this.state.isGameOver = true;
         this.nextPieceBoard.clear();
         this.gameOverElement.classList.add('is-visible');
     }

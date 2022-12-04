@@ -2,15 +2,64 @@ export const gameTemplate = `
 <div class="container">
     <div class="board-wrapper">
         <canvas id="board" class="board"></canvas>
+        <div id="newGameOverlay" class="new-game-overlay is-visible">
+            <form>
+            <fieldset>
+                <legend>Level select</legend>
+                <div>
+                    <label for="level0">0</label>
+                    <input type="radio" name="level-select" id="level0" value="0" checked></input>
+                </div>
+                <div>
+                    <label for="level1">1</label>
+                    <input type="radio" name="level-select" id="level1" value="1"></input>
+                </div>
+                <div>
+                    <label for="level2">2</label>
+                    <input type="radio" name="level-select" id="level2" value="2"></input>
+                </div>
+                <div>
+                    <label for="level3">3</label>
+                    <input type="radio" name="level-select" id="level3" value="3"></input>
+                </div>
+                <div>
+                    <label for="level4">4</label>
+                    <input type="radio" name="level-select" id="level4" value="4"></input>
+                </div>
+                <div>
+                    <label for="level5">5</label>
+                    <input type="radio" name="level-select" id="level5" value="5"></input>
+                </div>
+                <div>
+                    <label for="level6">6</label>
+                    <input type="radio" name="level-select" id="level6" value="6"></input>
+                </div>
+                <div>
+                    <label for="level7">7</label>
+                    <input type="radio" name="level-select" id="level7" value="7"></input>
+                </div>
+                <div>
+                    <label for="level8">8</label>
+                    <input type="radio" name="level-select" id="level8" value="8"></input>
+                </div>
+                <div>
+                    <label for="level9">9</label>
+                    <input type="radio" name="level-select" id="level9" value="9"></input>
+                </div>
+            </fieldset>
+
+            </form>
+            <button type="button" id="startButton" class="start-button">Start</button>
+        </div>
         <div id="pauseOverlay" class="pause-overlay">
             <span>Paused</span>
+            <button type="button" id="restartButton" class="restart-button">Restart Game</button>
         </div>
         <div id="gameOverOverlay" class="game-over-overlay">
             <span>Game over</span>
         </div>
     </div>
     <div class="game-info">
-        <button type="button" id="startButton" class="start-button">Start</button>
         <div class="game-score">
           <div>Score</div>
           <div id="score" class="score">0</div>

@@ -13,7 +13,8 @@
 }
 
 .pause-overlay,
-.game-over-overlay {
+.game-over-overlay,
+.new-game-overlay {
     display: none;
     position: absolute;
     top: 0;
@@ -22,6 +23,7 @@
     bottom: 0;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     background: #ffffff;
 
     &.is-visible {
@@ -33,7 +35,7 @@
   margin-left: 20px;
 }
 
-.start-button {
+.start-button, .restart-button {
   margin-bottom: 10px;
   cursor: pointer;
 }

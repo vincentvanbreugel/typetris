@@ -50,16 +50,16 @@ export class GameState {
         this.game.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
     }
 
-    checkLevelChange() {      
-        if (this.totalLinesCleared > ((this.level + 1) * LEVEL_LIMIT) && this.level < MAX_LEVEL) {
-          this.updateLevel();
-        }
+    setLevel(level: number): void {
+        this.level = level;
+        this.speed = GAME_SPEEDS[this.level];
+        this.game.levelElement.innerHTML = `${this.level}`;
     }
 
-    updateLevel() {
-      this.level++;
-      this.game.levelElement.innerHTML = `${this.level}`;
-      this.speed = GAME_SPEEDS[this.level];
+    checkLevelChange() {
+        if (this.totalLinesCleared > (this.level + 1) * LEVEL_LIMIT && this.level < MAX_LEVEL) {
+            this.setLevel(this.level + 1);
+        }
     }
 
     togglePause() {

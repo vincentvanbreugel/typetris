@@ -43,4 +43,4 @@ export const GAME_SPEEDS = [
 ];
 export const MAX_LEVEL = 9;
 export const LEVEL_LIMIT = 10;
-export const LINE_CLEAR_DELAY = 1800;
+export const LINE_CLEAR_DELAY = 1200;

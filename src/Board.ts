@@ -85,20 +85,10 @@ export class Board {
                 });
             });
 
-            if (brighten && x > 25) {
-                x--
-            } else {
-                brighten = false
-            }
-
-
-            if (!brighten && x < 99) {
-                x++
-            } else {
-                brighten = true
-            }
+            brighten && x > 25 ? x-- : brighten = false;
+            !brighten && x < 99 ? x++ : brighten = true;
             
-        }, 2);
+        }, 1);
     }
 
     private create(): void {

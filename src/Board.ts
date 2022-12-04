@@ -16,6 +16,7 @@ export class Board {
     }
 
     draw(): void {
+        this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height); 
         for (let y = 0; y < this.state.length; y++) {
             for (let x = 0; x < this.state[0].length; x++) {
                 const tetromino = TETROMINOS.find((tetromino) => {

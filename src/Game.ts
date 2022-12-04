@@ -31,7 +31,8 @@ export class Game {
     private nextPieceBoard: NextPieceBoard;
     private piece: Piece;
     private nextPiece: Piece;
-    private timeoutId: number | undefined;
+    private requestId: number | undefined;
+    private gameTimer = { start: 0, elapsed: 0 };
 
     constructor() {
         this.renderTemplate();
@@ -62,8 +63,6 @@ export class Game {
     }
 
     restartGame(): void {
-        console.log('click');
-
         this.stopGameLoop();
         this.resetGame();
         this.newGameElement.classList.add('is-visible');
@@ -116,8 +115,12 @@ export class Game {
         });
     }
 
-    private startGameLoop(): void {
-        this.timeoutId = setTimeout(async () => {
+    private async startGameLoop(timeStamp: DOMHighResTimeStamp): Promise<void> {
+        this.gameTimer.elapsed = timeStamp - this.gameTimer.start;
+        
+        if (this.gameTimer.elapsed > this.state.speed) {            
+            this.gameTimer.start = timeStamp;
+
             this.movePiece({ direction: DIRECTIONS.DOWN });
 
             if (this.state.isGameOver) {
@@ -133,13 +136,13 @@ export class Game {
                 this.nextPieceBoard.draw(this.nextPiece);
                 this.movePiece({ direction: DIRECTIONS.NO_CHANGE, initialDrop: true });
             }
+        }
 
-            requestAnimationFrame(() => this.startGameLoop());
-        }, this.state.speed);
+        this.requestId = requestAnimationFrame(this.startGameLoop.bind(this));
     }
 
     private stopGameLoop(): void {
-        clearTimeout(this.timeoutId);
+        cancelAnimationFrame(this.requestId as number);
     }
 
     private resetGame(): void {

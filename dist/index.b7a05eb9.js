@@ -557,6 +557,10 @@ class Game {
     gameOverId = "gameOverOverlay";
     boardId = "board";
     nextPieceBoardId = "nextPieceBoard";
+    gameTimer = {
+        start: 0,
+        elapsed: 0
+    };
     constructor(){
         this.renderTemplate();
         this.startButton = document.getElementById(this.startButtonId);
@@ -584,7 +588,6 @@ class Game {
         this.startGameLoop();
     }
     restartGame() {
-        console.log("click");
         this.stopGameLoop();
         this.resetGame();
         this.newGameElement.classList.add("is-visible");
@@ -641,8 +644,10 @@ class Game {
             }
         });
     }
-    startGameLoop() {
-        this.timeoutId = setTimeout(async ()=>{
+    async startGameLoop(timeStamp) {
+        this.gameTimer.elapsed = timeStamp - this.gameTimer.start;
+        if (this.gameTimer.elapsed > this.state.speed) {
+            this.gameTimer.start = timeStamp;
             this.movePiece({
                 direction: (0, _game.DIRECTIONS).DOWN
             });
@@ -659,11 +664,11 @@ class Game {
                     initialDrop: true
                 });
             }
-            requestAnimationFrame(()=>this.startGameLoop());
-        }, this.state.speed);
+        }
+        this.requestId = requestAnimationFrame(this.startGameLoop.bind(this));
     }
     stopGameLoop() {
-        clearTimeout(this.timeoutId);
+        cancelAnimationFrame(this.requestId);
     }
     resetGame() {
         this.pauseElement.classList.remove("is-visible");
@@ -675,7 +680,9 @@ class Game {
     }
     setGameOptions() {
         const selectedLevel = document.querySelector('input[name="level-select"]:checked')?.value;
-        this.state.setLevel(parseInt(selectedLevel, 10));
+        this.state.setGameOptions({
+            level: parseInt(selectedLevel, 10)
+        });
     }
     movePiece(params) {
         const { direction , initialDrop , userInput  } = params;
@@ -747,6 +754,7 @@ class Board {
         this.create();
     }
     draw() {
+        this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
         for(let y = 0; y < this.state.length; y++)for(let x = 0; x < this.state[0].length; x++){
             const tetromino = (0, _tetrominos.TETROMINOS).find((tetromino)=>{
                 return tetromino.id === this.state[y][x];
@@ -867,18 +875,29 @@ const getSpeedinMilliSeconds = (frames)=>{
     return frames / 60 * 1000;
 };
 const GAME_SPEEDS = [
-    getSpeedinMilliSeconds(48),
-    getSpeedinMilliSeconds(43),
-    getSpeedinMilliSeconds(38),
+    getSpeedinMilliSeconds(53),
+    getSpeedinMilliSeconds(49),
+    getSpeedinMilliSeconds(45),
+    getSpeedinMilliSeconds(41),
+    getSpeedinMilliSeconds(37),
     getSpeedinMilliSeconds(33),
     getSpeedinMilliSeconds(28),
-    getSpeedinMilliSeconds(23),
-    getSpeedinMilliSeconds(18),
-    getSpeedinMilliSeconds(13),
+    getSpeedinMilliSeconds(22),
+    getSpeedinMilliSeconds(17),
+    getSpeedinMilliSeconds(11),
+    getSpeedinMilliSeconds(10),
+    getSpeedinMilliSeconds(9),
     getSpeedinMilliSeconds(8),
-    getSpeedinMilliSeconds(6)
+    getSpeedinMilliSeconds(7),
+    getSpeedinMilliSeconds(6),
+    getSpeedinMilliSeconds(6),
+    getSpeedinMilliSeconds(5),
+    getSpeedinMilliSeconds(5),
+    getSpeedinMilliSeconds(4),
+    getSpeedinMilliSeconds(4),
+    getSpeedinMilliSeconds(3)
 ];
-const MAX_LEVEL = 9;
+const MAX_LEVEL = 20;
 const LEVEL_LIMIT = 10;
 const LINE_CLEAR_DELAY = 1200;
 
@@ -1626,6 +1645,10 @@ class GameState {
         this.dropScore = 0;
         this.game.scoreElement.innerHTML = `${this.score}`;
         this.game.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
+    }
+    setGameOptions(config) {
+        const { level  } = config;
+        this.setLevel(level);
     }
     setLevel(level) {
         this.level = level;

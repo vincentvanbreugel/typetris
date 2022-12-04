@@ -30,17 +30,28 @@ const getSpeedinMilliSeconds = (frames: number): number => {
     return (frames / 60) * 1000;
 }
 export const GAME_SPEEDS = [
-    getSpeedinMilliSeconds(48),
-    getSpeedinMilliSeconds(43),
-    getSpeedinMilliSeconds(38),
+    getSpeedinMilliSeconds(53),
+    getSpeedinMilliSeconds(49),
+    getSpeedinMilliSeconds(45),
+    getSpeedinMilliSeconds(41),
+    getSpeedinMilliSeconds(37),
     getSpeedinMilliSeconds(33),
     getSpeedinMilliSeconds(28),
-    getSpeedinMilliSeconds(23),
-    getSpeedinMilliSeconds(18),
-    getSpeedinMilliSeconds(13),
+    getSpeedinMilliSeconds(22),
+    getSpeedinMilliSeconds(17),
+    getSpeedinMilliSeconds(11),
+    getSpeedinMilliSeconds(10),
+    getSpeedinMilliSeconds(9),
     getSpeedinMilliSeconds(8),
+    getSpeedinMilliSeconds(7),
     getSpeedinMilliSeconds(6),
+    getSpeedinMilliSeconds(6),
+    getSpeedinMilliSeconds(5),
+    getSpeedinMilliSeconds(5),
+    getSpeedinMilliSeconds(4),
+    getSpeedinMilliSeconds(4),
+    getSpeedinMilliSeconds(3),
 ];
-export const MAX_LEVEL = 9;
+export const MAX_LEVEL = 20;
 export const LEVEL_LIMIT = 10;
 export const LINE_CLEAR_DELAY = 1200;

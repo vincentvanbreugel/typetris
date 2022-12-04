@@ -644,7 +644,7 @@ class Game {
             }
         });
     }
-    async startGameLoop(timeStamp) {
+    async startGameLoop(timeStamp = 0) {
         this.gameTimer.elapsed = timeStamp - this.gameTimer.start;
         if (this.gameTimer.elapsed > this.state.speed) {
             this.gameTimer.start = timeStamp;
@@ -747,6 +747,13 @@ var _colors = require("./constants/colors");
 var _tetrominos = require("./constants/tetrominos");
 var _utils = require("./Utils");
 class Board {
+    animatedLines = [];
+    animationTimer = {
+        start: 0,
+        elapsed: 0
+    };
+    brighten = true;
+    opacity = 99;
     constructor(boardId){
         this.canvas = document.getElementById(boardId);
         this.context = this.canvas.getContext("2d");
@@ -765,9 +772,11 @@ class Board {
         }
     }
     async handleClearLines(lines) {
-        const animation = this.animateClearedLines(lines);
+        this.animatedLines = lines;
+        this.animateClearedLines();
         await (0, _utils.Utils).sleep((0, _game.LINE_CLEAR_DELAY));
-        clearInterval(animation);
+        cancelAnimationFrame(this.requestId);
+        this.animatedLines = [];
         this.clearLines(lines);
     }
     getLinesCleared() {
@@ -786,25 +795,26 @@ class Board {
             });
         });
     }
-    animateClearedLines(lines) {
-        let brighten = true;
-        let x = 99;
-        return setInterval(()=>{
-            lines.forEach((line)=>{
+    animateClearedLines(timeStamp = 0) {
+        this.animationTimer.elapsed = timeStamp - this.animationTimer.start;
+        if (this.animationTimer.elapsed > 1000 / 60) {
+            this.animationTimer.start = timeStamp;
+            this.animatedLines.forEach((line)=>{
                 this.state[line].forEach((cell, index)=>{
                     const tetromino = (0, _tetrominos.TETROMINOS).find((tetromino)=>{
                         return tetromino.id === cell;
                     });
                     if (tetromino) {
-                        this.context.fillStyle = tetromino.color + x;
+                        this.context.fillStyle = tetromino.color + this.opacity;
                         this.context.clearRect(index, line, 1, 1);
                         this.context.fillRect(index, line, 1, 1);
                     }
                 });
             });
-            brighten && x > 25 ? x-- : brighten = false;
-            !brighten && x < 99 ? x++ : brighten = true;
-        }, 1);
+            this.brighten && this.opacity > 25 ? this.opacity = this.opacity - 4 : this.brighten = false;
+            !this.brighten && this.opacity < 99 ? this.opacity = this.opacity + 4 : this.brighten = true;
+        }
+        this.requestId = requestAnimationFrame(this.animateClearedLines.bind(this));
     }
     create() {
         this.context.canvas.width = (0, _game.COLS) * (0, _game.BLOCK_SIZE);

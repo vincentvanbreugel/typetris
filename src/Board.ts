@@ -10,6 +10,8 @@ export class Board {
     private animatedLines: number[] = [];
     private animationTimer = { start: 0, elapsed: 0 };
     private requestId: number | undefined;
+    private brighten = true;
+    private opacity = 99;
 
     constructor(boardId: string) {
         this.canvas = document.getElementById(boardId) as HTMLCanvasElement;
@@ -76,24 +78,25 @@ export class Board {
 
     private animateClearedLines(timeStamp: DOMHighResTimeStamp = 0): void {
         this.animationTimer.elapsed = timeStamp - this.animationTimer.start;
-        let brighten = true;
-        let x = 99;
-        if (this.animationTimer.elapsed > 2) { 
+        
+        if (this.animationTimer.elapsed > (1000 / 60)) {             
+            this.animationTimer.start = timeStamp;
+            
             this.animatedLines.forEach((line) => {
                 this.state[line].forEach((cell, index) => {
                     const tetromino = TETROMINOS.find((tetromino) => {
                         return tetromino.id === cell;
                     });
                     if (tetromino) {
-                        this.context.fillStyle = tetromino.color + x;
+                        this.context.fillStyle = tetromino.color + (this.opacity);
                         this.context.clearRect(index, line, 1, 1);
                         this.context.fillRect(index, line, 1, 1);
                     }
                 });
             });
 
-            brighten && x > 25 ? x-- : brighten = false;
-            !brighten && x < 99 ? x++ : brighten = true;
+            this.brighten && this.opacity > 25 ? this.opacity = this.opacity - 4 : this.brighten = false;
+            !this.brighten && this.opacity < 99 ? this.opacity = this.opacity + 4 : this.brighten = true;
 
         }
 

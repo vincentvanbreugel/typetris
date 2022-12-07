@@ -675,7 +675,9 @@ class Game {
     }
     setGameOptions() {
         const selectedLevel = document.querySelector('input[name="level-select"]:checked')?.value;
-        this.state.setLevel(parseInt(selectedLevel, 10));
+        this.state.setGameOptions({
+            level: parseInt(selectedLevel, 10)
+        });
     }
     movePiece(params) {
         const { direction , initialDrop , userInput  } = params;
@@ -731,7 +733,7 @@ class Game {
     }
 }
 
-},{"./Board":"4daYq","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./templates/game":"gPbNQ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./GameState":"4wLIF","./Piece":"6E5CQ","./NextPieceBoard":"dSE8P"}],"4daYq":[function(require,module,exports) {
+},{"./Board":"4daYq","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./templates/game":"gPbNQ","./Piece":"6E5CQ","./NextPieceBoard":"dSE8P","./GameState":"4wLIF","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4daYq":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Board", ()=>Board);
@@ -1588,59 +1590,7 @@ const gameTemplate = `
 </div>
 `;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4wLIF":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "GameState", ()=>GameState);
-var _game = require("./constants/game");
-class GameState {
-    score = 0;
-    level = 0;
-    isPaused = false;
-    isGameOver = false;
-    totalLinesCleared = 0;
-    dropScore = 0;
-    newLinesCleared = 0;
-    constructor(game){
-        this.game = game;
-        this.speed = (0, _game.GAME_SPEEDS)[this.level];
-    }
-    reset() {
-        this.totalLinesCleared = 0;
-        this.dropScore = 0;
-        this.score = 0;
-        this.level = 0;
-        this.speed = (0, _game.GAME_SPEEDS)[this.level];
-        this.isPaused = false;
-        this.isGameOver = false;
-        this.game.levelElement.innerHTML = `${this.level}`;
-        this.updateScore();
-    }
-    updateScore() {
-        if (this.newLinesCleared) {
-            this.score = this.score + (0, _game.BASE_SCORES_LINE_CLEAR)[this.newLinesCleared - 1] * (this.level + 1);
-            this.totalLinesCleared = this.totalLinesCleared + this.newLinesCleared;
-        }
-        if (this.dropScore) this.score = this.score + this.dropScore * (0, _game.BASE_SCORE_SOFT_DROP);
-        this.newLinesCleared = 0;
-        this.dropScore = 0;
-        this.game.scoreElement.innerHTML = `${this.score}`;
-        this.game.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
-    }
-    setLevel(level) {
-        this.level = level;
-        this.speed = (0, _game.GAME_SPEEDS)[this.level];
-        this.game.levelElement.innerHTML = `${this.level}`;
-    }
-    checkLevelChange() {
-        if (this.totalLinesCleared > (this.level + 1) * (0, _game.LEVEL_LIMIT) && this.level < (0, _game.MAX_LEVEL)) this.setLevel(this.level + 1);
-    }
-    togglePause() {
-        this.isPaused = !this.isPaused;
-    }
-}
-
-},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6E5CQ":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6E5CQ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Piece", ()=>Piece);
@@ -1842,6 +1792,62 @@ class NextPieceBoard {
     }
 }
 
-},{"./constants/game":"be0O0","./constants/colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
+},{"./constants/game":"be0O0","./constants/colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4wLIF":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "GameState", ()=>GameState);
+var _game = require("./constants/game");
+class GameState {
+    score = 0;
+    level = 0;
+    isPaused = false;
+    isGameOver = false;
+    totalLinesCleared = 0;
+    dropScore = 0;
+    newLinesCleared = 0;
+    constructor(game){
+        this.game = game;
+        this.speed = (0, _game.GAME_SPEEDS)[this.level];
+    }
+    reset() {
+        this.totalLinesCleared = 0;
+        this.dropScore = 0;
+        this.score = 0;
+        this.level = 0;
+        this.speed = (0, _game.GAME_SPEEDS)[this.level];
+        this.isPaused = false;
+        this.isGameOver = false;
+        this.game.levelElement.innerHTML = `${this.level}`;
+        this.updateScore();
+    }
+    updateScore() {
+        if (this.newLinesCleared) {
+            this.score = this.score + (0, _game.BASE_SCORES_LINE_CLEAR)[this.newLinesCleared - 1] * (this.level + 1);
+            this.totalLinesCleared = this.totalLinesCleared + this.newLinesCleared;
+        }
+        if (this.dropScore) this.score = this.score + this.dropScore * (0, _game.BASE_SCORE_SOFT_DROP);
+        this.newLinesCleared = 0;
+        this.dropScore = 0;
+        this.game.scoreElement.innerHTML = `${this.score}`;
+        this.game.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
+    }
+    setGameOptions(config) {
+        const { level  } = config;
+        this.setLevel(level);
+    }
+    setLevel(level) {
+        this.level = level;
+        this.speed = (0, _game.GAME_SPEEDS)[this.level];
+        this.game.levelElement.innerHTML = `${this.level}`;
+    }
+    checkLevelChange() {
+        if (this.totalLinesCleared > (this.level + 1) * (0, _game.LEVEL_LIMIT) && this.level < (0, _game.MAX_LEVEL)) this.setLevel(this.level + 1);
+    }
+    togglePause() {
+        this.isPaused = !this.isPaused;
+    }
+}
+
+},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
 
 //# sourceMappingURL=index.b7a05eb9.js.map

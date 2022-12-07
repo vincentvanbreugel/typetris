@@ -6,7 +6,12 @@ import { Shape } from './constants/tetrominos';
 export class NextPieceBoard {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
-    private clearState = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
+    private clearState = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+    ];
 
     constructor(boardId: string) {
         this.canvas = document.getElementById(boardId) as HTMLCanvasElement;
@@ -21,7 +26,7 @@ export class NextPieceBoard {
                 if (shape[y][x] !== 0) {
                     this.context.fillStyle = piece.color;
                 } else {
-                    this.context.fillStyle = COLORS.white;
+                    this.context.fillStyle = COLORS.empty;
                 }
                 this.context.fillRect(x, y, 1, 1);
             }
@@ -29,7 +34,7 @@ export class NextPieceBoard {
     }
 
     clear(): void {
-        this.context.fillStyle = COLORS.white;
+        this.context.fillStyle = COLORS.empty;
 
         for (let y = 0; y < this.clearState.length; y++) {
             for (let x = 0; x < this.clearState[0].length; x++) {

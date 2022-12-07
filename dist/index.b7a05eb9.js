@@ -754,7 +754,7 @@ class Board {
                 return tetromino.id === this.state[y][x];
             });
             if (tetromino) this.context.fillStyle = tetromino.color;
-            else this.context.fillStyle = (0, _colors.COLORS).white;
+            else this.context.fillStyle = (0, _colors.COLORS).empty;
             this.context.fillRect(x, y, 1, 1);
         }
     }
@@ -919,14 +919,14 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLORS", ()=>COLORS);
 const COLORS = {
-    white: "#ffffff",
-    red: "#ff6b6b",
-    grape: "#cc5de8",
-    indigo: "#5c7cfa",
-    cyan: "#22b8cf",
-    green: "#51cf66",
-    yellow: "#fcc419",
-    orange: "#ff922b"
+    empty: "#1c1e22",
+    red: "#f84154",
+    orange: "#f98537",
+    green: "#74fd38",
+    purple: "#a142fe",
+    blue: "#57aef7",
+    cyan: "#52fdd1",
+    yellow: "#fce83a"
 };
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpHQ":[function(require,module,exports) {
@@ -937,7 +937,7 @@ var _colors = require("./colors");
 const TETROMINOS = [
     {
         id: 1,
-        color: (0, _colors.COLORS).red,
+        color: (0, _colors.COLORS).yellow,
         shapes: [
             [
                 [
@@ -983,7 +983,7 @@ const TETROMINOS = [
     },
     {
         id: 2,
-        color: (0, _colors.COLORS).grape,
+        color: (0, _colors.COLORS).blue,
         shapes: [
             [
                 [
@@ -1057,7 +1057,7 @@ const TETROMINOS = [
     },
     {
         id: 3,
-        color: (0, _colors.COLORS).indigo,
+        color: (0, _colors.COLORS).orange,
         shapes: [
             [
                 [
@@ -1131,7 +1131,7 @@ const TETROMINOS = [
     },
     {
         id: 4,
-        color: (0, _colors.COLORS).cyan,
+        color: (0, _colors.COLORS).green,
         shapes: [
             [
                 [
@@ -1205,7 +1205,7 @@ const TETROMINOS = [
     },
     {
         id: 5,
-        color: (0, _colors.COLORS).green,
+        color: (0, _colors.COLORS).red,
         shapes: [
             [
                 [
@@ -1279,7 +1279,7 @@ const TETROMINOS = [
     },
     {
         id: 6,
-        color: (0, _colors.COLORS).yellow,
+        color: (0, _colors.COLORS).purple,
         shapes: [
             [
                 [
@@ -1353,7 +1353,7 @@ const TETROMINOS = [
     },
     {
         id: 7,
-        color: (0, _colors.COLORS).orange,
+        color: (0, _colors.COLORS).cyan,
         shapes: [
             [
                 [
@@ -1532,11 +1532,11 @@ const gameTemplate = `
         </div>
         <div id="pauseOverlay" class="pause-overlay">
             <span>Paused</span>
-            <button type="button" data-restart-button class="restart-button">Restart Game</button>
+            <button type="button" data-restart-button class="restart-button">Start new game</button>
         </div>
         <div id="gameOverOverlay" class="game-over-overlay">
             <span>Game over</span>
-            <button type="button" data-restart-button class="restart-button">Restart Game</button>
+            <button type="button" data-restart-button class="restart-button">Start new game</button>
         </div>
     </div>
     <div class="game-info">
@@ -1776,12 +1776,12 @@ class NextPieceBoard {
         this.setCanvasDimensions(shape);
         for(let y = 0; y < shape.length; y++)for(let x = 0; x < shape[0].length; x++){
             if (shape[y][x] !== 0) this.context.fillStyle = piece.color;
-            else this.context.fillStyle = (0, _colors.COLORS).white;
+            else this.context.fillStyle = (0, _colors.COLORS).empty;
             this.context.fillRect(x, y, 1, 1);
         }
     }
     clear() {
-        this.context.fillStyle = (0, _colors.COLORS).white;
+        this.context.fillStyle = (0, _colors.COLORS).empty;
         for(let y = 0; y < this.clearState.length; y++)for(let x = 0; x < this.clearState[0].length; x++)this.context.fillRect(x, y, 1, 1);
     }
     setCanvasDimensions(shape) {

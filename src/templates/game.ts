@@ -53,11 +53,11 @@ export const gameTemplate = `
         </div>
         <div id="pauseOverlay" class="pause-overlay">
             <span>Paused</span>
-            <button type="button" data-restart-button class="restart-button">Restart Game</button>
+            <button type="button" data-restart-button class="restart-button">Start new game</button>
         </div>
         <div id="gameOverOverlay" class="game-over-overlay">
             <span>Game over</span>
-            <button type="button" data-restart-button class="restart-button">Restart Game</button>
+            <button type="button" data-restart-button class="restart-button">Start new game</button>
         </div>
     </div>
     <div class="game-info">

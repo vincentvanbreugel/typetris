@@ -1,10 +1,10 @@
 export const COLORS = {
-  white: '#ffffff',
-  red: '#ff6b6b',
-  grape: '#cc5de8',
-  indigo: '#5c7cfa',
-  cyan: '#22b8cf',
-  green: '#51cf66',
-  yellow: '#fcc419',
-  orange: '#ff922b',
+  empty: '#1c1e22',
+  red: '#f84154',
+  orange: '#f98537',
+  green: '#74fd38',
+  purple: '#a142fe',
+  blue: '#57aef7',
+  cyan: '#52fdd1',
+  yellow: '#fce83a'
 };

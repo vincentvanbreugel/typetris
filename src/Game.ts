@@ -1,7 +1,9 @@
+import { render } from 'lit-html';
 import { Board } from './Board';
 import { TETROMINOS, Tetromino, Point } from './constants/tetrominos';
 import { BASE_SCORE_HARD_DROP, DIRECTIONS, KEYS } from './constants/game';
 import { gameTemplate } from './templates/game';
+import { overlayTemplate } from './templates/overlay';
 import type { Rotations } from './types';
 import { Piece } from './Piece';
 import { NextPieceBoard } from './NextPieceBoard';
@@ -20,6 +22,8 @@ export class Game {
     levelElement: HTMLElement;
     private newGameId = 'newGameOverlay';
     private newGameElement: HTMLElement;
+    private gameOverlay = 'gameOverlay';
+    private gameOverlayElement: HTMLElement;
     private pauseId = 'pauseOverlay';
     private pauseElement: HTMLElement;
     private gameOverId = 'gameOverOverlay';
@@ -33,8 +37,9 @@ export class Game {
     private nextPiece: Piece;
     private timeoutId: number | undefined;
 
-    constructor() {
-        this.renderTemplate();
+    constructor(elementId: string) {
+        this.renderGameTemplate(elementId);
+        this.gameOverlayElement = document.getElementById(this.gameOverId) as HTMLElement;
         this.startButton = document.getElementById(this.startButtonId) as HTMLButtonElement;
         this.restartButton = document.querySelectorAll<HTMLButtonElement>(
             `[${this.restartButtonAttr}]`
@@ -62,8 +67,6 @@ export class Game {
     }
 
     restartGame(): void {
-        console.log('click');
-
         this.stopGameLoop();
         this.resetGame();
         this.newGameElement.classList.add('is-visible');
@@ -71,9 +74,19 @@ export class Game {
         this.gameOverElement.classList.remove('is-visible');
     }
 
-    private renderTemplate() {
-        const body = document.querySelector('body') as HTMLBodyElement;
-        body.insertAdjacentHTML('afterbegin', gameTemplate);
+    private renderGameTemplate(elementId: string) {
+        const element = document.getElementById(elementId) as HTMLElement;
+        render(gameTemplate(), element);
+    }
+
+    private renderOverlayTemplate(overlay: 'paused' | 'gameOver' | 'hide') {
+        if (overlay === 'hide') {
+            render(overlayTemplate('', true), this.gameOverlayElement);
+        } else if (overlay === 'paused') {
+            render(overlayTemplate('Paused'), this.gameOverlayElement);
+        } else {
+            render(overlayTemplate('Game over'), this.gameOverlayElement);
+        }
     }
 
     private attachEventHandlers(): void {

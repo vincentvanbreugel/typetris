@@ -19,7 +19,7 @@ legend {
   position: relative;
 }
 
-.pause-overlay, .game-over-overlay, .new-game-overlay {
+.pause-overlay, .game-over-overlay, .new-game-overlay, .game-overlay {
   background: #1c1e22;
   flex-direction: column;
   justify-content: center;
@@ -29,7 +29,7 @@ legend {
   inset: 0;
 }
 
-.pause-overlay.is-visible, .game-over-overlay.is-visible, .new-game-overlay.is-visible {
+.pause-overlay.is-visible, .game-over-overlay.is-visible, .new-game-overlay.is-visible, .game-overlay.is-visible {
   display: flex;
 }
 

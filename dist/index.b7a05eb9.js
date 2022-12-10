@@ -533,16 +533,18 @@ function hmrAcceptRun(bundle, id) {
 
 },{}],"jeorp":[function(require,module,exports) {
 var _game = require("./Game");
-const game = new (0, _game.Game)();
+const game = new (0, _game.Game)("tetris");
 
 },{"./Game":"TyEjs"}],"TyEjs":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Game", ()=>Game);
+var _litHtml = require("lit-html");
 var _board = require("./Board");
 var _tetrominos = require("./constants/tetrominos");
 var _game = require("./constants/game");
 var _game1 = require("./templates/game");
+var _gameOverlay = require("./templates/gameOverlay");
 var _piece = require("./Piece");
 var _nextPieceBoard = require("./NextPieceBoard");
 var _gameState = require("./GameState");
@@ -553,12 +555,14 @@ class Game {
     clearedLinesId = "clearedLines";
     levelId = "level";
     newGameId = "newGameOverlay";
+    gameOverlay = "gameOverlay";
     pauseId = "pauseOverlay";
     gameOverId = "gameOverOverlay";
     boardId = "board";
     nextPieceBoardId = "nextPieceBoard";
-    constructor(){
-        this.renderTemplate();
+    constructor(elementId){
+        this.renderGameTemplate(elementId);
+        this.gameOverlayElement = document.getElementById(this.gameOverId);
         this.startButton = document.getElementById(this.startButtonId);
         this.restartButton = document.querySelectorAll(`[${this.restartButtonAttr}]`);
         this.scoreElement = document.getElementById(this.scoreId);
@@ -584,16 +588,20 @@ class Game {
         this.startGameLoop();
     }
     restartGame() {
-        console.log("click");
         this.stopGameLoop();
         this.resetGame();
         this.newGameElement.classList.add("is-visible");
         this.pauseElement.classList.remove("is-visible");
         this.gameOverElement.classList.remove("is-visible");
     }
-    renderTemplate() {
-        const body = document.querySelector("body");
-        body.insertAdjacentHTML("afterbegin", (0, _game1.gameTemplate));
+    renderGameTemplate(elementId) {
+        const element = document.getElementById(elementId);
+        (0, _litHtml.render)((0, _game1.gameTemplate)(), element);
+    }
+    renderGameOverlayTemplate(overlay) {
+        if (overlay === "hide") (0, _litHtml.render)((0, _gameOverlay.gameOverlayTemplate)("", true), this.gameOverlayElement);
+        else if (overlay === "paused") (0, _litHtml.render)((0, _gameOverlay.gameOverlayTemplate)("Paused"), this.gameOverlayElement);
+        else (0, _litHtml.render)((0, _gameOverlay.gameOverlayTemplate)("Game over"), this.gameOverlayElement);
     }
     attachEventHandlers() {
         this.startButton.addEventListener("click", (e)=>{
@@ -733,7 +741,7 @@ class Game {
     }
 }
 
-},{"./Board":"4daYq","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./templates/game":"gPbNQ","./Piece":"6E5CQ","./NextPieceBoard":"dSE8P","./GameState":"4wLIF","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4daYq":[function(require,module,exports) {
+},{"./Board":"4daYq","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./templates/game":"gPbNQ","./Piece":"6E5CQ","./NextPieceBoard":"dSE8P","./GameState":"4wLIF","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","lit-html":"1cmQt","./templates/gameOverlay":"9Ihvr"}],"4daYq":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Board", ()=>Board);
@@ -753,7 +761,7 @@ class Board {
             const tetromino = (0, _tetrominos.TETROMINOS).find((tetromino)=>{
                 return tetromino.id === this.state[y][x];
             });
-            if (tetromino) this.context.fillStyle = tetromino.color;
+            if (tetromino) this.context.fillStyle = (0, _colors.COLORS).empty;
             else this.context.fillStyle = (0, _colors.COLORS).empty;
             this.context.fillRect(x, y, 1, 1);
         }
@@ -1477,118 +1485,416 @@ class Utils {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "gameTemplate", ()=>gameTemplate);
-const gameTemplate = `
-<div class="container">
-    <div class="board-wrapper">
-        <canvas id="board" class="board"></canvas>
-        <div id="newGameOverlay" class="new-game-overlay is-visible">
-            <form>
-            <fieldset>
-                <legend>Level select</legend>
-                <div>
-                    <label for="level0">0</label>
-                    <input type="radio" name="level-select" id="level0" value="0" checked></input>
-                </div>
-                <div>
-                    <label for="level1">1</label>
-                    <input type="radio" name="level-select" id="level1" value="1"></input>
-                </div>
-                <div>
-                    <label for="level2">2</label>
-                    <input type="radio" name="level-select" id="level2" value="2"></input>
-                </div>
-                <div>
-                    <label for="level3">3</label>
-                    <input type="radio" name="level-select" id="level3" value="3"></input>
-                </div>
-                <div>
-                    <label for="level4">4</label>
-                    <input type="radio" name="level-select" id="level4" value="4"></input>
-                </div>
-                <div>
-                    <label for="level5">5</label>
-                    <input type="radio" name="level-select" id="level5" value="5"></input>
-                </div>
-                <div>
-                    <label for="level6">6</label>
-                    <input type="radio" name="level-select" id="level6" value="6"></input>
-                </div>
-                <div>
-                    <label for="level7">7</label>
-                    <input type="radio" name="level-select" id="level7" value="7"></input>
-                </div>
-                <div>
-                    <label for="level8">8</label>
-                    <input type="radio" name="level-select" id="level8" value="8"></input>
-                </div>
-                <div>
-                    <label for="level9">9</label>
-                    <input type="radio" name="level-select" id="level9" value="9"></input>
-                </div>
-            </fieldset>
+var _litHtml = require("lit-html");
+const gameTemplate = ()=>{
+    return (0, _litHtml.html)`<div class="container">
+        <div class="board-wrapper">
+            <canvas id="board" class="board"></canvas>
+            <div id="newGameOverlay" class="new-game-overlay is-visible">
+                <form>
+                <fieldset>
+                    <legend>Level select</legend>
+                    <div>
+                        <label for="level0">0</label>
+                        <input type="radio" name="level-select" id="level0" value="0" checked></input>
+                    </div>
+                    <div>
+                        <label for="level1">1</label>
+                        <input type="radio" name="level-select" id="level1" value="1"></input>
+                    </div>
+                    <div>
+                        <label for="level2">2</label>
+                        <input type="radio" name="level-select" id="level2" value="2"></input>
+                    </div>
+                    <div>
+                        <label for="level3">3</label>
+                        <input type="radio" name="level-select" id="level3" value="3"></input>
+                    </div>
+                    <div>
+                        <label for="level4">4</label>
+                        <input type="radio" name="level-select" id="level4" value="4"></input>
+                    </div>
+                    <div>
+                        <label for="level5">5</label>
+                        <input type="radio" name="level-select" id="level5" value="5"></input>
+                    </div>
+                    <div>
+                        <label for="level6">6</label>
+                        <input type="radio" name="level-select" id="level6" value="6"></input>
+                    </div>
+                    <div>
+                        <label for="level7">7</label>
+                        <input type="radio" name="level-select" id="level7" value="7"></input>
+                    </div>
+                    <div>
+                        <label for="level8">8</label>
+                        <input type="radio" name="level-select" id="level8" value="8"></input>
+                    </div>
+                    <div>
+                        <label for="level9">9</label>
+                        <input type="radio" name="level-select" id="level9" value="9"></input>
+                    </div>
+                </fieldset>
 
-            </form>
-            <button type="button" id="startButton" class="start-button">Start</button>
-        </div>
-        <div id="pauseOverlay" class="pause-overlay">
-            <span>Paused</span>
-            <button type="button" data-restart-button class="restart-button">Start new game</button>
-        </div>
-        <div id="gameOverOverlay" class="game-over-overlay">
-            <span>Game over</span>
-            <button type="button" data-restart-button class="restart-button">Start new game</button>
-        </div>
-    </div>
-    <div class="game-info">
-        <div class="next-piece-container">
-            <canvas id="nextPieceBoard" class="next-piece-canvas"></canvas>
-        </div>
-        <div class="game-score">
-          <div>Score</div>
-          <div id="score" class="score">0</div>
-        </div>
-        <div class="line-score">
-          <div>Lines Cleared</div>
-          <div id="clearedLines" class="cleared-lines">0</div>
-        </div>
-        <div class="level">
-            <div>Level</div>
-            <div id="level" class="level">0</div>
-        </div>
-        <div>
-            <div>Controls</div>
-            <div class="control">
-                <span class="button">J</span>
-                <span class="action">Move Left</span>
+                </form>
+                <button type="button" id="startButton" class="start-button">Start</button>
             </div>
-            <div class="control">
-                <span class="button">L</span>
-                <span class="action">Move Right</span>
+            <div id="pauseOverlay" class="pause-overlay">
+                <span>Paused</span>
+                <button type="button" data-restart-button class="restart-button">Start new game</button>
             </div>
-            <div class="control">
-                <span class="button">K</span>
-                <span class="action">Move Down</span>
-            </div>
-            <div class="control">
-                <span class="button">D</span>
-                <span class="action">Rotate Clockwise</span>
-            </div>
-            <div class="control">
-                <span class="button">S</span>
-                <span class="action">Rotate Counter Clockwise</span>
-            </div>
-            <div class="control">
-                <span class="button">I</span>
-                <span class="action">Hard Drop</span>
-            </div>
-            <div class="control">
-                <span class="button">P</span>
-                <span class="action">Pause</span>
+            <div id="gameOverOverlay" class="game-over-overlay">
+                <span>Game over</span>
+                <button type="button" data-restart-button class="restart-button">Start new game</button>
             </div>
         </div>
-    </div>
-</div>
-`;
+        <div class="game-info">
+            <div class="next-piece-container">
+                <canvas id="nextPieceBoard" class="next-piece-canvas"></canvas>
+            </div>
+            <div class="game-score">
+            <div>Score</div>
+            <div id="score" class="score">0</div>
+            </div>
+            <div class="line-score">
+            <div>Lines Cleared</div>
+            <div id="clearedLines" class="cleared-lines">0</div>
+            </div>
+            <div class="level">
+                <div>Level</div>
+                <div id="level" class="level">0</div>
+            </div>
+            <div>
+                <div>Controls</div>
+                <div class="control">
+                    <span class="button">J</span>
+                    <span class="action">Move Left</span>
+                </div>
+                <div class="control">
+                    <span class="button">L</span>
+                    <span class="action">Move Right</span>
+                </div>
+                <div class="control">
+                    <span class="button">K</span>
+                    <span class="action">Move Down</span>
+                </div>
+                <div class="control">
+                    <span class="button">D</span>
+                    <span class="action">Rotate Clockwise</span>
+                </div>
+                <div class="control">
+                    <span class="button">S</span>
+                    <span class="action">Rotate Counter Clockwise</span>
+                </div>
+                <div class="control">
+                    <span class="button">I</span>
+                    <span class="action">Hard Drop</span>
+                </div>
+                <div class="control">
+                    <span class="button">P</span>
+                    <span class="action">Pause</span>
+                </div>
+            </div>
+        </div>
+    </div>`;
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","lit-html":"1cmQt"}],"1cmQt":[function(require,module,exports) {
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "_$LH", ()=>L);
+parcelHelpers.export(exports, "html", ()=>y);
+parcelHelpers.export(exports, "noChange", ()=>x);
+parcelHelpers.export(exports, "nothing", ()=>b);
+parcelHelpers.export(exports, "render", ()=>Z);
+parcelHelpers.export(exports, "svg", ()=>w);
+var t;
+const i = window, s = i.trustedTypes, e = s ? s.createPolicy("lit-html", {
+    createHTML: (t)=>t
+}) : void 0, o = `lit$${(Math.random() + "").slice(9)}$`, n = "?" + o, l = `<${n}>`, h = document, r = (t = "")=>h.createComment(t), d = (t)=>null === t || "object" != typeof t && "function" != typeof t, u = Array.isArray, c = (t)=>u(t) || "function" == typeof (null == t ? void 0 : t[Symbol.iterator]), v = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, a = /-->/g, f = />/g, _ = RegExp(">|[ 	\n\f\r](?:([^\\s\"'>=/]+)([ 	\n\f\r]*=[ 	\n\f\r]*(?:[^ 	\n\f\r\"'`<>=]|(\"|')|))|$)", "g"), m = /'/g, p = /"/g, $ = /^(?:script|style|textarea|title)$/i, g = (t)=>(i, ...s)=>({
+            _$litType$: t,
+            strings: i,
+            values: s
+        }), y = g(1), w = g(2), x = Symbol.for("lit-noChange"), b = Symbol.for("lit-nothing"), T = new WeakMap, A = h.createTreeWalker(h, 129, null, !1), E = (t, i)=>{
+    const s = t.length - 1, n = [];
+    let h, r = 2 === i ? "<svg>" : "", d = v;
+    for(let i1 = 0; i1 < s; i1++){
+        const s1 = t[i1];
+        let e1, u, c = -1, g = 0;
+        for(; g < s1.length && (d.lastIndex = g, u = d.exec(s1), null !== u);)g = d.lastIndex, d === v ? "!--" === u[1] ? d = a : void 0 !== u[1] ? d = f : void 0 !== u[2] ? ($.test(u[2]) && (h = RegExp("</" + u[2], "g")), d = _) : void 0 !== u[3] && (d = _) : d === _ ? ">" === u[0] ? (d = null != h ? h : v, c = -1) : void 0 === u[1] ? c = -2 : (c = d.lastIndex - u[2].length, e1 = u[1], d = void 0 === u[3] ? _ : '"' === u[3] ? p : m) : d === p || d === m ? d = _ : d === a || d === f ? d = v : (d = _, h = void 0);
+        const y = d === _ && t[i1 + 1].startsWith("/>") ? " " : "";
+        r += d === v ? s1 + l : c >= 0 ? (n.push(e1), s1.slice(0, c) + "$lit$" + s1.slice(c) + o + y) : s1 + o + (-2 === c ? (n.push(void 0), i1) : y);
+    }
+    const u1 = r + (t[s] || "<?>") + (2 === i ? "</svg>" : "");
+    if (!Array.isArray(t) || !t.hasOwnProperty("raw")) throw Error("invalid template strings array");
+    return [
+        void 0 !== e ? e.createHTML(u1) : u1,
+        n
+    ];
+};
+class C {
+    constructor({ strings: t , _$litType$: i  }, e){
+        let l;
+        this.parts = [];
+        let h = 0, d = 0;
+        const u = t.length - 1, c = this.parts, [v, a] = E(t, i);
+        if (this.el = C.createElement(v, e), A.currentNode = this.el.content, 2 === i) {
+            const t1 = this.el.content, i1 = t1.firstChild;
+            i1.remove(), t1.append(...i1.childNodes);
+        }
+        for(; null !== (l = A.nextNode()) && c.length < u;){
+            if (1 === l.nodeType) {
+                if (l.hasAttributes()) {
+                    const t2 = [];
+                    for (const i2 of l.getAttributeNames())if (i2.endsWith("$lit$") || i2.startsWith(o)) {
+                        const s1 = a[d++];
+                        if (t2.push(i2), void 0 !== s1) {
+                            const t3 = l.getAttribute(s1.toLowerCase() + "$lit$").split(o), i3 = /([.?@])?(.*)/.exec(s1);
+                            c.push({
+                                type: 1,
+                                index: h,
+                                name: i3[2],
+                                strings: t3,
+                                ctor: "." === i3[1] ? M : "?" === i3[1] ? k : "@" === i3[1] ? H : S
+                            });
+                        } else c.push({
+                            type: 6,
+                            index: h
+                        });
+                    }
+                    for (const i4 of t2)l.removeAttribute(i4);
+                }
+                if ($.test(l.tagName)) {
+                    const t4 = l.textContent.split(o), i5 = t4.length - 1;
+                    if (i5 > 0) {
+                        l.textContent = s ? s.emptyScript : "";
+                        for(let s2 = 0; s2 < i5; s2++)l.append(t4[s2], r()), A.nextNode(), c.push({
+                            type: 2,
+                            index: ++h
+                        });
+                        l.append(t4[i5], r());
+                    }
+                }
+            } else if (8 === l.nodeType) {
+                if (l.data === n) c.push({
+                    type: 2,
+                    index: h
+                });
+                else {
+                    let t5 = -1;
+                    for(; -1 !== (t5 = l.data.indexOf(o, t5 + 1));)c.push({
+                        type: 7,
+                        index: h
+                    }), t5 += o.length - 1;
+                }
+            }
+            h++;
+        }
+    }
+    static createElement(t, i) {
+        const s = h.createElement("template");
+        return s.innerHTML = t, s;
+    }
+}
+function P(t, i, s = t, e) {
+    var o, n, l, h;
+    if (i === x) return i;
+    let r = void 0 !== e ? null === (o = s._$Co) || void 0 === o ? void 0 : o[e] : s._$Cl;
+    const u = d(i) ? void 0 : i._$litDirective$;
+    return (null == r ? void 0 : r.constructor) !== u && (null === (n = null == r ? void 0 : r._$AO) || void 0 === n || n.call(r, !1), void 0 === u ? r = void 0 : (r = new u(t), r._$AT(t, s, e)), void 0 !== e ? (null !== (l = (h = s)._$Co) && void 0 !== l ? l : h._$Co = [])[e] = r : s._$Cl = r), void 0 !== r && (i = P(t, r._$AS(t, i.values), r, e)), i;
+}
+class V {
+    constructor(t, i){
+        this.u = [], this._$AN = void 0, this._$AD = t, this._$AM = i;
+    }
+    get parentNode() {
+        return this._$AM.parentNode;
+    }
+    get _$AU() {
+        return this._$AM._$AU;
+    }
+    v(t) {
+        var i;
+        const { el: { content: s  } , parts: e  } = this._$AD, o = (null !== (i = null == t ? void 0 : t.creationScope) && void 0 !== i ? i : h).importNode(s, !0);
+        A.currentNode = o;
+        let n = A.nextNode(), l = 0, r = 0, d = e[0];
+        for(; void 0 !== d;){
+            if (l === d.index) {
+                let i1;
+                2 === d.type ? i1 = new N(n, n.nextSibling, this, t) : 1 === d.type ? i1 = new d.ctor(n, d.name, d.strings, this, t) : 6 === d.type && (i1 = new I(n, this, t)), this.u.push(i1), d = e[++r];
+            }
+            l !== (null == d ? void 0 : d.index) && (n = A.nextNode(), l++);
+        }
+        return o;
+    }
+    p(t) {
+        let i = 0;
+        for (const s of this.u)void 0 !== s && (void 0 !== s.strings ? (s._$AI(t, s, i), i += s.strings.length - 2) : s._$AI(t[i])), i++;
+    }
+}
+class N {
+    constructor(t, i, s, e){
+        var o;
+        this.type = 2, this._$AH = b, this._$AN = void 0, this._$AA = t, this._$AB = i, this._$AM = s, this.options = e, this._$Cm = null === (o = null == e ? void 0 : e.isConnected) || void 0 === o || o;
+    }
+    get _$AU() {
+        var t, i;
+        return null !== (i = null === (t = this._$AM) || void 0 === t ? void 0 : t._$AU) && void 0 !== i ? i : this._$Cm;
+    }
+    get parentNode() {
+        let t = this._$AA.parentNode;
+        const i = this._$AM;
+        return void 0 !== i && 11 === t.nodeType && (t = i.parentNode), t;
+    }
+    get startNode() {
+        return this._$AA;
+    }
+    get endNode() {
+        return this._$AB;
+    }
+    _$AI(t, i = this) {
+        t = P(this, t, i), d(t) ? t === b || null == t || "" === t ? (this._$AH !== b && this._$AR(), this._$AH = b) : t !== this._$AH && t !== x && this.g(t) : void 0 !== t._$litType$ ? this.$(t) : void 0 !== t.nodeType ? this.T(t) : c(t) ? this.k(t) : this.g(t);
+    }
+    O(t, i = this._$AB) {
+        return this._$AA.parentNode.insertBefore(t, i);
+    }
+    T(t) {
+        this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
+    }
+    g(t) {
+        this._$AH !== b && d(this._$AH) ? this._$AA.nextSibling.data = t : this.T(h.createTextNode(t)), this._$AH = t;
+    }
+    $(t) {
+        var i;
+        const { values: s , _$litType$: e  } = t, o = "number" == typeof e ? this._$AC(t) : (void 0 === e.el && (e.el = C.createElement(e.h, this.options)), e);
+        if ((null === (i = this._$AH) || void 0 === i ? void 0 : i._$AD) === o) this._$AH.p(s);
+        else {
+            const t1 = new V(o, this), i1 = t1.v(this.options);
+            t1.p(s), this.T(i1), this._$AH = t1;
+        }
+    }
+    _$AC(t) {
+        let i = T.get(t.strings);
+        return void 0 === i && T.set(t.strings, i = new C(t)), i;
+    }
+    k(t) {
+        u(this._$AH) || (this._$AH = [], this._$AR());
+        const i = this._$AH;
+        let s, e = 0;
+        for (const o of t)e === i.length ? i.push(s = new N(this.O(r()), this.O(r()), this, this.options)) : s = i[e], s._$AI(o), e++;
+        e < i.length && (this._$AR(s && s._$AB.nextSibling, e), i.length = e);
+    }
+    _$AR(t = this._$AA.nextSibling, i) {
+        var s;
+        for(null === (s = this._$AP) || void 0 === s || s.call(this, !1, !0, i); t && t !== this._$AB;){
+            const i1 = t.nextSibling;
+            t.remove(), t = i1;
+        }
+    }
+    setConnected(t) {
+        var i;
+        void 0 === this._$AM && (this._$Cm = t, null === (i = this._$AP) || void 0 === i || i.call(this, t));
+    }
+}
+class S {
+    constructor(t, i, s, e, o){
+        this.type = 1, this._$AH = b, this._$AN = void 0, this.element = t, this.name = i, this._$AM = e, this.options = o, s.length > 2 || "" !== s[0] || "" !== s[1] ? (this._$AH = Array(s.length - 1).fill(new String), this.strings = s) : this._$AH = b;
+    }
+    get tagName() {
+        return this.element.tagName;
+    }
+    get _$AU() {
+        return this._$AM._$AU;
+    }
+    _$AI(t, i = this, s, e) {
+        const o = this.strings;
+        let n = !1;
+        if (void 0 === o) t = P(this, t, i, 0), n = !d(t) || t !== this._$AH && t !== x, n && (this._$AH = t);
+        else {
+            const e1 = t;
+            let l, h;
+            for(t = o[0], l = 0; l < o.length - 1; l++)h = P(this, e1[s + l], i, l), h === x && (h = this._$AH[l]), n || (n = !d(h) || h !== this._$AH[l]), h === b ? t = b : t !== b && (t += (null != h ? h : "") + o[l + 1]), this._$AH[l] = h;
+        }
+        n && !e && this.j(t);
+    }
+    j(t) {
+        t === b ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, null != t ? t : "");
+    }
+}
+class M extends S {
+    constructor(){
+        super(...arguments), this.type = 3;
+    }
+    j(t) {
+        this.element[this.name] = t === b ? void 0 : t;
+    }
+}
+const R = s ? s.emptyScript : "";
+class k extends S {
+    constructor(){
+        super(...arguments), this.type = 4;
+    }
+    j(t) {
+        t && t !== b ? this.element.setAttribute(this.name, R) : this.element.removeAttribute(this.name);
+    }
+}
+class H extends S {
+    constructor(t, i, s, e, o){
+        super(t, i, s, e, o), this.type = 5;
+    }
+    _$AI(t, i = this) {
+        var s;
+        if ((t = null !== (s = P(this, t, i, 0)) && void 0 !== s ? s : b) === x) return;
+        const e = this._$AH, o = t === b && e !== b || t.capture !== e.capture || t.once !== e.once || t.passive !== e.passive, n = t !== b && (e === b || o);
+        o && this.element.removeEventListener(this.name, this, e), n && this.element.addEventListener(this.name, this, t), this._$AH = t;
+    }
+    handleEvent(t) {
+        var i, s;
+        "function" == typeof this._$AH ? this._$AH.call(null !== (s = null === (i = this.options) || void 0 === i ? void 0 : i.host) && void 0 !== s ? s : this.element, t) : this._$AH.handleEvent(t);
+    }
+}
+class I {
+    constructor(t, i, s){
+        this.element = t, this.type = 6, this._$AN = void 0, this._$AM = i, this.options = s;
+    }
+    get _$AU() {
+        return this._$AM._$AU;
+    }
+    _$AI(t) {
+        P(this, t);
+    }
+}
+const L = {
+    P: "$lit$",
+    A: o,
+    M: n,
+    C: 1,
+    L: E,
+    R: V,
+    D: c,
+    V: P,
+    I: N,
+    H: S,
+    N: k,
+    U: H,
+    B: M,
+    F: I
+}, z = i.litHtmlPolyfillSupport;
+null == z || z(C, N), (null !== (t = i.litHtmlVersions) && void 0 !== t ? t : i.litHtmlVersions = []).push("2.5.0");
+const Z = (t, i, s)=>{
+    var e, o;
+    const n = null !== (e = null == s ? void 0 : s.renderBefore) && void 0 !== e ? e : i;
+    let l = n._$litPart$;
+    if (void 0 === l) {
+        const t1 = null !== (o = null == s ? void 0 : s.renderBefore) && void 0 !== o ? o : null;
+        n._$litPart$ = l = new N(i.insertBefore(r(), t1), t1, void 0, null != s ? s : {});
+    }
+    return l._$AI(t), l;
+};
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6E5CQ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -1848,6 +2154,18 @@ class GameState {
     }
 }
 
-},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
+},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9Ihvr":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "gameOverlayTemplate", ()=>gameOverlayTemplate);
+var _litHtml = require("lit-html");
+const gameOverlayTemplate = (text, hide = false)=>{
+    return (0, _litHtml.html)`<div id="gameOverlay" class="game-overlay ${hide ? "" : "is-visible"}">
+        <span>${text}</span>
+        <button type="button" data-restart-button class="restart-button">Start new game</button>
+    </div>`;
+};
+
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
 
 //# sourceMappingURL=index.b7a05eb9.js.map

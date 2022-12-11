@@ -16,7 +16,7 @@ export type Tetromino = {
 export const TETROMINOS: Tetromino[] = [
     {
         id: 1,
-        color: COLORS.red,
+        color: COLORS.yellow,
         shapes: [
             [
                 [1, 1],
@@ -38,7 +38,7 @@ export const TETROMINOS: Tetromino[] = [
     },
     {
         id: 2,
-        color: COLORS.grape,
+        color: COLORS.blue,
         shapes: [
             [
                 [1, 0, 0],
@@ -64,7 +64,7 @@ export const TETROMINOS: Tetromino[] = [
     },
     {
         id: 3,
-        color: COLORS.indigo,
+        color: COLORS.orange,
         shapes: [
             [
                 [0, 0, 1],
@@ -90,7 +90,7 @@ export const TETROMINOS: Tetromino[] = [
     },
     {
         id: 4,
-        color: COLORS.cyan,
+        color: COLORS.green,
         shapes: [
             [
                 [0, 1, 1],
@@ -116,7 +116,7 @@ export const TETROMINOS: Tetromino[] = [
     },
     {
         id: 5,
-        color: COLORS.green,
+        color: COLORS.red,
         shapes: [
             [
                 [1, 1, 0],
@@ -142,7 +142,7 @@ export const TETROMINOS: Tetromino[] = [
     },
     {
         id: 6,
-        color: COLORS.yellow,
+        color: COLORS.purple,
         shapes: [
             [
                 [0, 1, 0],
@@ -168,7 +168,7 @@ export const TETROMINOS: Tetromino[] = [
     },
     {
         id: 7,
-        color: COLORS.orange,
+        color: COLORS.cyan,
         shapes: [
             [
                 [0, 0, 0, 0],

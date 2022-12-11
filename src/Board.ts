@@ -31,7 +31,7 @@ export class Board {
                 if (tetromino) {
                     this.context.fillStyle = tetromino.color;
                 } else {
-                    this.context.fillStyle = COLORS.white;
+                    this.context.fillStyle = COLORS.empty;
                 }
                 this.context.fillRect(x, y, 1, 1);
             }

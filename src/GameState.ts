@@ -1,4 +1,7 @@
+import { render } from 'lit-html';
 import { Game } from './Game';
+import { scoreTemplate } from './templates/score';
+
 import {
     GAME_SPEEDS,
     BASE_SCORES_LINE_CLEAR,
@@ -17,10 +20,25 @@ export class GameState {
     totalLinesCleared = 0;
     dropScore = 0;
     newLinesCleared = 0;
+    private scoreElementId = 'gameScore';
+    private scoreElement: HTMLElement;
 
     constructor(game: Game) {
         this.game = game;
         this.speed = GAME_SPEEDS[this.level];
+        this.scoreElement = document.getElementById(this.scoreElementId) as HTMLElement;
+        this.renderScoreTemplate();
+    }
+
+    private renderScoreTemplate() {
+        render(
+            scoreTemplate({
+                score: this.score,
+                clearedLines: this.totalLinesCleared,
+                level: this.level,
+            }),
+            this.scoreElement
+        );
     }
 
     reset() {
@@ -31,7 +49,6 @@ export class GameState {
         this.speed = GAME_SPEEDS[this.level];
         this.isPaused = false;
         this.isGameOver = false;
-        this.game.levelElement.innerHTML = `${this.level}`;
         this.updateScore();
     }
 
@@ -48,8 +65,7 @@ export class GameState {
 
         this.newLinesCleared = 0;
         this.dropScore = 0;
-        this.game.scoreElement.innerHTML = `${this.score}`;
-        this.game.clearedlinesElement.innerHTML = `${this.totalLinesCleared}`;
+        this.renderScoreTemplate();
     }
 
     setGameOptions(config: { level: number }): void {
@@ -60,7 +76,7 @@ export class GameState {
     private setLevel(level: number): void {
         this.level = level;
         this.speed = GAME_SPEEDS[this.level];
-        this.game.levelElement.innerHTML = `${this.level}`;
+        this.renderScoreTemplate();
     }
 
     checkLevelChange() {

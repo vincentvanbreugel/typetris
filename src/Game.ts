@@ -1,54 +1,37 @@
+import { render } from 'lit-html';
 import { Board } from './Board';
 import { TETROMINOS, Tetromino, Point } from './constants/tetrominos';
 import { BASE_SCORE_HARD_DROP, DIRECTIONS, KEYS } from './constants/game';
 import { gameTemplate } from './templates/game';
+import { overlayTemplate } from './templates/overlay';
+import { gameOptionsTemplate } from './templates/gameOptions';
 import type { Rotations } from './types';
 import { Piece } from './Piece';
 import { NextPieceBoard } from './NextPieceBoard';
 import { GameState } from './GameState';
 
 export class Game {
-    private startButtonId = 'startButton';
-    private startButton: HTMLButtonElement;
-    private restartButtonAttr = 'data-restart-button';
-    private restartButton: NodeListOf<HTMLButtonElement>;
-    private scoreId = 'score';
-    scoreElement: HTMLElement;
-    private clearedLinesId = 'clearedLines';
-    clearedlinesElement: HTMLElement;
-    private levelId = 'level';
-    levelElement: HTMLElement;
-    private newGameId = 'newGameOverlay';
-    private newGameElement: HTMLElement;
-    private pauseId = 'pauseOverlay';
-    private pauseElement: HTMLElement;
-    private gameOverId = 'gameOverOverlay';
-    private gameOverElement: HTMLElement;
+    private gameOptionsId = 'gameOptions';
+    private gameOptionsElement: HTMLElement;
+    private overlayId = 'gameOverlay';
+    private overlayElement: HTMLElement;
     state: GameState;
     private boardId = 'board';
     private board: Board;
-    private nextPieceBoardId = 'nextPieceBoard';
     private nextPieceBoard: NextPieceBoard;
     private piece: Piece;
     private nextPiece: Piece;
     private requestId: number | undefined;
     private gameTimer = { start: 0, elapsed: 0 };
 
-    constructor() {
-        this.renderTemplate();
-        this.startButton = document.getElementById(this.startButtonId) as HTMLButtonElement;
-        this.restartButton = document.querySelectorAll<HTMLButtonElement>(
-            `[${this.restartButtonAttr}]`
-        );
-        this.scoreElement = document.getElementById(this.scoreId) as HTMLElement;
-        this.clearedlinesElement = document.getElementById(this.clearedLinesId) as HTMLElement;
-        this.newGameElement = document.getElementById(this.newGameId) as HTMLElement;
-        this.levelElement = document.getElementById(this.levelId) as HTMLElement;
-        this.pauseElement = document.getElementById(this.pauseId) as HTMLElement;
-        this.gameOverElement = document.getElementById(this.gameOverId) as HTMLElement;
+    constructor(elementId: string) {
+        this.renderGameTemplate(elementId);
+        this.gameOptionsElement = document.getElementById(this.gameOptionsId) as HTMLElement;
+        this.renderGameOptionsTemplate();
+        this.overlayElement = document.getElementById(this.overlayId) as HTMLElement;
         this.state = new GameState(this);
         this.board = new Board(this.boardId);
-        this.nextPieceBoard = new NextPieceBoard(this.nextPieceBoardId);
+        this.nextPieceBoard = new NextPieceBoard();
         this.piece = this.getRandomPiece();
         this.nextPiece = this.getRandomPiece();
         this.attachEventHandlers();
@@ -56,7 +39,7 @@ export class Game {
 
     startGame(): void {
         this.setGameOptions();
-        this.newGameElement.classList.remove('is-visible');
+        this.renderGameOptionsTemplate('hide');
         this.movePiece({ direction: DIRECTIONS.NO_CHANGE });
         this.nextPieceBoard.draw(this.nextPiece);
         this.startGameLoop();
@@ -64,30 +47,37 @@ export class Game {
 
     restartGame(): void {
         this.stopGameLoop();
-        this.resetGame();
-        this.newGameElement.classList.add('is-visible');
-        this.pauseElement.classList.remove('is-visible');
-        this.gameOverElement.classList.remove('is-visible');
+        this.state.reset();
+        this.board = new Board(this.boardId);
+        this.piece = this.getRandomPiece();
+        this.nextPiece = this.getRandomPiece();
+        this.renderOverlayTemplate('hide');
+        this.renderGameOptionsTemplate();
     }
 
-    private renderTemplate() {
-        const body = document.querySelector('body') as HTMLBodyElement;
-        body.insertAdjacentHTML('afterbegin', gameTemplate);
+    private renderGameTemplate(elementId: string) {
+        const element = document.getElementById(elementId) as HTMLElement;
+        render(gameTemplate(), element);
+    }
+
+    private renderGameOptionsTemplate(state = 'show') {        
+        const data = {
+            hide: state === 'hide' ? true : false,
+            startGame: this.startGame.bind(this),
+        };
+        render(gameOptionsTemplate(data), this.gameOptionsElement);
+    }
+
+    private renderOverlayTemplate(state: 'paused' | 'gameOver' | 'hide') {
+        const data = {
+            text: state === 'paused' ? 'Paused' : 'Game over',
+            hide: state === 'hide' ? true : false,
+            restartGame: this.restartGame.bind(this),
+        };
+        render(overlayTemplate(data), this.overlayElement);
     }
 
     private attachEventHandlers(): void {
-        this.startButton.addEventListener('click', (e: Event) => {
-            this.startGame();
-            (e.target as HTMLElement).blur();
-        });
-
-        this.restartButton.forEach((button) => {
-            button.addEventListener('click', (e: Event) => {
-                this.restartGame();
-                (e.target as HTMLElement).blur();
-            });
-        });
-
         document.addEventListener('keydown', (event) => {
             switch (event.key) {
                 case KEYS.PAUSE:
@@ -117,8 +107,8 @@ export class Game {
 
     private async startGameLoop(timeStamp: DOMHighResTimeStamp = 0): Promise<void> {
         this.gameTimer.elapsed = timeStamp - this.gameTimer.start;
-        
-        if (this.gameTimer.elapsed > this.state.speed) {            
+
+        if (this.gameTimer.elapsed > this.state.speed) {
             this.gameTimer.start = timeStamp;
 
             this.movePiece({ direction: DIRECTIONS.DOWN });
@@ -143,15 +133,6 @@ export class Game {
 
     private stopGameLoop(): void {
         cancelAnimationFrame(this.requestId as number);
-    }
-
-    private resetGame(): void {
-        this.pauseElement.classList.remove('is-visible');
-        this.gameOverElement.classList.remove('is-visible');
-        this.state.reset();
-        this.board = new Board(this.boardId);
-        this.piece = this.getRandomPiece();
-        this.nextPiece = this.getRandomPiece();
     }
 
     private setGameOptions(): void {
@@ -224,18 +205,18 @@ export class Game {
 
     private handleClickPause() {
         this.state.togglePause();
-        this.pauseElement.classList.toggle('is-visible');
-
         if (!this.state.isPaused) {
             this.startGameLoop();
+            this.renderOverlayTemplate('hide');
         } else {
             this.stopGameLoop();
+            this.renderOverlayTemplate('paused');
         }
     }
 
     private gameOver() {
         this.state.isGameOver = true;
         this.nextPieceBoard.clear();
-        this.gameOverElement.classList.add('is-visible');
+        this.renderOverlayTemplate('gameOver');
     }
 }

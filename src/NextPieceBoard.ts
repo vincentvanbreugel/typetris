@@ -1,5 +1,5 @@
 import { render } from 'lit-html';
-import { nextPieceTemplate } from './templates/nextPiece';
+import { nextPieceTemplate } from './templates';
 import { BLOCK_SIZE } from './constants/game';
 import { COLORS } from './constants/colors';
 import { Piece } from './Piece';

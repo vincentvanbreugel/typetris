@@ -2,9 +2,7 @@ import { render } from 'lit-html';
 import { Board } from './Board';
 import { TETROMINOS, Tetromino, Point } from './constants/tetrominos';
 import { BASE_SCORE_HARD_DROP, DIRECTIONS, KEYS } from './constants/game';
-import { gameTemplate } from './templates/game';
-import { overlayTemplate } from './templates/overlay';
-import { gameOptionsTemplate } from './templates/gameOptions';
+import { gameTemplate, overlayTemplate, gameOptionsTemplate } from './templates';
 import type { Rotations } from './types';
 import { Piece } from './Piece';
 import { NextPieceBoard } from './NextPieceBoard';
@@ -60,7 +58,7 @@ export class Game {
         render(gameTemplate(), element);
     }
 
-    private renderGameOptionsTemplate(state = 'show') {        
+    private renderGameOptionsTemplate(state = 'show') {
         const data = {
             hide: state === 'hide' ? true : false,
             startGame: this.startGame.bind(this),

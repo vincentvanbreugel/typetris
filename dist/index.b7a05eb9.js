@@ -543,9 +543,7 @@ var _litHtml = require("lit-html");
 var _board = require("./Board");
 var _tetrominos = require("./constants/tetrominos");
 var _game = require("./constants/game");
-var _game1 = require("./templates/game");
-var _overlay = require("./templates/overlay");
-var _gameOptions = require("./templates/gameOptions");
+var _templates = require("./templates");
 var _piece = require("./Piece");
 var _nextPieceBoard = require("./NextPieceBoard");
 var _gameState = require("./GameState");
@@ -589,14 +587,14 @@ class Game {
     }
     renderGameTemplate(elementId) {
         const element = document.getElementById(elementId);
-        (0, _litHtml.render)((0, _game1.gameTemplate)(), element);
+        (0, _litHtml.render)((0, _templates.gameTemplate)(), element);
     }
     renderGameOptionsTemplate(state = "show") {
         const data = {
             hide: state === "hide" ? true : false,
             startGame: this.startGame.bind(this)
         };
-        (0, _litHtml.render)((0, _gameOptions.gameOptionsTemplate)(data), this.gameOptionsElement);
+        (0, _litHtml.render)((0, _templates.gameOptionsTemplate)(data), this.gameOptionsElement);
     }
     renderOverlayTemplate(state) {
         const data = {
@@ -604,7 +602,7 @@ class Game {
             hide: state === "hide" ? true : false,
             restartGame: this.restartGame.bind(this)
         };
-        (0, _litHtml.render)((0, _overlay.overlayTemplate)(data), this.overlayElement);
+        (0, _litHtml.render)((0, _templates.overlayTemplate)(data), this.overlayElement);
     }
     attachEventHandlers() {
         document.addEventListener("keydown", (event)=>{
@@ -732,7 +730,7 @@ class Game {
     }
 }
 
-},{"lit-html":"1cmQt","./Board":"4daYq","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./templates/overlay":"kPR7L","./templates/gameOptions":"bJHL9","./Piece":"6E5CQ","./NextPieceBoard":"dSE8P","./GameState":"4wLIF","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./templates/game":"gPbNQ"}],"1cmQt":[function(require,module,exports) {
+},{"lit-html":"1cmQt","./Board":"4daYq","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./Piece":"6E5CQ","./NextPieceBoard":"dSE8P","./GameState":"4wLIF","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./templates":"68iIp"}],"1cmQt":[function(require,module,exports) {
 /**
  * @license
  * Copyright 2017 Google LLC
@@ -1791,42 +1789,7 @@ class Utils {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kPR7L":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "overlayTemplate", ()=>overlayTemplate);
-var _litHtml = require("lit-html");
-const overlayTemplate = (data)=>{
-    return (0, _litHtml.html)`<div class="game-overlay ${data.hide ? "" : "is-visible"}">
-            <span>${data.text}</span>
-            <button type="button" @click=${data.restartGame} class="restart-button">Start new game</button>
-        </div>`;
-};
-
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bJHL9":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "gameOptionsTemplate", ()=>gameOptionsTemplate);
-var _litHtml = require("lit-html");
-const levels = Array.from(Array(10).keys());
-const gameOptionsTemplate = (data)=>{
-    return (0, _litHtml.html)`<div class="game-options ${data.hide ? "" : "is-visible"}">
-            <form>
-                <fieldset>
-                    <legend>Level select</legend>
-                    ${levels.map((level)=>{
-        return (0, _litHtml.html)`<div>
-                            <label for="level${level}">${level}</label>
-                            <input type="radio" name="level-select" id="level${level}" value=${level} ?checked=${level === 0}></input>
-                        </div>`;
-    })}
-                </fieldset>
-            </form>
-            <button type="button" @click=${data.startGame} id="startButton" class="start-button">Start</button>
-        </div>`;
-};
-
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6E5CQ":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6E5CQ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Piece", ()=>Piece);
@@ -1975,7 +1938,7 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "NextPieceBoard", ()=>NextPieceBoard);
 var _litHtml = require("lit-html");
-var _nextPiece = require("./templates/nextPiece");
+var _templates = require("./templates");
 var _game = require("./constants/game");
 var _colors = require("./constants/colors");
 class NextPieceBoard {
@@ -2014,7 +1977,7 @@ class NextPieceBoard {
         this.context = this.canvas.getContext("2d");
     }
     renderNextPieceTemplate() {
-        (0, _litHtml.render)((0, _nextPiece.nextPieceTemplate)(), this.nextPieceElement);
+        (0, _litHtml.render)((0, _templates.nextPieceTemplate)(), this.nextPieceElement);
     }
     draw(piece) {
         const shape = piece.shapes[0];
@@ -2037,104 +2000,23 @@ class NextPieceBoard {
     }
 }
 
-},{"./constants/game":"be0O0","./constants/colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","lit-html":"1cmQt","./templates/nextPiece":"khlyX"}],"khlyX":[function(require,module,exports) {
+},{"lit-html":"1cmQt","./constants/game":"be0O0","./constants/colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./templates":"68iIp"}],"68iIp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "nextPieceTemplate", ()=>nextPieceTemplate);
-var _litHtml = require("lit-html");
-const nextPieceTemplate = ()=>{
-    return (0, _litHtml.html)`<div class="next-piece-container">
-        <canvas id="nextPieceBoard" class="next-piece-canvas"></canvas>
-    </div>`;
-};
+parcelHelpers.export(exports, "gameTemplate", ()=>(0, _game.gameTemplate));
+parcelHelpers.export(exports, "gameOptionsTemplate", ()=>(0, _gameOptions.gameOptionsTemplate));
+parcelHelpers.export(exports, "nextPieceTemplate", ()=>(0, _nextPiece.nextPieceTemplate));
+parcelHelpers.export(exports, "overlayTemplate", ()=>(0, _overlay.overlayTemplate));
+parcelHelpers.export(exports, "controlsTemplate", ()=>(0, _controls.controlsTemplate));
+parcelHelpers.export(exports, "scoreTemplate", ()=>(0, _score.scoreTemplate));
+var _game = require("./game");
+var _gameOptions = require("./gameOptions");
+var _nextPiece = require("./nextPiece");
+var _overlay = require("./overlay");
+var _controls = require("./controls");
+var _score = require("./score");
 
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4wLIF":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "GameState", ()=>GameState);
-var _litHtml = require("lit-html");
-var _score = require("./templates/score");
-var _game = require("./constants/game");
-class GameState {
-    score = 0;
-    level = 0;
-    isPaused = false;
-    isGameOver = false;
-    totalLinesCleared = 0;
-    dropScore = 0;
-    newLinesCleared = 0;
-    scoreElementId = "gameScore";
-    constructor(game){
-        this.game = game;
-        this.speed = (0, _game.GAME_SPEEDS)[this.level];
-        this.scoreElement = document.getElementById(this.scoreElementId);
-        this.renderScoreTemplate();
-    }
-    renderScoreTemplate() {
-        (0, _litHtml.render)((0, _score.scoreTemplate)({
-            score: this.score,
-            clearedLines: this.totalLinesCleared,
-            level: this.level
-        }), this.scoreElement);
-    }
-    reset() {
-        this.totalLinesCleared = 0;
-        this.dropScore = 0;
-        this.score = 0;
-        this.level = 0;
-        this.speed = (0, _game.GAME_SPEEDS)[this.level];
-        this.isPaused = false;
-        this.isGameOver = false;
-        this.updateScore();
-    }
-    updateScore() {
-        if (this.newLinesCleared) {
-            this.score = this.score + (0, _game.BASE_SCORES_LINE_CLEAR)[this.newLinesCleared - 1] * (this.level + 1);
-            this.totalLinesCleared = this.totalLinesCleared + this.newLinesCleared;
-        }
-        if (this.dropScore) this.score = this.score + this.dropScore * (0, _game.BASE_SCORE_SOFT_DROP);
-        this.newLinesCleared = 0;
-        this.dropScore = 0;
-        this.renderScoreTemplate();
-    }
-    setGameOptions(config) {
-        const { level  } = config;
-        this.setLevel(level);
-    }
-    setLevel(level) {
-        this.level = level;
-        this.speed = (0, _game.GAME_SPEEDS)[this.level];
-        this.renderScoreTemplate();
-    }
-    checkLevelChange() {
-        if (this.totalLinesCleared > (this.level + 1) * (0, _game.LEVEL_LIMIT) && this.level < (0, _game.MAX_LEVEL)) this.setLevel(this.level + 1);
-    }
-    togglePause() {
-        this.isPaused = !this.isPaused;
-    }
-}
-
-},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./templates/score":"e22W5","lit-html":"1cmQt"}],"e22W5":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "scoreTemplate", ()=>scoreTemplate);
-var _litHtml = require("lit-html");
-const scoreTemplate = (data)=>{
-    return (0, _litHtml.html)`<div class="game-score">
-            <div>Score</div>
-            <div id="score" class="score">${data.score}</div>
-        </div>
-        <div class="line-score">
-            <div>Lines Cleared</div>
-            <div id="clearedLines" class="cleared-lines">${data.clearedLines}</div>
-        </div>
-        <div class="level">
-            <div>Level</div>
-            <div id="level" class="level">${data.level}</div>
-        </div>`;
-};
-
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gPbNQ":[function(require,module,exports) {
+},{"./game":"gPbNQ","./gameOptions":"bJHL9","./nextPiece":"khlyX","./overlay":"kPR7L","./controls":"cKwU5","./score":"e22W5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gPbNQ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "gameTemplate", ()=>gameTemplate);
@@ -2195,6 +2077,138 @@ const controlsTemplate = ()=>{
   `;
 };
 
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bJHL9":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "gameOptionsTemplate", ()=>gameOptionsTemplate);
+var _litHtml = require("lit-html");
+const levels = Array.from(Array(10).keys());
+const gameOptionsTemplate = (data)=>{
+    return (0, _litHtml.html)`<div class="game-options ${data.hide ? "" : "is-visible"}">
+            <form>
+                <fieldset>
+                    <legend>Level select</legend>
+                    ${levels.map((level)=>{
+        return (0, _litHtml.html)`<div>
+                            <label for="level${level}">${level}</label>
+                            <input type="radio" name="level-select" id="level${level}" value=${level} ?checked=${level === 0}></input>
+                        </div>`;
+    })}
+                </fieldset>
+            </form>
+            <button type="button" @click=${data.startGame} id="startButton" class="start-button">Start</button>
+        </div>`;
+};
+
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"khlyX":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "nextPieceTemplate", ()=>nextPieceTemplate);
+var _litHtml = require("lit-html");
+const nextPieceTemplate = ()=>{
+    return (0, _litHtml.html)`<div class="next-piece-container">
+        <canvas id="nextPieceBoard" class="next-piece-canvas"></canvas>
+    </div>`;
+};
+
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kPR7L":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "overlayTemplate", ()=>overlayTemplate);
+var _litHtml = require("lit-html");
+const overlayTemplate = (data)=>{
+    return (0, _litHtml.html)`<div class="game-overlay ${data.hide ? "" : "is-visible"}">
+            <span>${data.text}</span>
+            <button type="button" @click=${data.restartGame} class="restart-button">Start new game</button>
+        </div>`;
+};
+
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"e22W5":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "scoreTemplate", ()=>scoreTemplate);
+var _litHtml = require("lit-html");
+const scoreTemplate = (data)=>{
+    return (0, _litHtml.html)`<div class="game-score">
+            <div>Score</div>
+            <div id="score" class="score">${data.score}</div>
+        </div>
+        <div class="line-score">
+            <div>Lines Cleared</div>
+            <div id="clearedLines" class="cleared-lines">${data.clearedLines}</div>
+        </div>
+        <div class="level">
+            <div>Level</div>
+            <div id="level" class="level">${data.level}</div>
+        </div>`;
+};
+
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4wLIF":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "GameState", ()=>GameState);
+var _litHtml = require("lit-html");
+var _templates = require("./templates");
+var _game = require("./constants/game");
+class GameState {
+    score = 0;
+    level = 0;
+    isPaused = false;
+    isGameOver = false;
+    totalLinesCleared = 0;
+    dropScore = 0;
+    newLinesCleared = 0;
+    scoreElementId = "gameScore";
+    constructor(game){
+        this.game = game;
+        this.speed = (0, _game.GAME_SPEEDS)[this.level];
+        this.scoreElement = document.getElementById(this.scoreElementId);
+        this.renderScoreTemplate();
+    }
+    renderScoreTemplate() {
+        (0, _litHtml.render)((0, _templates.scoreTemplate)({
+            score: this.score,
+            clearedLines: this.totalLinesCleared,
+            level: this.level
+        }), this.scoreElement);
+    }
+    reset() {
+        this.totalLinesCleared = 0;
+        this.dropScore = 0;
+        this.score = 0;
+        this.level = 0;
+        this.speed = (0, _game.GAME_SPEEDS)[this.level];
+        this.isPaused = false;
+        this.isGameOver = false;
+        this.updateScore();
+    }
+    updateScore() {
+        if (this.newLinesCleared) {
+            this.score = this.score + (0, _game.BASE_SCORES_LINE_CLEAR)[this.newLinesCleared - 1] * (this.level + 1);
+            this.totalLinesCleared = this.totalLinesCleared + this.newLinesCleared;
+        }
+        if (this.dropScore) this.score = this.score + this.dropScore * (0, _game.BASE_SCORE_SOFT_DROP);
+        this.newLinesCleared = 0;
+        this.dropScore = 0;
+        this.renderScoreTemplate();
+    }
+    setGameOptions(config) {
+        const { level  } = config;
+        this.setLevel(level);
+    }
+    setLevel(level) {
+        this.level = level;
+        this.speed = (0, _game.GAME_SPEEDS)[this.level];
+        this.renderScoreTemplate();
+    }
+    checkLevelChange() {
+        if (this.totalLinesCleared > (this.level + 1) * (0, _game.LEVEL_LIMIT) && this.level < (0, _game.MAX_LEVEL)) this.setLevel(this.level + 1);
+    }
+    togglePause() {
+        this.isPaused = !this.isPaused;
+    }
+}
+
+},{"lit-html":"1cmQt","./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./templates":"68iIp"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
 
 //# sourceMappingURL=index.b7a05eb9.js.map

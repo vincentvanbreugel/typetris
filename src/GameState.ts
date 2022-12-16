@@ -1,6 +1,6 @@
 import { render } from 'lit-html';
 import { Game } from './Game';
-import { scoreTemplate } from './templates/score';
+import { scoreTemplate } from './templates';
 
 import {
     GAME_SPEEDS,

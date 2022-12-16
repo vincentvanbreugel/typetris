@@ -1,16 +1,16 @@
 import { html } from 'lit-html';
 
 export const scoreTemplate = (data: { score: number; clearedLines: number; level: number }) => {
-    return html`<div class="game-score">
+    return html`<div class="mb-3">
             <div>Score</div>
-            <div id="score" class="score">${data.score}</div>
+            <div class="score">${data.score}</div>
         </div>
-        <div class="line-score">
+        <div class="mb-3">
             <div>Lines Cleared</div>
-            <div id="clearedLines" class="cleared-lines">${data.clearedLines}</div>
+            <div class="cleared-lines">${data.clearedLines}</div>
         </div>
-        <div class="level">
+        <div class="mb-3">
             <div>Level</div>
-            <div id="level" class="level">${data.level}</div>
+            <div class="level">${data.level}</div>
         </div>`;
 };

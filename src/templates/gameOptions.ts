@@ -3,20 +3,26 @@ import { html } from 'lit-html';
 const levels = Array.from(Array(10).keys());
 
 export const gameOptionsTemplate = (data: { hide: boolean; startGame: () => void }) => {
-    return html`<div class="game-options ${data.hide ? '' : 'is-visible'}">
-            <form>
-                <fieldset>
-                    <legend>Level select</legend>
-                    ${levels.map((level) => {
-                        return html`<div>
+    return html`<div
+        class="game-options absolute top-0 right-0 bottom-0 left-0 bg-gray-900 items-center justify-center flex-col ${data.hide
+            ? 'hidden'
+            : 'flex'}"
+    >
+        <form class="mb-4">
+            <fieldset>
+                <legend>Level select</legend>
+                ${levels.map((level) => {
+                    return html`<div>
                             <label for="level${level}">${level}</label>
-                            <input type="radio" name="level-select" id="level${level}" value=${level} ?checked=${level === 0}></input>
+                            <input type="radio" name="level-select" id="level${level}" value=${level} ?checked=${
+                        level === 0
+                    }></input>
                         </div>`;
-                    })}
-                </fieldset>
-            </form>
-            <button type="button" @click=${
-                data.startGame
-            } id="startButton" class="start-button">Start</button>
-        </div>`;
+                })}
+            </fieldset>
+        </form>
+        <button type="button" @click=${data.startGame} class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+            Start
+        </button>
+    </div>`;
 };

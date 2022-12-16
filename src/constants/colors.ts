@@ -1,5 +1,7 @@
+import colors from 'tailwindcss/colors'
+
 export const COLORS = {
-  empty: '#1c1e22',
+  empty: colors.gray[900],
   red: '#f84154',
   orange: '#f98537',
   green: '#74fd38',

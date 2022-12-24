@@ -4,6 +4,7 @@ import { BLOCK_SIZE } from './constants/game';
 import { COLORS } from './constants/colors';
 import { Piece } from './Piece';
 import { Shape } from './constants/tetrominos';
+import { Utils } from './Utils';
 
 export class NextPieceBoard {
     private canvas: HTMLCanvasElement;
@@ -35,23 +36,14 @@ export class NextPieceBoard {
         for (let y = 0; y < shape.length; y++) {
             for (let x = 0; x < shape[0].length; x++) {
                 if (shape[y][x] !== 0) {
-                    this.context.fillStyle = piece.color['neutral'];
-                } else {
-                    this.context.fillStyle = COLORS.gray['darker'];
+                    Utils.drawMino(x, y, this.context, piece.color);
                 }
-                this.context.fillRect(x, y, 1, 1);
             }
         }
     }
 
     clear(): void {
-        this.context.fillStyle = COLORS.gray['dark'];
-
-        for (let y = 0; y < this.clearState.length; y++) {
-            for (let x = 0; x < this.clearState[0].length; x++) {
-                this.context.fillRect(x, y, 1, 1);
-            }
-        }
+        this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
     }
 
     private setCanvasDimensions(shape: Shape): void {

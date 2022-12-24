@@ -730,7 +730,334 @@ class Game {
     }
 }
 
-},{"./Board":"4daYq","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./Piece":"6E5CQ","./NextPieceBoard":"dSE8P","./GameState":"4wLIF","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","lit-html":"1cmQt","./templates":"68iIp"}],"4daYq":[function(require,module,exports) {
+},{"lit-html":"1cmQt","./Board":"4daYq","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./templates":"68iIp","./Piece":"6E5CQ","./NextPieceBoard":"dSE8P","./GameState":"4wLIF","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1cmQt":[function(require,module,exports) {
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "_$LH", ()=>L);
+parcelHelpers.export(exports, "html", ()=>y);
+parcelHelpers.export(exports, "noChange", ()=>x);
+parcelHelpers.export(exports, "nothing", ()=>b);
+parcelHelpers.export(exports, "render", ()=>Z);
+parcelHelpers.export(exports, "svg", ()=>w);
+var t;
+const i = window, s = i.trustedTypes, e = s ? s.createPolicy("lit-html", {
+    createHTML: (t)=>t
+}) : void 0, o = `lit$${(Math.random() + "").slice(9)}$`, n = "?" + o, l = `<${n}>`, h = document, r = (t = "")=>h.createComment(t), d = (t)=>null === t || "object" != typeof t && "function" != typeof t, u = Array.isArray, c = (t)=>u(t) || "function" == typeof (null == t ? void 0 : t[Symbol.iterator]), v = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, a = /-->/g, f = />/g, _ = RegExp(">|[ 	\n\f\r](?:([^\\s\"'>=/]+)([ 	\n\f\r]*=[ 	\n\f\r]*(?:[^ 	\n\f\r\"'`<>=]|(\"|')|))|$)", "g"), m = /'/g, p = /"/g, $ = /^(?:script|style|textarea|title)$/i, g = (t)=>(i, ...s)=>({
+            _$litType$: t,
+            strings: i,
+            values: s
+        }), y = g(1), w = g(2), x = Symbol.for("lit-noChange"), b = Symbol.for("lit-nothing"), T = new WeakMap, A = h.createTreeWalker(h, 129, null, !1), E = (t, i)=>{
+    const s = t.length - 1, n = [];
+    let h, r = 2 === i ? "<svg>" : "", d = v;
+    for(let i1 = 0; i1 < s; i1++){
+        const s1 = t[i1];
+        let e1, u, c = -1, g = 0;
+        for(; g < s1.length && (d.lastIndex = g, u = d.exec(s1), null !== u);)g = d.lastIndex, d === v ? "!--" === u[1] ? d = a : void 0 !== u[1] ? d = f : void 0 !== u[2] ? ($.test(u[2]) && (h = RegExp("</" + u[2], "g")), d = _) : void 0 !== u[3] && (d = _) : d === _ ? ">" === u[0] ? (d = null != h ? h : v, c = -1) : void 0 === u[1] ? c = -2 : (c = d.lastIndex - u[2].length, e1 = u[1], d = void 0 === u[3] ? _ : '"' === u[3] ? p : m) : d === p || d === m ? d = _ : d === a || d === f ? d = v : (d = _, h = void 0);
+        const y = d === _ && t[i1 + 1].startsWith("/>") ? " " : "";
+        r += d === v ? s1 + l : c >= 0 ? (n.push(e1), s1.slice(0, c) + "$lit$" + s1.slice(c) + o + y) : s1 + o + (-2 === c ? (n.push(void 0), i1) : y);
+    }
+    const u1 = r + (t[s] || "<?>") + (2 === i ? "</svg>" : "");
+    if (!Array.isArray(t) || !t.hasOwnProperty("raw")) throw Error("invalid template strings array");
+    return [
+        void 0 !== e ? e.createHTML(u1) : u1,
+        n
+    ];
+};
+class C {
+    constructor({ strings: t , _$litType$: i  }, e){
+        let l;
+        this.parts = [];
+        let h = 0, d = 0;
+        const u = t.length - 1, c = this.parts, [v, a] = E(t, i);
+        if (this.el = C.createElement(v, e), A.currentNode = this.el.content, 2 === i) {
+            const t1 = this.el.content, i1 = t1.firstChild;
+            i1.remove(), t1.append(...i1.childNodes);
+        }
+        for(; null !== (l = A.nextNode()) && c.length < u;){
+            if (1 === l.nodeType) {
+                if (l.hasAttributes()) {
+                    const t2 = [];
+                    for (const i2 of l.getAttributeNames())if (i2.endsWith("$lit$") || i2.startsWith(o)) {
+                        const s1 = a[d++];
+                        if (t2.push(i2), void 0 !== s1) {
+                            const t3 = l.getAttribute(s1.toLowerCase() + "$lit$").split(o), i3 = /([.?@])?(.*)/.exec(s1);
+                            c.push({
+                                type: 1,
+                                index: h,
+                                name: i3[2],
+                                strings: t3,
+                                ctor: "." === i3[1] ? M : "?" === i3[1] ? k : "@" === i3[1] ? H : S
+                            });
+                        } else c.push({
+                            type: 6,
+                            index: h
+                        });
+                    }
+                    for (const i4 of t2)l.removeAttribute(i4);
+                }
+                if ($.test(l.tagName)) {
+                    const t4 = l.textContent.split(o), i5 = t4.length - 1;
+                    if (i5 > 0) {
+                        l.textContent = s ? s.emptyScript : "";
+                        for(let s2 = 0; s2 < i5; s2++)l.append(t4[s2], r()), A.nextNode(), c.push({
+                            type: 2,
+                            index: ++h
+                        });
+                        l.append(t4[i5], r());
+                    }
+                }
+            } else if (8 === l.nodeType) {
+                if (l.data === n) c.push({
+                    type: 2,
+                    index: h
+                });
+                else {
+                    let t5 = -1;
+                    for(; -1 !== (t5 = l.data.indexOf(o, t5 + 1));)c.push({
+                        type: 7,
+                        index: h
+                    }), t5 += o.length - 1;
+                }
+            }
+            h++;
+        }
+    }
+    static createElement(t, i) {
+        const s = h.createElement("template");
+        return s.innerHTML = t, s;
+    }
+}
+function P(t, i, s = t, e) {
+    var o, n, l, h;
+    if (i === x) return i;
+    let r = void 0 !== e ? null === (o = s._$Co) || void 0 === o ? void 0 : o[e] : s._$Cl;
+    const u = d(i) ? void 0 : i._$litDirective$;
+    return (null == r ? void 0 : r.constructor) !== u && (null === (n = null == r ? void 0 : r._$AO) || void 0 === n || n.call(r, !1), void 0 === u ? r = void 0 : (r = new u(t), r._$AT(t, s, e)), void 0 !== e ? (null !== (l = (h = s)._$Co) && void 0 !== l ? l : h._$Co = [])[e] = r : s._$Cl = r), void 0 !== r && (i = P(t, r._$AS(t, i.values), r, e)), i;
+}
+class V {
+    constructor(t, i){
+        this.u = [], this._$AN = void 0, this._$AD = t, this._$AM = i;
+    }
+    get parentNode() {
+        return this._$AM.parentNode;
+    }
+    get _$AU() {
+        return this._$AM._$AU;
+    }
+    v(t) {
+        var i;
+        const { el: { content: s  } , parts: e  } = this._$AD, o = (null !== (i = null == t ? void 0 : t.creationScope) && void 0 !== i ? i : h).importNode(s, !0);
+        A.currentNode = o;
+        let n = A.nextNode(), l = 0, r = 0, d = e[0];
+        for(; void 0 !== d;){
+            if (l === d.index) {
+                let i1;
+                2 === d.type ? i1 = new N(n, n.nextSibling, this, t) : 1 === d.type ? i1 = new d.ctor(n, d.name, d.strings, this, t) : 6 === d.type && (i1 = new I(n, this, t)), this.u.push(i1), d = e[++r];
+            }
+            l !== (null == d ? void 0 : d.index) && (n = A.nextNode(), l++);
+        }
+        return o;
+    }
+    p(t) {
+        let i = 0;
+        for (const s of this.u)void 0 !== s && (void 0 !== s.strings ? (s._$AI(t, s, i), i += s.strings.length - 2) : s._$AI(t[i])), i++;
+    }
+}
+class N {
+    constructor(t, i, s, e){
+        var o;
+        this.type = 2, this._$AH = b, this._$AN = void 0, this._$AA = t, this._$AB = i, this._$AM = s, this.options = e, this._$Cm = null === (o = null == e ? void 0 : e.isConnected) || void 0 === o || o;
+    }
+    get _$AU() {
+        var t, i;
+        return null !== (i = null === (t = this._$AM) || void 0 === t ? void 0 : t._$AU) && void 0 !== i ? i : this._$Cm;
+    }
+    get parentNode() {
+        let t = this._$AA.parentNode;
+        const i = this._$AM;
+        return void 0 !== i && 11 === t.nodeType && (t = i.parentNode), t;
+    }
+    get startNode() {
+        return this._$AA;
+    }
+    get endNode() {
+        return this._$AB;
+    }
+    _$AI(t, i = this) {
+        t = P(this, t, i), d(t) ? t === b || null == t || "" === t ? (this._$AH !== b && this._$AR(), this._$AH = b) : t !== this._$AH && t !== x && this.g(t) : void 0 !== t._$litType$ ? this.$(t) : void 0 !== t.nodeType ? this.T(t) : c(t) ? this.k(t) : this.g(t);
+    }
+    O(t, i = this._$AB) {
+        return this._$AA.parentNode.insertBefore(t, i);
+    }
+    T(t) {
+        this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
+    }
+    g(t) {
+        this._$AH !== b && d(this._$AH) ? this._$AA.nextSibling.data = t : this.T(h.createTextNode(t)), this._$AH = t;
+    }
+    $(t) {
+        var i;
+        const { values: s , _$litType$: e  } = t, o = "number" == typeof e ? this._$AC(t) : (void 0 === e.el && (e.el = C.createElement(e.h, this.options)), e);
+        if ((null === (i = this._$AH) || void 0 === i ? void 0 : i._$AD) === o) this._$AH.p(s);
+        else {
+            const t1 = new V(o, this), i1 = t1.v(this.options);
+            t1.p(s), this.T(i1), this._$AH = t1;
+        }
+    }
+    _$AC(t) {
+        let i = T.get(t.strings);
+        return void 0 === i && T.set(t.strings, i = new C(t)), i;
+    }
+    k(t) {
+        u(this._$AH) || (this._$AH = [], this._$AR());
+        const i = this._$AH;
+        let s, e = 0;
+        for (const o of t)e === i.length ? i.push(s = new N(this.O(r()), this.O(r()), this, this.options)) : s = i[e], s._$AI(o), e++;
+        e < i.length && (this._$AR(s && s._$AB.nextSibling, e), i.length = e);
+    }
+    _$AR(t = this._$AA.nextSibling, i) {
+        var s;
+        for(null === (s = this._$AP) || void 0 === s || s.call(this, !1, !0, i); t && t !== this._$AB;){
+            const i1 = t.nextSibling;
+            t.remove(), t = i1;
+        }
+    }
+    setConnected(t) {
+        var i;
+        void 0 === this._$AM && (this._$Cm = t, null === (i = this._$AP) || void 0 === i || i.call(this, t));
+    }
+}
+class S {
+    constructor(t, i, s, e, o){
+        this.type = 1, this._$AH = b, this._$AN = void 0, this.element = t, this.name = i, this._$AM = e, this.options = o, s.length > 2 || "" !== s[0] || "" !== s[1] ? (this._$AH = Array(s.length - 1).fill(new String), this.strings = s) : this._$AH = b;
+    }
+    get tagName() {
+        return this.element.tagName;
+    }
+    get _$AU() {
+        return this._$AM._$AU;
+    }
+    _$AI(t, i = this, s, e) {
+        const o = this.strings;
+        let n = !1;
+        if (void 0 === o) t = P(this, t, i, 0), n = !d(t) || t !== this._$AH && t !== x, n && (this._$AH = t);
+        else {
+            const e1 = t;
+            let l, h;
+            for(t = o[0], l = 0; l < o.length - 1; l++)h = P(this, e1[s + l], i, l), h === x && (h = this._$AH[l]), n || (n = !d(h) || h !== this._$AH[l]), h === b ? t = b : t !== b && (t += (null != h ? h : "") + o[l + 1]), this._$AH[l] = h;
+        }
+        n && !e && this.j(t);
+    }
+    j(t) {
+        t === b ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, null != t ? t : "");
+    }
+}
+class M extends S {
+    constructor(){
+        super(...arguments), this.type = 3;
+    }
+    j(t) {
+        this.element[this.name] = t === b ? void 0 : t;
+    }
+}
+const R = s ? s.emptyScript : "";
+class k extends S {
+    constructor(){
+        super(...arguments), this.type = 4;
+    }
+    j(t) {
+        t && t !== b ? this.element.setAttribute(this.name, R) : this.element.removeAttribute(this.name);
+    }
+}
+class H extends S {
+    constructor(t, i, s, e, o){
+        super(t, i, s, e, o), this.type = 5;
+    }
+    _$AI(t, i = this) {
+        var s;
+        if ((t = null !== (s = P(this, t, i, 0)) && void 0 !== s ? s : b) === x) return;
+        const e = this._$AH, o = t === b && e !== b || t.capture !== e.capture || t.once !== e.once || t.passive !== e.passive, n = t !== b && (e === b || o);
+        o && this.element.removeEventListener(this.name, this, e), n && this.element.addEventListener(this.name, this, t), this._$AH = t;
+    }
+    handleEvent(t) {
+        var i, s;
+        "function" == typeof this._$AH ? this._$AH.call(null !== (s = null === (i = this.options) || void 0 === i ? void 0 : i.host) && void 0 !== s ? s : this.element, t) : this._$AH.handleEvent(t);
+    }
+}
+class I {
+    constructor(t, i, s){
+        this.element = t, this.type = 6, this._$AN = void 0, this._$AM = i, this.options = s;
+    }
+    get _$AU() {
+        return this._$AM._$AU;
+    }
+    _$AI(t) {
+        P(this, t);
+    }
+}
+const L = {
+    P: "$lit$",
+    A: o,
+    M: n,
+    C: 1,
+    L: E,
+    R: V,
+    D: c,
+    V: P,
+    I: N,
+    H: S,
+    N: k,
+    U: H,
+    B: M,
+    F: I
+}, z = i.litHtmlPolyfillSupport;
+null == z || z(C, N), (null !== (t = i.litHtmlVersions) && void 0 !== t ? t : i.litHtmlVersions = []).push("2.5.0");
+const Z = (t, i, s)=>{
+    var e, o;
+    const n = null !== (e = null == s ? void 0 : s.renderBefore) && void 0 !== e ? e : i;
+    let l = n._$litPart$;
+    if (void 0 === l) {
+        const t1 = null !== (o = null == s ? void 0 : s.renderBefore) && void 0 !== o ? o : null;
+        n._$litPart$ = l = new N(i.insertBefore(r(), t1), t1, void 0, null != s ? s : {});
+    }
+    return l._$AI(t), l;
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, "__esModule", {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === "default" || key === "__esModule" || dest.hasOwnProperty(key)) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"4daYq":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Board", ()=>Board);
@@ -744,8 +1071,6 @@ class Board {
         start: 0,
         elapsed: 0
     };
-    brighten = true;
-    opacity = 99;
     constructor(boardId){
         this.canvas = document.getElementById(boardId);
         this.context = this.canvas.getContext("2d");
@@ -754,13 +1079,13 @@ class Board {
     }
     draw() {
         this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+        this.context.fillStyle = (0, _colors.COLORS).gray["darker"];
+        this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
         for(let y = 0; y < this.state.length; y++)for(let x = 0; x < this.state[0].length; x++){
             const tetromino = (0, _tetrominos.TETROMINOS).find((tetromino)=>{
                 return tetromino.id === this.state[y][x];
             });
-            if (tetromino) this.context.fillStyle = tetromino.color["neutral"];
-            else this.context.fillStyle = (0, _colors.COLORS).gray["darker"];
-            this.context.fillRect(x, y, 1, 1);
+            tetromino && (0, _utils.Utils).drawMino(x, y, this.context, tetromino.color);
         }
     }
     async handleClearLines(lines) {
@@ -788,23 +1113,22 @@ class Board {
         });
     }
     animateClearedLines(timeStamp = 0) {
+        this.context.fillStyle = (0, _colors.COLORS).gray["darker"];
         this.animationTimer.elapsed = timeStamp - this.animationTimer.start;
-        if (this.animationTimer.elapsed > 1000 / 60) {
+        if (this.animationTimer.elapsed >= (0, _game.LINE_CLEAR_DELAY) / 5) {
             this.animationTimer.start = timeStamp;
             this.animatedLines.forEach((line)=>{
-                this.state[line].forEach((cell, index)=>{
-                    const tetromino = (0, _tetrominos.TETROMINOS).find((tetromino)=>{
-                        return tetromino.id === cell;
-                    });
-                    if (tetromino) {
-                        this.context.fillStyle = tetromino.color["neutral"] + this.opacity;
-                        this.context.clearRect(index, line, 1, 1);
-                        this.context.fillRect(index, line, 1, 1);
-                    }
-                });
+                const lastClearedIndexFromLeft = this.state[line].indexOf(0);
+                const nextIndexFromLeft = lastClearedIndexFromLeft !== -1 ? lastClearedIndexFromLeft - 1 : 4;
+                const lastClearedIndexFromRight = this.state[line].lastIndexOf(0);
+                const nextIndexFromRight = lastClearedIndexFromRight !== -1 ? lastClearedIndexFromRight + 1 : 5;
+                this.context.clearRect(nextIndexFromLeft, line, 1, 1);
+                this.context.clearRect(nextIndexFromRight, line, 1, 1);
+                this.context.fillRect(nextIndexFromLeft, line, 1, 1);
+                this.context.fillRect(nextIndexFromRight, line, 1, 1);
+                this.state[line][nextIndexFromLeft] = 0;
+                this.state[line][nextIndexFromRight] = 0;
             });
-            this.brighten && this.opacity > 25 ? this.opacity = this.opacity - 4 : this.brighten = false;
-            !this.brighten && this.opacity < 99 ? this.opacity = this.opacity + 4 : this.brighten = true;
         }
         this.requestId = requestAnimationFrame(this.animateClearedLines.bind(this));
     }
@@ -815,7 +1139,7 @@ class Board {
     }
 }
 
-},{"./constants/game":"be0O0","./constants/colors":"dVpQr","./constants/tetrominos":"dVpHQ","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"be0O0":[function(require,module,exports) {
+},{"./constants/game":"be0O0","./constants/tetrominos":"dVpHQ","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants/colors":"dVpQr"}],"be0O0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLS", ()=>COLS);
@@ -901,39 +1225,543 @@ const GAME_SPEEDS = [
 ];
 const MAX_LEVEL = 20;
 const LEVEL_LIMIT = 10;
-const LINE_CLEAR_DELAY = 1200;
+const LINE_CLEAR_DELAY = 500;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, "__esModule", {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === "default" || key === "__esModule" || dest.hasOwnProperty(key)) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpHQ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
+var _colors = require("./colors");
+const TETROMINOS = [
+    {
+        id: 1,
+        color: (0, _colors.COLORS).yellow,
+        shapes: [
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ]
+        ]
+    },
+    {
+        id: 2,
+        color: (0, _colors.COLORS).blue,
+        shapes: [
+            [
+                [
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 3,
+        color: (0, _colors.COLORS).orange,
+        shapes: [
+            [
+                [
+                    0,
+                    0,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 4,
+        color: (0, _colors.COLORS).green,
+        shapes: [
+            [
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 5,
+        color: (0, _colors.COLORS).red,
+        shapes: [
+            [
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    0,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 6,
+        color: (0, _colors.COLORS).purple,
+        shapes: [
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 7,
+        color: (0, _colors.COLORS).cyan,
+        shapes: [
+            [
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ]
+            ]
+        ]
+    }
+];
 
-},{}],"dVpQr":[function(require,module,exports) {
+},{"./colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpQr":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLORS", ()=>COLORS);
@@ -998,7 +1826,7 @@ const COLORS = {
     }
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","tailwindcss/colors":"3Lpw2"}],"3Lpw2":[function(require,module,exports) {
+},{"tailwindcss/colors":"3Lpw2","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3Lpw2":[function(require,module,exports) {
 let colors = require("./lib/public/colors");
 module.exports = (colors.__esModule ? colors : {
     default: colors
@@ -1577,1059 +2405,26 @@ var create = function() {
 module.exports = create();
 module.exports.createColors = create;
 
-},{}],"dVpHQ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
-var _colors = require("./colors");
-const TETROMINOS = [
-    {
-        id: 1,
-        color: (0, _colors.COLORS).yellow,
-        shapes: [
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ]
-        ]
-    },
-    {
-        id: 2,
-        color: (0, _colors.COLORS).blue,
-        shapes: [
-            [
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 3,
-        color: (0, _colors.COLORS).orange,
-        shapes: [
-            [
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 4,
-        color: (0, _colors.COLORS).green,
-        shapes: [
-            [
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 5,
-        color: (0, _colors.COLORS).red,
-        shapes: [
-            [
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 6,
-        color: (0, _colors.COLORS).purple,
-        shapes: [
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 7,
-        color: (0, _colors.COLORS).cyan,
-        shapes: [
-            [
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ]
-            ]
-        ]
-    }
-];
-
-},{"./colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7ma2M":[function(require,module,exports) {
+},{}],"7ma2M":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Utils", ()=>Utils);
+var _game = require("./constants/game");
 class Utils {
     static sleep(ms) {
         return new Promise((resolve)=>setTimeout(resolve, ms));
     }
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6E5CQ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Piece", ()=>Piece);
-var _game = require("./constants/game");
-class Piece {
-    isLocked = false;
-    constructor(tetromino, board){
-        this.id = tetromino.id;
-        this.shapePosition = (0, _game.SPAWN_POSITION);
-        this.piecePosition = [];
-        this.shapes = tetromino.shapes;
-        this.color = tetromino.color;
-        this.shapeIndex = 0;
-        this.board = board;
-    }
-    move(direction) {
-        this.clearPiecePosition();
-        this.updateBoardPosition({
-            direction,
-            value: this.id
-        });
-    }
-    rotate(rotation) {
-        if (rotation === "clockwise") this.incrementShapeIndex();
-        else this.decrementShapeIndex();
-        this.move((0, _game.DIRECTIONS).NO_CHANGE);
-    }
-    hardDrop() {
-        let cellsDropped = 0;
-        while(this.isMoveValid({
-            direction: (0, _game.DIRECTIONS).DOWN
-        })){
-            this.move((0, _game.DIRECTIONS).DOWN);
-            cellsDropped++;
-        }
-        return cellsDropped;
-    }
-    isMoveValid(params) {
-        this.clearPiecePosition();
-        const { direction , rotation  } = params;
-        const newPiecePosition = [];
-        let newShapeIndex = this.shapeIndex;
-        if (rotation) {
-            if (rotation === "clockwise") this.shapeIndex !== 3 ? newShapeIndex++ : newShapeIndex = 0;
-            else this.shapeIndex !== 0 ? newShapeIndex-- : newShapeIndex = 3;
-        }
-        this.shapes[newShapeIndex].forEach((row, rowIndex)=>{
-            row.forEach((value, valueIndex)=>{
-                if (value === 1) newPiecePosition.push({
-                    x: this.shapePosition.x + valueIndex,
-                    y: this.shapePosition.y + rowIndex
-                });
-            });
-        });
-        const config = {
-            ...direction && {
-                direction
-            },
-            piecePosition: newPiecePosition
-        };
-        if (!this.isBetweenWalls(config) || !this.isBetweenOtherPieces(config)) {
-            this.updateBoardPosition({
-                value: this.id
-            });
-            return false;
-        }
-        if (!this.isAboveFloor(config) || !this.isAboveOtherPieces(config)) {
-            this.updateBoardPosition({
-                value: this.id
-            });
-            this.lockPiece();
-            return false;
-        }
-        this.updateBoardPosition({
-            value: this.id
-        });
-        return true;
-    }
-    updatePiecePosition() {
-        this.piecePosition = [];
-        this.shapes[this.shapeIndex].forEach((row, rowIndex)=>{
-            row.forEach((value, valueIndex)=>{
-                if (value === 1) this.piecePosition.push({
-                    x: this.shapePosition.x + valueIndex,
-                    y: this.shapePosition.y + rowIndex
-                });
-            });
-        });
-    }
-    updateBoardPosition({ direction =(0, _game.DIRECTIONS).NO_CHANGE , value =0  }) {
-        this.shapePosition = {
-            x: this.shapePosition.x + direction.x,
-            y: this.shapePosition.y + direction.y
-        };
-        this.updatePiecePosition();
-        this.piecePosition.forEach((pos)=>{
-            this.board.state[pos.y][pos.x] = value;
-        });
-    }
-    lockPiece() {
-        this.isLocked = true;
-    }
-    incrementShapeIndex() {
-        this.shapeIndex !== 3 ? this.shapeIndex++ : this.shapeIndex = 0;
-    }
-    decrementShapeIndex() {
-        this.shapeIndex !== 0 ? this.shapeIndex-- : this.shapeIndex = 3;
-    }
-    isBetweenOtherPieces(params) {
-        const { direction , piecePosition  } = params;
-        return piecePosition.every((point)=>{
-            const xPosition = direction ? point.x + direction.x : point.x;
-            return this.board.state[point.y][xPosition] === 0;
-        });
-    }
-    isAboveOtherPieces(params) {
-        const { direction , piecePosition  } = params;
-        return piecePosition.every((point)=>{
-            const yPosition = direction ? point.y + direction.y : point.y;
-            return this.board.state[yPosition][point.x] === 0;
-        });
-    }
-    isBetweenWalls(params) {
-        const { direction , piecePosition  } = params;
-        return piecePosition.every((point)=>{
-            const xPosition = direction ? point.x + direction.x : point.x;
-            return xPosition >= 0 && xPosition < (0, _game.COLS);
-        });
-    }
-    isAboveFloor(params) {
-        const { direction , piecePosition  } = params;
-        return piecePosition.every((point)=>{
-            const yPosition = direction ? point.y + direction.y : point.y;
-            return yPosition < (0, _game.ROWS);
-        });
-    }
-    clearPiecePosition() {
-        this.piecePosition.forEach((pos)=>{
-            this.board.state[pos.y][pos.x] = 0;
-        });
+    static drawMino(x, y, context, color) {
+        const borderWidth = 1 / (0, _game.BLOCK_SIZE);
+        const offset = borderWidth * 2;
+        context.fillStyle = color["light"];
+        context.fillRect(x, y, 1, 1);
+        context.fillStyle = color["neutral"];
+        context.fillRect(x + borderWidth, y + borderWidth, 1 - offset, 1 - offset);
     }
 }
 
-},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dSE8P":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "NextPieceBoard", ()=>NextPieceBoard);
-var _litHtml = require("lit-html");
-var _templates = require("./templates");
-var _game = require("./constants/game");
-var _colors = require("./constants/colors");
-class NextPieceBoard {
-    clearState = [
-        [
-            0,
-            0,
-            0,
-            0
-        ],
-        [
-            0,
-            0,
-            0,
-            0
-        ],
-        [
-            0,
-            0,
-            0,
-            0
-        ],
-        [
-            0,
-            0,
-            0,
-            0
-        ]
-    ];
-    nextPieceElementId = "nextPiece";
-    canvasId = "nextPieceBoard";
-    constructor(){
-        this.nextPieceElement = document.getElementById(this.nextPieceElementId);
-        this.renderNextPieceTemplate();
-        this.canvas = document.getElementById(this.canvasId);
-        this.context = this.canvas.getContext("2d");
-    }
-    renderNextPieceTemplate() {
-        (0, _litHtml.render)((0, _templates.nextPieceTemplate)(), this.nextPieceElement);
-    }
-    draw(piece) {
-        const shape = piece.shapes[0];
-        this.setCanvasDimensions(shape);
-        for(let y = 0; y < shape.length; y++)for(let x = 0; x < shape[0].length; x++){
-            if (shape[y][x] !== 0) this.context.fillStyle = piece.color["neutral"];
-            else this.context.fillStyle = (0, _colors.COLORS).gray["darker"];
-            this.context.fillRect(x, y, 1, 1);
-        }
-    }
-    clear() {
-        this.context.fillStyle = (0, _colors.COLORS).gray["dark"];
-        for(let y = 0; y < this.clearState.length; y++)for(let x = 0; x < this.clearState[0].length; x++)this.context.fillRect(x, y, 1, 1);
-    }
-    setCanvasDimensions(shape) {
-        const height = shape.length === 2 ? 2 : shape.length - 1;
-        this.context.canvas.width = shape.length * (0, _game.BLOCK_SIZE);
-        this.context.canvas.height = height * (0, _game.BLOCK_SIZE);
-        this.context.scale((0, _game.BLOCK_SIZE), (0, _game.BLOCK_SIZE));
-    }
-}
-
-},{"./constants/game":"be0O0","./constants/colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","lit-html":"1cmQt","./templates":"68iIp"}],"1cmQt":[function(require,module,exports) {
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "_$LH", ()=>L);
-parcelHelpers.export(exports, "html", ()=>y);
-parcelHelpers.export(exports, "noChange", ()=>x);
-parcelHelpers.export(exports, "nothing", ()=>b);
-parcelHelpers.export(exports, "render", ()=>Z);
-parcelHelpers.export(exports, "svg", ()=>w);
-var t;
-const i = window, s = i.trustedTypes, e = s ? s.createPolicy("lit-html", {
-    createHTML: (t)=>t
-}) : void 0, o = `lit$${(Math.random() + "").slice(9)}$`, n = "?" + o, l = `<${n}>`, h = document, r = (t = "")=>h.createComment(t), d = (t)=>null === t || "object" != typeof t && "function" != typeof t, u = Array.isArray, c = (t)=>u(t) || "function" == typeof (null == t ? void 0 : t[Symbol.iterator]), v = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, a = /-->/g, f = />/g, _ = RegExp(">|[ 	\n\f\r](?:([^\\s\"'>=/]+)([ 	\n\f\r]*=[ 	\n\f\r]*(?:[^ 	\n\f\r\"'`<>=]|(\"|')|))|$)", "g"), m = /'/g, p = /"/g, $ = /^(?:script|style|textarea|title)$/i, g = (t)=>(i, ...s)=>({
-            _$litType$: t,
-            strings: i,
-            values: s
-        }), y = g(1), w = g(2), x = Symbol.for("lit-noChange"), b = Symbol.for("lit-nothing"), T = new WeakMap, A = h.createTreeWalker(h, 129, null, !1), E = (t, i)=>{
-    const s = t.length - 1, n = [];
-    let h, r = 2 === i ? "<svg>" : "", d = v;
-    for(let i1 = 0; i1 < s; i1++){
-        const s1 = t[i1];
-        let e1, u, c = -1, g = 0;
-        for(; g < s1.length && (d.lastIndex = g, u = d.exec(s1), null !== u);)g = d.lastIndex, d === v ? "!--" === u[1] ? d = a : void 0 !== u[1] ? d = f : void 0 !== u[2] ? ($.test(u[2]) && (h = RegExp("</" + u[2], "g")), d = _) : void 0 !== u[3] && (d = _) : d === _ ? ">" === u[0] ? (d = null != h ? h : v, c = -1) : void 0 === u[1] ? c = -2 : (c = d.lastIndex - u[2].length, e1 = u[1], d = void 0 === u[3] ? _ : '"' === u[3] ? p : m) : d === p || d === m ? d = _ : d === a || d === f ? d = v : (d = _, h = void 0);
-        const y = d === _ && t[i1 + 1].startsWith("/>") ? " " : "";
-        r += d === v ? s1 + l : c >= 0 ? (n.push(e1), s1.slice(0, c) + "$lit$" + s1.slice(c) + o + y) : s1 + o + (-2 === c ? (n.push(void 0), i1) : y);
-    }
-    const u1 = r + (t[s] || "<?>") + (2 === i ? "</svg>" : "");
-    if (!Array.isArray(t) || !t.hasOwnProperty("raw")) throw Error("invalid template strings array");
-    return [
-        void 0 !== e ? e.createHTML(u1) : u1,
-        n
-    ];
-};
-class C {
-    constructor({ strings: t , _$litType$: i  }, e){
-        let l;
-        this.parts = [];
-        let h = 0, d = 0;
-        const u = t.length - 1, c = this.parts, [v, a] = E(t, i);
-        if (this.el = C.createElement(v, e), A.currentNode = this.el.content, 2 === i) {
-            const t1 = this.el.content, i1 = t1.firstChild;
-            i1.remove(), t1.append(...i1.childNodes);
-        }
-        for(; null !== (l = A.nextNode()) && c.length < u;){
-            if (1 === l.nodeType) {
-                if (l.hasAttributes()) {
-                    const t2 = [];
-                    for (const i2 of l.getAttributeNames())if (i2.endsWith("$lit$") || i2.startsWith(o)) {
-                        const s1 = a[d++];
-                        if (t2.push(i2), void 0 !== s1) {
-                            const t3 = l.getAttribute(s1.toLowerCase() + "$lit$").split(o), i3 = /([.?@])?(.*)/.exec(s1);
-                            c.push({
-                                type: 1,
-                                index: h,
-                                name: i3[2],
-                                strings: t3,
-                                ctor: "." === i3[1] ? M : "?" === i3[1] ? k : "@" === i3[1] ? H : S
-                            });
-                        } else c.push({
-                            type: 6,
-                            index: h
-                        });
-                    }
-                    for (const i4 of t2)l.removeAttribute(i4);
-                }
-                if ($.test(l.tagName)) {
-                    const t4 = l.textContent.split(o), i5 = t4.length - 1;
-                    if (i5 > 0) {
-                        l.textContent = s ? s.emptyScript : "";
-                        for(let s2 = 0; s2 < i5; s2++)l.append(t4[s2], r()), A.nextNode(), c.push({
-                            type: 2,
-                            index: ++h
-                        });
-                        l.append(t4[i5], r());
-                    }
-                }
-            } else if (8 === l.nodeType) {
-                if (l.data === n) c.push({
-                    type: 2,
-                    index: h
-                });
-                else {
-                    let t5 = -1;
-                    for(; -1 !== (t5 = l.data.indexOf(o, t5 + 1));)c.push({
-                        type: 7,
-                        index: h
-                    }), t5 += o.length - 1;
-                }
-            }
-            h++;
-        }
-    }
-    static createElement(t, i) {
-        const s = h.createElement("template");
-        return s.innerHTML = t, s;
-    }
-}
-function P(t, i, s = t, e) {
-    var o, n, l, h;
-    if (i === x) return i;
-    let r = void 0 !== e ? null === (o = s._$Co) || void 0 === o ? void 0 : o[e] : s._$Cl;
-    const u = d(i) ? void 0 : i._$litDirective$;
-    return (null == r ? void 0 : r.constructor) !== u && (null === (n = null == r ? void 0 : r._$AO) || void 0 === n || n.call(r, !1), void 0 === u ? r = void 0 : (r = new u(t), r._$AT(t, s, e)), void 0 !== e ? (null !== (l = (h = s)._$Co) && void 0 !== l ? l : h._$Co = [])[e] = r : s._$Cl = r), void 0 !== r && (i = P(t, r._$AS(t, i.values), r, e)), i;
-}
-class V {
-    constructor(t, i){
-        this.u = [], this._$AN = void 0, this._$AD = t, this._$AM = i;
-    }
-    get parentNode() {
-        return this._$AM.parentNode;
-    }
-    get _$AU() {
-        return this._$AM._$AU;
-    }
-    v(t) {
-        var i;
-        const { el: { content: s  } , parts: e  } = this._$AD, o = (null !== (i = null == t ? void 0 : t.creationScope) && void 0 !== i ? i : h).importNode(s, !0);
-        A.currentNode = o;
-        let n = A.nextNode(), l = 0, r = 0, d = e[0];
-        for(; void 0 !== d;){
-            if (l === d.index) {
-                let i1;
-                2 === d.type ? i1 = new N(n, n.nextSibling, this, t) : 1 === d.type ? i1 = new d.ctor(n, d.name, d.strings, this, t) : 6 === d.type && (i1 = new I(n, this, t)), this.u.push(i1), d = e[++r];
-            }
-            l !== (null == d ? void 0 : d.index) && (n = A.nextNode(), l++);
-        }
-        return o;
-    }
-    p(t) {
-        let i = 0;
-        for (const s of this.u)void 0 !== s && (void 0 !== s.strings ? (s._$AI(t, s, i), i += s.strings.length - 2) : s._$AI(t[i])), i++;
-    }
-}
-class N {
-    constructor(t, i, s, e){
-        var o;
-        this.type = 2, this._$AH = b, this._$AN = void 0, this._$AA = t, this._$AB = i, this._$AM = s, this.options = e, this._$Cm = null === (o = null == e ? void 0 : e.isConnected) || void 0 === o || o;
-    }
-    get _$AU() {
-        var t, i;
-        return null !== (i = null === (t = this._$AM) || void 0 === t ? void 0 : t._$AU) && void 0 !== i ? i : this._$Cm;
-    }
-    get parentNode() {
-        let t = this._$AA.parentNode;
-        const i = this._$AM;
-        return void 0 !== i && 11 === t.nodeType && (t = i.parentNode), t;
-    }
-    get startNode() {
-        return this._$AA;
-    }
-    get endNode() {
-        return this._$AB;
-    }
-    _$AI(t, i = this) {
-        t = P(this, t, i), d(t) ? t === b || null == t || "" === t ? (this._$AH !== b && this._$AR(), this._$AH = b) : t !== this._$AH && t !== x && this.g(t) : void 0 !== t._$litType$ ? this.$(t) : void 0 !== t.nodeType ? this.T(t) : c(t) ? this.k(t) : this.g(t);
-    }
-    O(t, i = this._$AB) {
-        return this._$AA.parentNode.insertBefore(t, i);
-    }
-    T(t) {
-        this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
-    }
-    g(t) {
-        this._$AH !== b && d(this._$AH) ? this._$AA.nextSibling.data = t : this.T(h.createTextNode(t)), this._$AH = t;
-    }
-    $(t) {
-        var i;
-        const { values: s , _$litType$: e  } = t, o = "number" == typeof e ? this._$AC(t) : (void 0 === e.el && (e.el = C.createElement(e.h, this.options)), e);
-        if ((null === (i = this._$AH) || void 0 === i ? void 0 : i._$AD) === o) this._$AH.p(s);
-        else {
-            const t1 = new V(o, this), i1 = t1.v(this.options);
-            t1.p(s), this.T(i1), this._$AH = t1;
-        }
-    }
-    _$AC(t) {
-        let i = T.get(t.strings);
-        return void 0 === i && T.set(t.strings, i = new C(t)), i;
-    }
-    k(t) {
-        u(this._$AH) || (this._$AH = [], this._$AR());
-        const i = this._$AH;
-        let s, e = 0;
-        for (const o of t)e === i.length ? i.push(s = new N(this.O(r()), this.O(r()), this, this.options)) : s = i[e], s._$AI(o), e++;
-        e < i.length && (this._$AR(s && s._$AB.nextSibling, e), i.length = e);
-    }
-    _$AR(t = this._$AA.nextSibling, i) {
-        var s;
-        for(null === (s = this._$AP) || void 0 === s || s.call(this, !1, !0, i); t && t !== this._$AB;){
-            const i1 = t.nextSibling;
-            t.remove(), t = i1;
-        }
-    }
-    setConnected(t) {
-        var i;
-        void 0 === this._$AM && (this._$Cm = t, null === (i = this._$AP) || void 0 === i || i.call(this, t));
-    }
-}
-class S {
-    constructor(t, i, s, e, o){
-        this.type = 1, this._$AH = b, this._$AN = void 0, this.element = t, this.name = i, this._$AM = e, this.options = o, s.length > 2 || "" !== s[0] || "" !== s[1] ? (this._$AH = Array(s.length - 1).fill(new String), this.strings = s) : this._$AH = b;
-    }
-    get tagName() {
-        return this.element.tagName;
-    }
-    get _$AU() {
-        return this._$AM._$AU;
-    }
-    _$AI(t, i = this, s, e) {
-        const o = this.strings;
-        let n = !1;
-        if (void 0 === o) t = P(this, t, i, 0), n = !d(t) || t !== this._$AH && t !== x, n && (this._$AH = t);
-        else {
-            const e1 = t;
-            let l, h;
-            for(t = o[0], l = 0; l < o.length - 1; l++)h = P(this, e1[s + l], i, l), h === x && (h = this._$AH[l]), n || (n = !d(h) || h !== this._$AH[l]), h === b ? t = b : t !== b && (t += (null != h ? h : "") + o[l + 1]), this._$AH[l] = h;
-        }
-        n && !e && this.j(t);
-    }
-    j(t) {
-        t === b ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, null != t ? t : "");
-    }
-}
-class M extends S {
-    constructor(){
-        super(...arguments), this.type = 3;
-    }
-    j(t) {
-        this.element[this.name] = t === b ? void 0 : t;
-    }
-}
-const R = s ? s.emptyScript : "";
-class k extends S {
-    constructor(){
-        super(...arguments), this.type = 4;
-    }
-    j(t) {
-        t && t !== b ? this.element.setAttribute(this.name, R) : this.element.removeAttribute(this.name);
-    }
-}
-class H extends S {
-    constructor(t, i, s, e, o){
-        super(t, i, s, e, o), this.type = 5;
-    }
-    _$AI(t, i = this) {
-        var s;
-        if ((t = null !== (s = P(this, t, i, 0)) && void 0 !== s ? s : b) === x) return;
-        const e = this._$AH, o = t === b && e !== b || t.capture !== e.capture || t.once !== e.once || t.passive !== e.passive, n = t !== b && (e === b || o);
-        o && this.element.removeEventListener(this.name, this, e), n && this.element.addEventListener(this.name, this, t), this._$AH = t;
-    }
-    handleEvent(t) {
-        var i, s;
-        "function" == typeof this._$AH ? this._$AH.call(null !== (s = null === (i = this.options) || void 0 === i ? void 0 : i.host) && void 0 !== s ? s : this.element, t) : this._$AH.handleEvent(t);
-    }
-}
-class I {
-    constructor(t, i, s){
-        this.element = t, this.type = 6, this._$AN = void 0, this._$AM = i, this.options = s;
-    }
-    get _$AU() {
-        return this._$AM._$AU;
-    }
-    _$AI(t) {
-        P(this, t);
-    }
-}
-const L = {
-    P: "$lit$",
-    A: o,
-    M: n,
-    C: 1,
-    L: E,
-    R: V,
-    D: c,
-    V: P,
-    I: N,
-    H: S,
-    N: k,
-    U: H,
-    B: M,
-    F: I
-}, z = i.litHtmlPolyfillSupport;
-null == z || z(C, N), (null !== (t = i.litHtmlVersions) && void 0 !== t ? t : i.litHtmlVersions = []).push("2.5.0");
-const Z = (t, i, s)=>{
-    var e, o;
-    const n = null !== (e = null == s ? void 0 : s.renderBefore) && void 0 !== e ? e : i;
-    let l = n._$litPart$;
-    if (void 0 === l) {
-        const t1 = null !== (o = null == s ? void 0 : s.renderBefore) && void 0 !== o ? o : null;
-        n._$litPart$ = l = new N(i.insertBefore(r(), t1), t1, void 0, null != s ? s : {});
-    }
-    return l._$AI(t), l;
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"68iIp":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants/game":"be0O0"}],"68iIp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "gameTemplate", ()=>(0, _game.gameTemplate));
@@ -2780,7 +2575,215 @@ const scoreTemplate = (data)=>{
         </div>`;
 };
 
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4wLIF":[function(require,module,exports) {
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6E5CQ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Piece", ()=>Piece);
+var _game = require("./constants/game");
+class Piece {
+    isLocked = false;
+    constructor(tetromino, board){
+        this.id = tetromino.id;
+        this.shapePosition = (0, _game.SPAWN_POSITION);
+        this.piecePosition = [];
+        this.shapes = tetromino.shapes;
+        this.color = tetromino.color;
+        this.shapeIndex = 0;
+        this.board = board;
+    }
+    move(direction) {
+        this.clearPiecePosition();
+        this.updateBoardPosition({
+            direction,
+            value: this.id
+        });
+    }
+    rotate(rotation) {
+        if (rotation === "clockwise") this.incrementShapeIndex();
+        else this.decrementShapeIndex();
+        this.move((0, _game.DIRECTIONS).NO_CHANGE);
+    }
+    hardDrop() {
+        let cellsDropped = 0;
+        while(this.isMoveValid({
+            direction: (0, _game.DIRECTIONS).DOWN
+        })){
+            this.move((0, _game.DIRECTIONS).DOWN);
+            cellsDropped++;
+        }
+        return cellsDropped;
+    }
+    isMoveValid(params) {
+        this.clearPiecePosition();
+        const { direction , rotation  } = params;
+        const newPiecePosition = [];
+        let newShapeIndex = this.shapeIndex;
+        if (rotation) {
+            if (rotation === "clockwise") this.shapeIndex !== 3 ? newShapeIndex++ : newShapeIndex = 0;
+            else this.shapeIndex !== 0 ? newShapeIndex-- : newShapeIndex = 3;
+        }
+        this.shapes[newShapeIndex].forEach((row, rowIndex)=>{
+            row.forEach((value, valueIndex)=>{
+                if (value === 1) newPiecePosition.push({
+                    x: this.shapePosition.x + valueIndex,
+                    y: this.shapePosition.y + rowIndex
+                });
+            });
+        });
+        const config = {
+            ...direction && {
+                direction
+            },
+            piecePosition: newPiecePosition
+        };
+        if (!this.isBetweenWalls(config) || !this.isBetweenOtherPieces(config)) {
+            this.updateBoardPosition({
+                value: this.id
+            });
+            return false;
+        }
+        if (!this.isAboveFloor(config) || !this.isAboveOtherPieces(config)) {
+            this.updateBoardPosition({
+                value: this.id
+            });
+            this.lockPiece();
+            return false;
+        }
+        this.updateBoardPosition({
+            value: this.id
+        });
+        return true;
+    }
+    updatePiecePosition() {
+        this.piecePosition = [];
+        this.shapes[this.shapeIndex].forEach((row, rowIndex)=>{
+            row.forEach((value, valueIndex)=>{
+                if (value === 1) this.piecePosition.push({
+                    x: this.shapePosition.x + valueIndex,
+                    y: this.shapePosition.y + rowIndex
+                });
+            });
+        });
+    }
+    updateBoardPosition({ direction =(0, _game.DIRECTIONS).NO_CHANGE , value =0  }) {
+        this.shapePosition = {
+            x: this.shapePosition.x + direction.x,
+            y: this.shapePosition.y + direction.y
+        };
+        this.updatePiecePosition();
+        this.piecePosition.forEach((pos)=>{
+            this.board.state[pos.y][pos.x] = value;
+        });
+    }
+    lockPiece() {
+        this.isLocked = true;
+    }
+    incrementShapeIndex() {
+        this.shapeIndex !== 3 ? this.shapeIndex++ : this.shapeIndex = 0;
+    }
+    decrementShapeIndex() {
+        this.shapeIndex !== 0 ? this.shapeIndex-- : this.shapeIndex = 3;
+    }
+    isBetweenOtherPieces(params) {
+        const { direction , piecePosition  } = params;
+        return piecePosition.every((point)=>{
+            const xPosition = direction ? point.x + direction.x : point.x;
+            return this.board.state[point.y][xPosition] === 0;
+        });
+    }
+    isAboveOtherPieces(params) {
+        const { direction , piecePosition  } = params;
+        return piecePosition.every((point)=>{
+            const yPosition = direction ? point.y + direction.y : point.y;
+            return this.board.state[yPosition][point.x] === 0;
+        });
+    }
+    isBetweenWalls(params) {
+        const { direction , piecePosition  } = params;
+        return piecePosition.every((point)=>{
+            const xPosition = direction ? point.x + direction.x : point.x;
+            return xPosition >= 0 && xPosition < (0, _game.COLS);
+        });
+    }
+    isAboveFloor(params) {
+        const { direction , piecePosition  } = params;
+        return piecePosition.every((point)=>{
+            const yPosition = direction ? point.y + direction.y : point.y;
+            return yPosition < (0, _game.ROWS);
+        });
+    }
+    clearPiecePosition() {
+        this.piecePosition.forEach((pos)=>{
+            this.board.state[pos.y][pos.x] = 0;
+        });
+    }
+}
+
+},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dSE8P":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "NextPieceBoard", ()=>NextPieceBoard);
+var _litHtml = require("lit-html");
+var _templates = require("./templates");
+var _game = require("./constants/game");
+var _utils = require("./Utils");
+class NextPieceBoard {
+    clearState = [
+        [
+            0,
+            0,
+            0,
+            0
+        ],
+        [
+            0,
+            0,
+            0,
+            0
+        ],
+        [
+            0,
+            0,
+            0,
+            0
+        ],
+        [
+            0,
+            0,
+            0,
+            0
+        ]
+    ];
+    nextPieceElementId = "nextPiece";
+    canvasId = "nextPieceBoard";
+    constructor(){
+        this.nextPieceElement = document.getElementById(this.nextPieceElementId);
+        this.renderNextPieceTemplate();
+        this.canvas = document.getElementById(this.canvasId);
+        this.context = this.canvas.getContext("2d");
+    }
+    renderNextPieceTemplate() {
+        (0, _litHtml.render)((0, _templates.nextPieceTemplate)(), this.nextPieceElement);
+    }
+    draw(piece) {
+        const shape = piece.shapes[0];
+        this.setCanvasDimensions(shape);
+        for(let y = 0; y < shape.length; y++){
+            for(let x = 0; x < shape[0].length; x++)if (shape[y][x] !== 0) (0, _utils.Utils).drawMino(x, y, this.context, piece.color);
+        }
+    }
+    clear() {
+        this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+    }
+    setCanvasDimensions(shape) {
+        const height = shape.length === 2 ? 2 : shape.length - 1;
+        this.context.canvas.width = shape.length * (0, _game.BLOCK_SIZE);
+        this.context.canvas.height = height * (0, _game.BLOCK_SIZE);
+        this.context.scale((0, _game.BLOCK_SIZE), (0, _game.BLOCK_SIZE));
+    }
+}
+
+},{"lit-html":"1cmQt","./templates":"68iIp","./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./Utils":"7ma2M"}],"4wLIF":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "GameState", ()=>GameState);
@@ -2846,6 +2849,6 @@ class GameState {
     }
 }
 
-},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","lit-html":"1cmQt","./templates":"68iIp"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
+},{"lit-html":"1cmQt","./templates":"68iIp","./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
 
 //# sourceMappingURL=index.b7a05eb9.js.map

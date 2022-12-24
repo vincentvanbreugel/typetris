@@ -10,8 +10,6 @@ export class Board {
     private animatedLines: number[] = [];
     private animationTimer = { start: 0, elapsed: 0 };
     private requestId: number | undefined;
-    private brighten = true;
-    private opacity = 99;
 
     constructor(boardId: string) {
         this.canvas = document.getElementById(boardId) as HTMLCanvasElement;
@@ -21,19 +19,17 @@ export class Board {
     }
 
     draw(): void {
-        this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height); 
+        this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+        this.context.fillStyle = COLORS.gray['darker'];
+        this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+
         for (let y = 0; y < this.state.length; y++) {
             for (let x = 0; x < this.state[0].length; x++) {
                 const tetromino = TETROMINOS.find((tetromino) => {
                     return tetromino.id === this.state[y][x];
                 });
 
-                if (tetromino) {
-                    this.context.fillStyle = tetromino.color['neutral'];
-                } else {
-                    this.context.fillStyle = COLORS.gray['darker'];
-                }
-                this.context.fillRect(x, y, 1, 1);
+                tetromino && Utils.drawMino(x, y, this.context, tetromino.color);
             }
         }
     }
@@ -42,6 +38,7 @@ export class Board {
         this.animatedLines = lines;
         this.animateClearedLines();
         await Utils.sleep(LINE_CLEAR_DELAY);
+
         cancelAnimationFrame(this.requestId as number);
         this.animatedLines = [];
         this.clearLines(lines);
@@ -77,27 +74,31 @@ export class Board {
     }
 
     private animateClearedLines(timeStamp: DOMHighResTimeStamp = 0): void {
+        this.context.fillStyle = COLORS.gray['darker'];
         this.animationTimer.elapsed = timeStamp - this.animationTimer.start;
-        
-        if (this.animationTimer.elapsed > (1000 / 60)) {             
+        if (this.animationTimer.elapsed >= LINE_CLEAR_DELAY / 5) {
             this.animationTimer.start = timeStamp;
-            
+
             this.animatedLines.forEach((line) => {
-                this.state[line].forEach((cell, index) => {
-                    const tetromino = TETROMINOS.find((tetromino) => {
-                        return tetromino.id === cell;
-                    });
-                    if (tetromino) {
-                        this.context.fillStyle = tetromino.color['neutral'] + (this.opacity);
-                        this.context.clearRect(index, line, 1, 1);
-                        this.context.fillRect(index, line, 1, 1);
-                    }
-                });
+                const lastClearedIndexFromLeft = this.state[line].indexOf(0);
+                const nextIndexFromLeft =
+                    lastClearedIndexFromLeft !== -1
+                        ? lastClearedIndexFromLeft - 1
+                        : 4;
+
+                const lastClearedIndexFromRight = this.state[line].lastIndexOf(0);
+                const nextIndexFromRight =
+                    lastClearedIndexFromRight !== -1
+                        ? lastClearedIndexFromRight + 1
+                        : 5;
+                        
+                this.context.clearRect(nextIndexFromLeft, line, 1, 1);
+                this.context.clearRect(nextIndexFromRight, line, 1, 1);
+                this.context.fillRect(nextIndexFromLeft, line, 1, 1);
+                this.context.fillRect(nextIndexFromRight, line, 1, 1);
+                this.state[line][nextIndexFromLeft] = 0;
+                this.state[line][nextIndexFromRight] = 0;                
             });
-
-            this.brighten && this.opacity > 25 ? this.opacity = this.opacity - 4 : this.brighten = false;
-            !this.brighten && this.opacity < 99 ? this.opacity = this.opacity + 4 : this.brighten = true;
-
         }
 
         this.requestId = requestAnimationFrame(this.animateClearedLines.bind(this));

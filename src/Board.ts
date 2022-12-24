@@ -29,9 +29,9 @@ export class Board {
                 });
 
                 if (tetromino) {
-                    this.context.fillStyle = tetromino.color;
+                    this.context.fillStyle = tetromino.color['neutral'];
                 } else {
-                    this.context.fillStyle = COLORS.empty;
+                    this.context.fillStyle = COLORS.gray['darker'];
                 }
                 this.context.fillRect(x, y, 1, 1);
             }
@@ -88,7 +88,7 @@ export class Board {
                         return tetromino.id === cell;
                     });
                     if (tetromino) {
-                        this.context.fillStyle = tetromino.color + (this.opacity);
+                        this.context.fillStyle = tetromino.color['neutral'] + (this.opacity);
                         this.context.clearRect(index, line, 1, 1);
                         this.context.fillRect(index, line, 1, 1);
                     }

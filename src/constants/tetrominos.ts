@@ -1,4 +1,5 @@
 import { COLORS } from './colors';
+import type { COLOR } from './colors';
 
 export type Point = {
     y: number;
@@ -9,7 +10,7 @@ export type Shape = number[][];
 
 export type Tetromino = {
     id: number;
-    color: string;
+    color: COLOR;
     shapes: Shape[];
 };
 

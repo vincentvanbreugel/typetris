@@ -35,9 +35,9 @@ export class NextPieceBoard {
         for (let y = 0; y < shape.length; y++) {
             for (let x = 0; x < shape[0].length; x++) {
                 if (shape[y][x] !== 0) {
-                    this.context.fillStyle = piece.color;
+                    this.context.fillStyle = piece.color['neutral'];
                 } else {
-                    this.context.fillStyle = COLORS.empty;
+                    this.context.fillStyle = COLORS.gray['darker'];
                 }
                 this.context.fillRect(x, y, 1, 1);
             }
@@ -45,7 +45,7 @@ export class NextPieceBoard {
     }
 
     clear(): void {
-        this.context.fillStyle = COLORS.empty;
+        this.context.fillStyle = COLORS.gray['dark'];
 
         for (let y = 0; y < this.clearState.length; y++) {
             for (let x = 0; x < this.clearState[0].length; x++) {

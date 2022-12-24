@@ -1,6 +1,7 @@
 import { COLS, ROWS, SPAWN_POSITION, DIRECTIONS } from './constants/game';
 import type { Tetromino, Point, Shape } from './constants/tetrominos';
 import type { Rotations } from './types';
+import type { COLOR } from './constants/colors';
 import { Board } from './Board';
 
 export class Piece {
@@ -9,7 +10,7 @@ export class Piece {
     private shapePosition: Point;
     private piecePosition: Point[];
     shapes: Shape[];
-    color: string;
+    color: COLOR;
     private shapeIndex: number;
     private board: Board;
 

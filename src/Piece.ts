@@ -7,7 +7,7 @@ import { Board } from './Board';
 export class Piece {
     isLocked = false;
     id: number;
-    private shapePosition: Point;
+    private anchorPoint: Point;
     private piecePosition: Point[];
     shapes: Shape[];
     color: COLOR;
@@ -16,7 +16,7 @@ export class Piece {
 
     constructor(tetromino: Tetromino, board: Board) {
         this.id = tetromino.id;
-        this.shapePosition = SPAWN_POSITION;
+        this.anchorPoint = SPAWN_POSITION;
         this.piecePosition = [];
         this.shapes = tetromino.shapes;
         this.color = tetromino.color;
@@ -27,6 +27,7 @@ export class Piece {
     move(direction: Point): void {
         this.clearPiecePosition();
         this.updateBoardPosition({ direction, value: this.id });
+        this.isLocked = this.isPieceLocked();
     }
 
     rotate(rotation: Rotations): void {
@@ -49,6 +50,36 @@ export class Piece {
         return cellsDropped;
     }
 
+    isPieceLocked(): boolean {
+        this.clearPiecePosition();
+
+        const newPiecePosition: Point[] = [];
+
+        this.shapes[this.shapeIndex].forEach((row, rowIndex) => {
+            row.forEach((value, valueIndex) => {
+                if (value === 1) {
+                    newPiecePosition.push({
+                        x: this.anchorPoint.x + valueIndex,
+                        y: this.anchorPoint.y + rowIndex,
+                    });
+                }
+            });
+        });
+
+        const config = {
+            direction: DIRECTIONS.DOWN,
+            piecePosition: newPiecePosition,
+        };
+
+        if (!this.isAboveFloor(config) || !this.isAboveOtherPieces(config)) {
+            this.updateBoardPosition({ value: this.id });
+            return true;
+        }
+
+        this.updateBoardPosition({ value: this.id });
+        return false;
+    }
+
     isMoveValid(params: { direction?: Point; rotation?: Rotations }): boolean {
         this.clearPiecePosition();
 
@@ -68,8 +99,8 @@ export class Piece {
             row.forEach((value, valueIndex) => {
                 if (value === 1) {
                     newPiecePosition.push({
-                        x: this.shapePosition.x + valueIndex,
-                        y: this.shapePosition.y + rowIndex,
+                        x: this.anchorPoint.x + valueIndex,
+                        y: this.anchorPoint.y + rowIndex,
                     });
                 }
             });
@@ -87,7 +118,6 @@ export class Piece {
 
         if (!this.isAboveFloor(config) || !this.isAboveOtherPieces(config)) {
             this.updateBoardPosition({ value: this.id });
-            this.lockPiece();
             return false;
         }
 
@@ -101,18 +131,18 @@ export class Piece {
             row.forEach((value, valueIndex) => {
                 if (value === 1) {
                     this.piecePosition.push({
-                        x: this.shapePosition.x + valueIndex,
-                        y: this.shapePosition.y + rowIndex,
+                        x: this.anchorPoint.x + valueIndex,
+                        y: this.anchorPoint.y + rowIndex,
                     });
                 }
             });
         });
     }
 
-    private updateBoardPosition({ direction = DIRECTIONS.NO_CHANGE, value = 0 }): void {
-        this.shapePosition = {
-            x: this.shapePosition.x + direction.x,
-            y: this.shapePosition.y + direction.y,
+    private updateBoardPosition({ direction = DIRECTIONS.NO_CHANGE, value = 0 }): void {        
+        this.anchorPoint = {
+            x: this.anchorPoint.x + direction.x,
+            y: this.anchorPoint.y + direction.y,
         };
 
         this.updatePiecePosition();
@@ -120,10 +150,6 @@ export class Piece {
         this.piecePosition.forEach((pos) => {
             this.board.state[pos.y][pos.x] = value;
         });
-    }
-
-    private lockPiece() {    
-        this.isLocked = true;
     }
 
     private incrementShapeIndex(): void {

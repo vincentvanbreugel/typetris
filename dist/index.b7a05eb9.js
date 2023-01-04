@@ -644,22 +644,11 @@ class Game {
         this.gameTimer.elapsed = timeStamp - this.gameTimer.start;
         if (this.gameTimer.elapsed > this.state.speed) {
             this.gameTimer.start = timeStamp;
+            if (this.piece.isLocked) await this.handleLockedPiece();
             this.movePiece({
                 direction: (0, _game.DIRECTIONS).DOWN
             });
             if (this.state.isGameOver) return;
-            if (this.piece.isLocked) {
-                await this.checkLinesClear();
-                this.state.updateScore();
-                this.state.checkLevelChange();
-                this.piece = this.nextPiece;
-                this.nextPiece = this.getRandomPiece();
-                this.nextPieceBoard.draw(this.nextPiece);
-                this.movePiece({
-                    direction: (0, _game.DIRECTIONS).NO_CHANGE,
-                    initialDrop: true
-                });
-            }
         }
         this.requestId = requestAnimationFrame(this.startGameLoop.bind(this));
     }
@@ -705,6 +694,18 @@ class Game {
     getRandomTetromino() {
         const index = Math.floor(Math.random() * (0, _tetrominos.TETROMINOS).length);
         return JSON.parse(JSON.stringify((0, _tetrominos.TETROMINOS)[index]));
+    }
+    async handleLockedPiece() {
+        await this.checkLinesClear();
+        this.state.updateScore();
+        this.state.checkLevelChange();
+        this.piece = this.nextPiece;
+        this.nextPiece = this.getRandomPiece();
+        this.nextPieceBoard.draw(this.nextPiece);
+        this.movePiece({
+            direction: (0, _game.DIRECTIONS).NO_CHANGE,
+            initialDrop: true
+        });
     }
     async checkLinesClear() {
         const linesCleared = this.board.getLinesCleared();
@@ -1139,7 +1140,7 @@ class Board {
     }
 }
 
-},{"./constants/game":"be0O0","./constants/tetrominos":"dVpHQ","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants/colors":"dVpQr"}],"be0O0":[function(require,module,exports) {
+},{"./constants/game":"be0O0","./constants/colors":"dVpQr","./constants/tetrominos":"dVpHQ","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"be0O0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLS", ()=>COLS);
@@ -1225,543 +1226,9 @@ const GAME_SPEEDS = [
 ];
 const MAX_LEVEL = 20;
 const LEVEL_LIMIT = 10;
-const LINE_CLEAR_DELAY = 500;
+const LINE_CLEAR_DELAY = 400;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpHQ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
-var _colors = require("./colors");
-const TETROMINOS = [
-    {
-        id: 1,
-        color: (0, _colors.COLORS).yellow,
-        shapes: [
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ]
-        ]
-    },
-    {
-        id: 2,
-        color: (0, _colors.COLORS).blue,
-        shapes: [
-            [
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 3,
-        color: (0, _colors.COLORS).orange,
-        shapes: [
-            [
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 4,
-        color: (0, _colors.COLORS).green,
-        shapes: [
-            [
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 5,
-        color: (0, _colors.COLORS).red,
-        shapes: [
-            [
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 6,
-        color: (0, _colors.COLORS).purple,
-        shapes: [
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 7,
-        color: (0, _colors.COLORS).cyan,
-        shapes: [
-            [
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ]
-            ]
-        ]
-    }
-];
-
-},{"./colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpQr":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpQr":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLORS", ()=>COLORS);
@@ -2405,7 +1872,541 @@ var create = function() {
 module.exports = create();
 module.exports.createColors = create;
 
-},{}],"7ma2M":[function(require,module,exports) {
+},{}],"dVpHQ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
+var _colors = require("./colors");
+const TETROMINOS = [
+    {
+        id: 1,
+        color: (0, _colors.COLORS).yellow,
+        shapes: [
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ]
+        ]
+    },
+    {
+        id: 2,
+        color: (0, _colors.COLORS).blue,
+        shapes: [
+            [
+                [
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 3,
+        color: (0, _colors.COLORS).orange,
+        shapes: [
+            [
+                [
+                    0,
+                    0,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 4,
+        color: (0, _colors.COLORS).green,
+        shapes: [
+            [
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 5,
+        color: (0, _colors.COLORS).red,
+        shapes: [
+            [
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    0,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 6,
+        color: (0, _colors.COLORS).purple,
+        shapes: [
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 7,
+        color: (0, _colors.COLORS).cyan,
+        shapes: [
+            [
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ]
+            ]
+        ]
+    }
+];
+
+},{"./colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7ma2M":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Utils", ()=>Utils);
@@ -2424,7 +2425,7 @@ class Utils {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants/game":"be0O0"}],"68iIp":[function(require,module,exports) {
+},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"68iIp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "gameTemplate", ()=>(0, _game.gameTemplate));
@@ -2584,7 +2585,7 @@ class Piece {
     isLocked = false;
     constructor(tetromino, board){
         this.id = tetromino.id;
-        this.shapePosition = (0, _game.SPAWN_POSITION);
+        this.anchorPoint = (0, _game.SPAWN_POSITION);
         this.piecePosition = [];
         this.shapes = tetromino.shapes;
         this.color = tetromino.color;
@@ -2597,6 +2598,7 @@ class Piece {
             direction,
             value: this.id
         });
+        this.isLocked = this.isPieceLocked();
     }
     rotate(rotation) {
         if (rotation === "clockwise") this.incrementShapeIndex();
@@ -2613,6 +2615,32 @@ class Piece {
         }
         return cellsDropped;
     }
+    isPieceLocked() {
+        this.clearPiecePosition();
+        const newPiecePosition = [];
+        this.shapes[this.shapeIndex].forEach((row, rowIndex)=>{
+            row.forEach((value, valueIndex)=>{
+                if (value === 1) newPiecePosition.push({
+                    x: this.anchorPoint.x + valueIndex,
+                    y: this.anchorPoint.y + rowIndex
+                });
+            });
+        });
+        const config = {
+            direction: (0, _game.DIRECTIONS).DOWN,
+            piecePosition: newPiecePosition
+        };
+        if (!this.isAboveFloor(config) || !this.isAboveOtherPieces(config)) {
+            this.updateBoardPosition({
+                value: this.id
+            });
+            return true;
+        }
+        this.updateBoardPosition({
+            value: this.id
+        });
+        return false;
+    }
     isMoveValid(params) {
         this.clearPiecePosition();
         const { direction , rotation  } = params;
@@ -2625,8 +2653,8 @@ class Piece {
         this.shapes[newShapeIndex].forEach((row, rowIndex)=>{
             row.forEach((value, valueIndex)=>{
                 if (value === 1) newPiecePosition.push({
-                    x: this.shapePosition.x + valueIndex,
-                    y: this.shapePosition.y + rowIndex
+                    x: this.anchorPoint.x + valueIndex,
+                    y: this.anchorPoint.y + rowIndex
                 });
             });
         });
@@ -2646,7 +2674,6 @@ class Piece {
             this.updateBoardPosition({
                 value: this.id
             });
-            this.lockPiece();
             return false;
         }
         this.updateBoardPosition({
@@ -2659,24 +2686,21 @@ class Piece {
         this.shapes[this.shapeIndex].forEach((row, rowIndex)=>{
             row.forEach((value, valueIndex)=>{
                 if (value === 1) this.piecePosition.push({
-                    x: this.shapePosition.x + valueIndex,
-                    y: this.shapePosition.y + rowIndex
+                    x: this.anchorPoint.x + valueIndex,
+                    y: this.anchorPoint.y + rowIndex
                 });
             });
         });
     }
     updateBoardPosition({ direction =(0, _game.DIRECTIONS).NO_CHANGE , value =0  }) {
-        this.shapePosition = {
-            x: this.shapePosition.x + direction.x,
-            y: this.shapePosition.y + direction.y
+        this.anchorPoint = {
+            x: this.anchorPoint.x + direction.x,
+            y: this.anchorPoint.y + direction.y
         };
         this.updatePiecePosition();
         this.piecePosition.forEach((pos)=>{
             this.board.state[pos.y][pos.x] = value;
         });
-    }
-    lockPiece() {
-        this.isLocked = true;
     }
     incrementShapeIndex() {
         this.shapeIndex !== 3 ? this.shapeIndex++ : this.shapeIndex = 0;
@@ -2783,7 +2807,7 @@ class NextPieceBoard {
     }
 }
 
-},{"lit-html":"1cmQt","./templates":"68iIp","./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./Utils":"7ma2M"}],"4wLIF":[function(require,module,exports) {
+},{"lit-html":"1cmQt","./templates":"68iIp","./constants/game":"be0O0","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4wLIF":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "GameState", ()=>GameState);

@@ -109,20 +109,14 @@ export class Game {
         if (this.gameTimer.elapsed > this.state.speed) {
             this.gameTimer.start = timeStamp;
 
+            if (this.piece.isLocked) {
+                await this.handleLockedPiece();
+            }
+
             this.movePiece({ direction: DIRECTIONS.DOWN });
 
             if (this.state.isGameOver) {
                 return;
-            }
-
-            if (this.piece.isLocked) {
-                await this.checkLinesClear();
-                this.state.updateScore();
-                this.state.checkLevelChange();
-                this.piece = this.nextPiece;
-                this.nextPiece = this.getRandomPiece();
-                this.nextPieceBoard.draw(this.nextPiece);
-                this.movePiece({ direction: DIRECTIONS.NO_CHANGE, initialDrop: true });
             }
         }
 
@@ -191,6 +185,16 @@ export class Game {
     private getRandomTetromino(): Tetromino {
         const index = Math.floor(Math.random() * TETROMINOS.length);
         return JSON.parse(JSON.stringify(TETROMINOS[index])) as Tetromino;
+    }
+
+    private async handleLockedPiece(): Promise<void> {
+        await this.checkLinesClear();
+        this.state.updateScore();
+        this.state.checkLevelChange();
+        this.piece = this.nextPiece;
+        this.nextPiece = this.getRandomPiece();
+        this.nextPieceBoard.draw(this.nextPiece);
+        this.movePiece({ direction: DIRECTIONS.NO_CHANGE, initialDrop: true });
     }
 
     private async checkLinesClear() {

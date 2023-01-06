@@ -104,12 +104,12 @@ export class Game {
     }
 
     private async startGameLoop(timeStamp: DOMHighResTimeStamp = 0): Promise<void> {
-        this.gameTimer.elapsed = timeStamp - this.gameTimer.start;
+        this.gameTimer.elapsed = timeStamp - this.gameTimer.start;        
 
         if (this.gameTimer.elapsed > this.state.speed) {
             this.gameTimer.start = timeStamp;
 
-            if (this.piece.isLocked) {
+            if (this.piece.isLocked) {                
                 await this.handleLockedPiece();
             }
 
@@ -140,8 +140,7 @@ export class Game {
         userInput?: boolean;
     }): void {
         const { direction, initialDrop, userInput } = params;
-
-        if (this.state.isPaused || !this.piece.isMoveValid({ direction })) {
+        if (this.state.isPaused || !this.piece.isMoveValid({ direction })) {            
             if (initialDrop) {
                 this.gameOver();
             }
@@ -149,11 +148,16 @@ export class Game {
         }
 
         this.piece.move(direction);
-        this.board.draw();
 
         if (userInput && direction === DIRECTIONS.DOWN) {
             this.state.dropScore++;
+
+            if (this.piece.isLocked) {
+                this.handleLockedPiece();
+            }
         }
+
+        this.board.draw();
     }
 
     private rotatePiece(rotation: Rotations): void {
@@ -168,7 +172,12 @@ export class Game {
     private hardDrop(): void {
         const cellsDropped = this.piece.hardDrop();
         this.state.dropScore = this.state.dropScore + cellsDropped * BASE_SCORE_HARD_DROP;
+
         this.board.draw();
+        
+        if (this.piece.isLocked) {
+            this.handleLockedPiece();
+        }
     }
 
     private getRandomPiece(): Piece {
@@ -187,14 +196,16 @@ export class Game {
         return JSON.parse(JSON.stringify(TETROMINOS[index])) as Tetromino;
     }
 
-    private async handleLockedPiece(): Promise<void> {
+    private async handleLockedPiece(): Promise<void> {       
+        this.stopGameLoop(); 
         await this.checkLinesClear();
         this.state.updateScore();
         this.state.checkLevelChange();
-        this.piece = this.nextPiece;
+        this.piece = this.nextPiece;        
         this.nextPiece = this.getRandomPiece();
         this.nextPieceBoard.draw(this.nextPiece);
         this.movePiece({ direction: DIRECTIONS.NO_CHANGE, initialDrop: true });
+        this.startGameLoop();
     }
 
     private async checkLinesClear() {

@@ -670,8 +670,11 @@ class Game {
             return;
         }
         this.piece.move(direction);
+        if (userInput && direction === (0, _game.DIRECTIONS).DOWN) {
+            this.state.dropScore++;
+            if (this.piece.isLocked) this.handleLockedPiece();
+        }
         this.board.draw();
-        if (userInput && direction === (0, _game.DIRECTIONS).DOWN) this.state.dropScore++;
     }
     rotatePiece(rotation) {
         if (this.state.isPaused || !this.piece.isMoveValid({
@@ -684,6 +687,7 @@ class Game {
         const cellsDropped = this.piece.hardDrop();
         this.state.dropScore = this.state.dropScore + cellsDropped * (0, _game.BASE_SCORE_HARD_DROP);
         this.board.draw();
+        if (this.piece.isLocked) this.handleLockedPiece();
     }
     getRandomPiece() {
         let tetromino = this.getRandomTetromino();
@@ -696,6 +700,7 @@ class Game {
         return JSON.parse(JSON.stringify((0, _tetrominos.TETROMINOS)[index]));
     }
     async handleLockedPiece() {
+        this.stopGameLoop();
         await this.checkLinesClear();
         this.state.updateScore();
         this.state.checkLevelChange();
@@ -706,6 +711,7 @@ class Game {
             direction: (0, _game.DIRECTIONS).NO_CHANGE,
             initialDrop: true
         });
+        this.startGameLoop();
     }
     async checkLinesClear() {
         const linesCleared = this.board.getLinesCleared();
@@ -2616,33 +2622,13 @@ class Piece {
         return cellsDropped;
     }
     isPieceLocked() {
-        this.clearPiecePosition();
-        const newPiecePosition = [];
-        this.shapes[this.shapeIndex].forEach((row, rowIndex)=>{
-            row.forEach((value, valueIndex)=>{
-                if (value === 1) newPiecePosition.push({
-                    x: this.anchorPoint.x + valueIndex,
-                    y: this.anchorPoint.y + rowIndex
-                });
-            });
-        });
-        const config = {
+        const params = {
             direction: (0, _game.DIRECTIONS).DOWN,
-            piecePosition: newPiecePosition
+            piecePosition: this.getCopyPiecePosition()
         };
-        if (!this.isAboveFloor(config) || !this.isAboveOtherPieces(config)) {
-            this.updateBoardPosition({
-                value: this.id
-            });
-            return true;
-        }
-        this.updateBoardPosition({
-            value: this.id
-        });
-        return false;
+        return !this.isAboveFloor(params) || !this.isAboveOtherPieces(params);
     }
     isMoveValid(params) {
-        this.clearPiecePosition();
         const { direction , rotation  } = params;
         const newPiecePosition = [];
         let newShapeIndex = this.shapeIndex;
@@ -2664,21 +2650,8 @@ class Piece {
             },
             piecePosition: newPiecePosition
         };
-        if (!this.isBetweenWalls(config) || !this.isBetweenOtherPieces(config)) {
-            this.updateBoardPosition({
-                value: this.id
-            });
-            return false;
-        }
-        if (!this.isAboveFloor(config) || !this.isAboveOtherPieces(config)) {
-            this.updateBoardPosition({
-                value: this.id
-            });
-            return false;
-        }
-        this.updateBoardPosition({
-            value: this.id
-        });
+        if (!this.isBetweenWalls(config) || !this.isBetweenOtherPieces(config)) return false;
+        if (!this.isAboveFloor(config) || !this.isAboveOtherPieces(config)) return false;
         return true;
     }
     updatePiecePosition() {
@@ -2712,14 +2685,7 @@ class Piece {
         const { direction , piecePosition  } = params;
         return piecePosition.every((point)=>{
             const xPosition = direction ? point.x + direction.x : point.x;
-            return this.board.state[point.y][xPosition] === 0;
-        });
-    }
-    isAboveOtherPieces(params) {
-        const { direction , piecePosition  } = params;
-        return piecePosition.every((point)=>{
-            const yPosition = direction ? point.y + direction.y : point.y;
-            return this.board.state[yPosition][point.x] === 0;
+            return this.board.state[point.y][xPosition] === 0 || this.piecePosition.find((p)=>p.x === xPosition && p.y === point.y);
         });
     }
     isBetweenWalls(params) {
@@ -2727,6 +2693,14 @@ class Piece {
         return piecePosition.every((point)=>{
             const xPosition = direction ? point.x + direction.x : point.x;
             return xPosition >= 0 && xPosition < (0, _game.COLS);
+        });
+    }
+    isAboveOtherPieces(params) {
+        const { direction , piecePosition  } = params;
+        return piecePosition.every((point)=>{
+            const yPosition = direction ? point.y + direction.y : point.y;
+            // check if new point position on the board is either empty or taken up by one of the current Piece points.
+            return this.board.state[yPosition][point.x] === 0 || this.piecePosition.find((p)=>p.x === point.x && p.y === yPosition);
         });
     }
     isAboveFloor(params) {
@@ -2740,6 +2714,9 @@ class Piece {
         this.piecePosition.forEach((pos)=>{
             this.board.state[pos.y][pos.x] = 0;
         });
+    }
+    getCopyPiecePosition() {
+        return Object.assign([], this.piecePosition);
     }
 }
 

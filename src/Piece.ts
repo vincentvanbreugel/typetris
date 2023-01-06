@@ -42,7 +42,7 @@ export class Piece {
 
     hardDrop(): number {
         let cellsDropped = 0;
-        while(this.isMoveValid({direction: DIRECTIONS.DOWN})) {
+        while (this.isMoveValid({ direction: DIRECTIONS.DOWN })) {
             this.move(DIRECTIONS.DOWN);
             cellsDropped++;
         }
@@ -51,38 +51,18 @@ export class Piece {
     }
 
     isPieceLocked(): boolean {
-        this.clearPiecePosition();
-
-        const newPiecePosition: Point[] = [];
-
-        this.shapes[this.shapeIndex].forEach((row, rowIndex) => {
-            row.forEach((value, valueIndex) => {
-                if (value === 1) {
-                    newPiecePosition.push({
-                        x: this.anchorPoint.x + valueIndex,
-                        y: this.anchorPoint.y + rowIndex,
-                    });
-                }
-            });
-        });
-
-        const config = {
+        const params = {
             direction: DIRECTIONS.DOWN,
-            piecePosition: newPiecePosition,
+            piecePosition: this.getCopyPiecePosition(),
         };
 
-        if (!this.isAboveFloor(config) || !this.isAboveOtherPieces(config)) {
-            this.updateBoardPosition({ value: this.id });
-            return true;
-        }
-
-        this.updateBoardPosition({ value: this.id });
-        return false;
+        return (
+            !this.isAboveFloor(params) ||
+            !this.isAboveOtherPieces(params)
+        );
     }
 
     isMoveValid(params: { direction?: Point; rotation?: Rotations }): boolean {
-        this.clearPiecePosition();
-
         const { direction, rotation } = params;
         const newPiecePosition: Point[] = [];
         let newShapeIndex = this.shapeIndex;
@@ -112,16 +92,13 @@ export class Piece {
         };
 
         if (!this.isBetweenWalls(config) || !this.isBetweenOtherPieces(config)) {
-            this.updateBoardPosition({ value: this.id });
             return false;
         }
 
         if (!this.isAboveFloor(config) || !this.isAboveOtherPieces(config)) {
-            this.updateBoardPosition({ value: this.id });
             return false;
         }
 
-        this.updateBoardPosition({ value: this.id });
         return true;
     }
 
@@ -139,7 +116,7 @@ export class Piece {
         });
     }
 
-    private updateBoardPosition({ direction = DIRECTIONS.NO_CHANGE, value = 0 }): void {        
+    private updateBoardPosition({ direction = DIRECTIONS.NO_CHANGE, value = 0 }): void {
         this.anchorPoint = {
             x: this.anchorPoint.x + direction.x,
             y: this.anchorPoint.y + direction.y,
@@ -164,15 +141,9 @@ export class Piece {
         const { direction, piecePosition } = params;
         return piecePosition.every((point) => {
             const xPosition = direction ? point.x + direction.x : point.x;
-            return this.board.state[point.y][xPosition] === 0;
-        });
-    }
 
-    private isAboveOtherPieces(params: { direction?: Point; piecePosition: Point[] }): boolean {
-        const { direction, piecePosition } = params;
-        return piecePosition.every((point) => {
-            const yPosition = direction ? point.y + direction.y : point.y;
-            return this.board.state[yPosition][point.x] === 0;
+            return this.board.state[point.y][xPosition] === 0 ||
+            this.piecePosition.find(p => p.x === xPosition && p.y === point.y );
         });
     }
 
@@ -181,6 +152,19 @@ export class Piece {
         return piecePosition.every((point) => {
             const xPosition = direction ? point.x + direction.x : point.x;
             return xPosition >= 0 && xPosition < COLS;
+        });
+    }
+
+    private isAboveOtherPieces(params: { direction?: Point; piecePosition: Point[] }): boolean {
+        const { direction, piecePosition } = params;
+
+        return piecePosition.every((point) => {
+            const yPosition = direction ? point.y + direction.y : point.y;
+            // check if new point position on the board is either empty or taken up by one of the current Piece points.
+            return (
+                this.board.state[yPosition][point.x] === 0 ||
+                this.piecePosition.find(p => p.x === point.x && p.y === yPosition )
+            );
         });
     }
 
@@ -196,5 +180,9 @@ export class Piece {
         this.piecePosition.forEach((pos) => {
             this.board.state[pos.y][pos.x] = 0;
         });
+    }
+
+    private getCopyPiecePosition(): Point[] {
+        return Object.assign([], this.piecePosition);
     }
 }

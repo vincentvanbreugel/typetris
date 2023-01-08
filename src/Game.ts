@@ -149,6 +149,7 @@ export class Game {
         userInput?: boolean;
     }): void {
         const { direction, initialDrop, userInput } = params;
+
         if (!this.piece.isMoveValid({ direction })) {
             if (initialDrop) {
                 this.gameOver();
@@ -159,7 +160,7 @@ export class Game {
         this.piece.move(direction);
 
         if (userInput && direction === DIRECTIONS.DOWN) {
-            this.state.dropScore++;
+            this.state.incrementDropScore();
 
             if (this.piece.isLocked) {
                 this.handleLockedPiece();
@@ -184,7 +185,7 @@ export class Game {
         }
 
         const cellsDropped = this.piece.hardDrop();
-        this.state.dropScore = this.state.dropScore + cellsDropped * BASE_SCORE_HARD_DROP;
+        this.state.incrementDropScore(cellsDropped, true)
 
         this.board.draw();
 

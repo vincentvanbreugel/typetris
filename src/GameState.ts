@@ -6,6 +6,7 @@ import {
     GAME_SPEEDS,
     BASE_SCORES_LINE_CLEAR,
     BASE_SCORE_SOFT_DROP,
+    BASE_SCORE_HARD_DROP,
     LEVEL_LIMIT,
     MAX_LEVEL,
 } from './constants/game';
@@ -30,7 +31,7 @@ export class GameState {
         this.renderScoreTemplate();
     }
 
-    private renderScoreTemplate() {
+    private renderScoreTemplate(): void {
         render(
             scoreTemplate({
                 score: this.score,
@@ -41,7 +42,7 @@ export class GameState {
         );
     }
 
-    reset() {
+    reset(): void {
         this.totalLinesCleared = 0;
         this.dropScore = 0;
         this.score = 0;
@@ -52,7 +53,15 @@ export class GameState {
         this.updateScore();
     }
 
-    updateScore() {
+    incrementDropScore(rowsDropped = 1, hardDrop = false): void {
+        if (hardDrop) {
+            this.dropScore = this.dropScore + rowsDropped * BASE_SCORE_HARD_DROP;
+        } else {
+            this.dropScore = this.dropScore + rowsDropped * BASE_SCORE_SOFT_DROP;
+        }
+    }
+
+    updateScore(): void {
         if (this.newLinesCleared) {
             this.score =
                 this.score + BASE_SCORES_LINE_CLEAR[this.newLinesCleared - 1] * (this.level + 1);
@@ -79,13 +88,13 @@ export class GameState {
         this.renderScoreTemplate();
     }
 
-    checkLevelChange() {
+    checkLevelChange(): void {
         if (this.totalLinesCleared > (this.level + 1) * LEVEL_LIMIT && this.level < MAX_LEVEL) {
             this.setLevel(this.level + 1);
         }
     }
 
-    togglePause() {
+    togglePause(): void {
         this.isPaused = !this.isPaused;
     }
 }

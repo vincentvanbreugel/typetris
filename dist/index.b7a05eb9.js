@@ -672,7 +672,7 @@ class Game {
         }
         this.piece.move(direction);
         if (userInput && direction === (0, _game.DIRECTIONS).DOWN) {
-            this.state.dropScore++;
+            this.state.incrementDropScore();
             if (this.piece.isLocked) this.handleLockedPiece();
         }
         this.board.draw();
@@ -687,7 +687,7 @@ class Game {
     hardDrop() {
         if (this.piece.isLocked) return;
         const cellsDropped = this.piece.hardDrop();
-        this.state.dropScore = this.state.dropScore + cellsDropped * (0, _game.BASE_SCORE_HARD_DROP);
+        this.state.incrementDropScore(cellsDropped, true);
         this.board.draw();
         if (this.piece.isLocked) this.handleLockedPiece();
     }
@@ -1192,12 +1192,12 @@ const DIRECTIONS = {
     }
 };
 const KEYS = {
-    LEFT: "j",
-    DOWN: "k",
-    RIGHT: "l",
+    LEFT: "ArrowLeft",
+    DOWN: "ArrowDown",
+    RIGHT: "ArrowRight",
     ROTATE_CLOCKWISE: "d",
     ROTATE_COUNTER_CLOCKWISE: "s",
-    HARD_DROP: "i",
+    HARD_DROP: "ArrowUp",
     PAUSE: "p"
 };
 const BASE_SCORES_LINE_CLEAR = [
@@ -2458,58 +2458,51 @@ parcelHelpers.export(exports, "gameTemplate", ()=>gameTemplate);
 var _litHtml = require("lit-html");
 var _controls = require("./controls");
 const gameTemplate = ()=>{
-    return (0, _litHtml.html)`<div class="flex gap-8 justify-around mx-auto mt-8">
-        <div class="h-[604px] w-[300px] relative ml-auto">
-            <canvas id="board" class="board"></canvas>
-            <div id="gameOptions"></div>
-            <div id="gameOverlay"></div>
+    return (0, _litHtml.html)`<div class="flex gap-4 justify-around mx-auto mt-8">
+        <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3 relative ml-auto">
+            <div class="h-[604px] w-[304px] border-2 border-slate-100 rounded-sm">
+                <canvas id="board" class="board"></canvas>
+                <div id="gameOptions"></div>
+                <div id="gameOverlay"></div>
+            </div>
         </div>
-        <div class="mr-auto">
-            <div id="nextPiece"></div>
+        <div class="mr-auto w-[200px]">
             <div id="gameScore"></div>
+            <div id="nextPiece"></div>
             ${(0, _controls.controlsTemplate)()}
         </div>
     </div>`;
 };
 
-},{"lit-html":"1cmQt","./controls":"cKwU5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cKwU5":[function(require,module,exports) {
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./controls":"cKwU5"}],"cKwU5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "controlsTemplate", ()=>controlsTemplate);
 var _litHtml = require("lit-html");
 const controlsTemplate = ()=>{
-    return (0, _litHtml.html)`<div>
-  <div>Controls</div>
-    <div class="control">
-        <span class="button">J</span>
-        <span class="action">Move Left</span>
-    </div>
-    <div class="control">
-        <span class="button">L</span>
-        <span class="action">Move Right</span>
-    </div>
-    <div class="control">
-        <span class="button">K</span>
-        <span class="action">Move Down</span>
-    </div>
-    <div class="control">
-        <span class="button">D</span>
-        <span class="action">Rotate Clockwise</span>
-    </div>
-    <div class="control">
-        <span class="button">S</span>
-        <span class="action">Rotate Counter Clockwise</span>
-    </div>
-    <div class="control">
-        <span class="button">I</span>
-        <span class="action">Hard Drop</span>
-    </div>
-    <div class="control">
-        <span class="button">P</span>
-        <span class="action">Pause</span>
-    </div>
-  </div>
-  `;
+    return (0, _litHtml.html)`<div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900">
+        <div class="border-2 border-slate-100 rounded-sm">
+            <div class="text-center uppercase font-bold pt-1">Controls</div>
+            <div class="p-2">
+                <div class="flex justify-between">
+                    <span class="bold">&#8592; &#8594; &#8595;</span>
+                    <span class="action">Move</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="button">&#8593;</span>
+                    <span class="action">Hard Drop</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="button">D A</span>
+                    <span class="action">Rotate</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="button">P</span>
+                    <span class="action">Pause</span>
+                </div>
+            </div>
+        </div>
+    </div> `;
 };
 
 },{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bJHL9":[function(require,module,exports) {
@@ -2520,7 +2513,7 @@ var _litHtml = require("lit-html");
 const levels = Array.from(Array(10).keys());
 const gameOptionsTemplate = (data)=>{
     return (0, _litHtml.html)`<div
-        class="game-options absolute top-0 right-0 bottom-0 left-0 bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
+        class="game-options absolute top-2 right-2 bottom-2 left-2 bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
     >
         <form class="mb-4">
             <fieldset>
@@ -2545,8 +2538,13 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "nextPieceTemplate", ()=>nextPieceTemplate);
 var _litHtml = require("lit-html");
 const nextPieceTemplate = ()=>{
-    return (0, _litHtml.html)`<div class="next-piece-container bg-gray-900 h-[140px] w-[140px] mb-3 flex items-center justify-center">
-        <canvas id="nextPieceBoard" class="next-piece-canvas"></canvas>
+    return (0, _litHtml.html)`<div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
+        <div class="border-2 border-slate-100 rounded-sm">
+            <div class="text-center uppercase font-bold pt-1">Next</div>
+            <div class="next-piece-container h-[140px] w-[140px] mx-auto mb-3 flex items-center justify-center">
+                <canvas id="nextPieceBoard" class="next-piece-canvas"></canvas>
+            </div>
+        </div>
     </div>`;
 };
 
@@ -2557,7 +2555,7 @@ parcelHelpers.export(exports, "overlayTemplate", ()=>overlayTemplate);
 var _litHtml = require("lit-html");
 const overlayTemplate = (data)=>{
     return (0, _litHtml.html)`<div
-        class="game-overlay absolute top-0 right-0 bottom-0 left-0 bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
+        class="game-overlay absolute top-[4px] right-[4px] bottom-[4px] left-[4px] bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
     >
         <span class="mb-4">${data.text}</span>
         <button type="button" @click=${data.restartGame} class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
@@ -2572,17 +2570,23 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "scoreTemplate", ()=>scoreTemplate);
 var _litHtml = require("lit-html");
 const scoreTemplate = (data)=>{
-    return (0, _litHtml.html)`<div class="mb-3">
-            <div>Score</div>
-            <div class="score">${data.score}</div>
+    return (0, _litHtml.html)`<div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
+            <div class="border-2 border-slate-100 rounded-sm text-center font-bold py-1">
+                <div class="uppercase">Score</div>
+                <div class="text-lg">${data.score}</div>
+            </div>
         </div>
-        <div class="mb-3">
-            <div>Lines Cleared</div>
-            <div class="cleared-lines">${data.clearedLines}</div>
+        <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
+            <div class="border-2 border-slate-100 rounded-sm text-center font-bold py-1">
+                <div class="uppercase">Lines</div>
+                <div class="text-lg">${data.clearedLines}</div>
+            </div>
         </div>
-        <div class="mb-3">
-            <div>Level</div>
-            <div class="level">${data.level}</div>
+        <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
+            <div class="border-2 border-slate-100 rounded-sm text-center font-bold py-1">
+                <div class="uppercase">Speed LV</div>
+                <div class="text-lg">${data.level}</div>
+            </div>
         </div>`;
 };
 
@@ -2826,6 +2830,10 @@ class GameState {
         this.isPaused = false;
         this.isGameOver = false;
         this.updateScore();
+    }
+    incrementDropScore(rowsDropped = 1, hardDrop = false) {
+        if (hardDrop) this.dropScore = this.dropScore + rowsDropped * (0, _game.BASE_SCORE_HARD_DROP);
+        else this.dropScore = this.dropScore + rowsDropped * (0, _game.BASE_SCORE_SOFT_DROP);
     }
     updateScore() {
         if (this.newLinesCleared) {

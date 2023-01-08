@@ -4,7 +4,7 @@ const levels = Array.from(Array(10).keys());
 
 export const gameOptionsTemplate = (data: { hide: boolean; startGame: () => void }) => {
     return html`<div
-        class="game-options absolute top-0 right-0 bottom-0 left-0 bg-gray-900 items-center justify-center flex-col ${data.hide
+        class="game-options absolute top-2 right-2 bottom-2 left-2 bg-gray-900 items-center justify-center flex-col ${data.hide
             ? 'hidden'
             : 'flex'}"
     >

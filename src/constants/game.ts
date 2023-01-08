@@ -13,12 +13,12 @@ export const DIRECTIONS = {
     RIGHT: { y: 0, x: 1 },
 };
 export const KEYS = {
-    LEFT: 'j',
-    DOWN: 'k',
-    RIGHT: 'l',
+    LEFT: 'ArrowLeft',
+    DOWN: 'ArrowDown',
+    RIGHT: 'ArrowRight',
     ROTATE_CLOCKWISE: 'd',
     ROTATE_COUNTER_CLOCKWISE: 's',
-    HARD_DROP: 'i',
+    HARD_DROP: 'ArrowUp',
     PAUSE: 'p',
 };
 

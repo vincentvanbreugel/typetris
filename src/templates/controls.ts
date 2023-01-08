@@ -1,36 +1,27 @@
 import { html } from 'lit-html';
 
 export const controlsTemplate = () => {
-  return html`<div>
-  <div>Controls</div>
-    <div class="control">
-        <span class="button">J</span>
-        <span class="action">Move Left</span>
-    </div>
-    <div class="control">
-        <span class="button">L</span>
-        <span class="action">Move Right</span>
-    </div>
-    <div class="control">
-        <span class="button">K</span>
-        <span class="action">Move Down</span>
-    </div>
-    <div class="control">
-        <span class="button">D</span>
-        <span class="action">Rotate Clockwise</span>
-    </div>
-    <div class="control">
-        <span class="button">S</span>
-        <span class="action">Rotate Counter Clockwise</span>
-    </div>
-    <div class="control">
-        <span class="button">I</span>
-        <span class="action">Hard Drop</span>
-    </div>
-    <div class="control">
-        <span class="button">P</span>
-        <span class="action">Pause</span>
-    </div>
-  </div>
-  `
-}
+    return html`<div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900">
+        <div class="border-2 border-slate-100 rounded-sm">
+            <div class="text-center uppercase font-bold pt-1">Controls</div>
+            <div class="p-2">
+                <div class="flex justify-between">
+                    <span class="bold">&#8592; &#8594; &#8595;</span>
+                    <span class="action">Move</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="button">&#8593;</span>
+                    <span class="action">Hard Drop</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="button">D A</span>
+                    <span class="action">Rotate</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="button">P</span>
+                    <span class="action">Pause</span>
+                </div>
+            </div>
+        </div>
+    </div> `;
+};

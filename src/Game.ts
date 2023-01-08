@@ -9,11 +9,11 @@ import { NextPieceBoard } from './NextPieceBoard';
 import { GameState } from './GameState';
 
 export class Game {
+    state: GameState;
     private gameOptionsId = 'gameOptions';
     private gameOptionsElement: HTMLElement;
     private overlayId = 'gameOverlay';
     private overlayElement: HTMLElement;
-    state: GameState;
     private boardId = 'board';
     private board: Board;
     private nextPieceBoard: NextPieceBoard;
@@ -21,6 +21,7 @@ export class Game {
     private nextPiece: Piece;
     private requestId: number | undefined;
     private gameTimer = { start: 0, elapsed: 0 };
+    private lineClearActive = false;
 
     constructor(elementId: string) {
         this.renderGameTemplate(elementId);
@@ -77,10 +78,15 @@ export class Game {
 
     private attachEventHandlers(): void {
         document.addEventListener('keydown', (event) => {
+            if (event.key === KEYS.PAUSE) {
+                this.handleClickPause();
+            }
+
+            if (this.lineClearActive || this.state.isPaused) {
+                return
+            }
+
             switch (event.key) {
-                case KEYS.PAUSE:
-                    this.handleClickPause();
-                    break;
                 case KEYS.HARD_DROP:
                     this.hardDrop();
                     break;
@@ -104,16 +110,19 @@ export class Game {
     }
 
     private async startGameLoop(timeStamp: DOMHighResTimeStamp = 0): Promise<void> {
-        this.gameTimer.elapsed = timeStamp - this.gameTimer.start;        
+        this.gameTimer.elapsed = timeStamp - this.gameTimer.start;
+        if (this.lineClearActive) {
+            return;
+        }
 
         if (this.gameTimer.elapsed > this.state.speed) {
             this.gameTimer.start = timeStamp;
 
-            if (this.piece.isLocked) {                
+            if (this.piece.isLocked) {
                 await this.handleLockedPiece();
+            } else {
+                this.movePiece({ direction: DIRECTIONS.DOWN });
             }
-
-            this.movePiece({ direction: DIRECTIONS.DOWN });
 
             if (this.state.isGameOver) {
                 return;
@@ -140,7 +149,7 @@ export class Game {
         userInput?: boolean;
     }): void {
         const { direction, initialDrop, userInput } = params;
-        if (this.state.isPaused || !this.piece.isMoveValid({ direction })) {            
+        if (!this.piece.isMoveValid({ direction })) {
             if (initialDrop) {
                 this.gameOver();
             }
@@ -161,7 +170,7 @@ export class Game {
     }
 
     private rotatePiece(rotation: Rotations): void {
-        if (this.state.isPaused || !this.piece.isMoveValid({ rotation })) {
+        if (!this.piece.isMoveValid({ rotation })) {
             return;
         }
 
@@ -170,11 +179,15 @@ export class Game {
     }
 
     private hardDrop(): void {
+        if (this.piece.isLocked) {
+            return;
+        }
+
         const cellsDropped = this.piece.hardDrop();
         this.state.dropScore = this.state.dropScore + cellsDropped * BASE_SCORE_HARD_DROP;
 
         this.board.draw();
-        
+
         if (this.piece.isLocked) {
             this.handleLockedPiece();
         }
@@ -196,15 +209,17 @@ export class Game {
         return JSON.parse(JSON.stringify(TETROMINOS[index])) as Tetromino;
     }
 
-    private async handleLockedPiece(): Promise<void> {       
-        this.stopGameLoop(); 
+    private async handleLockedPiece(): Promise<void> {        
+        this.lineClearActive = true;
+        this.stopGameLoop();
         await this.checkLinesClear();
         this.state.updateScore();
         this.state.checkLevelChange();
-        this.piece = this.nextPiece;        
+        this.piece = this.nextPiece;
         this.nextPiece = this.getRandomPiece();
         this.nextPieceBoard.draw(this.nextPiece);
         this.movePiece({ direction: DIRECTIONS.NO_CHANGE, initialDrop: true });
+        this.lineClearActive = false;
         this.startGameLoop();
     }
 

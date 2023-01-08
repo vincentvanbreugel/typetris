@@ -555,6 +555,7 @@ class Game {
         start: 0,
         elapsed: 0
     };
+    lineClearActive = false;
     constructor(elementId){
         this.renderGameTemplate(elementId);
         this.gameOptionsElement = document.getElementById(this.gameOptionsId);
@@ -606,10 +607,9 @@ class Game {
     }
     attachEventHandlers() {
         document.addEventListener("keydown", (event)=>{
+            if (event.key === (0, _game.KEYS).PAUSE) this.handleClickPause();
+            if (this.lineClearActive || this.state.isPaused) return;
             switch(event.key){
-                case (0, _game.KEYS).PAUSE:
-                    this.handleClickPause();
-                    break;
                 case (0, _game.KEYS).HARD_DROP:
                     this.hardDrop();
                     break;
@@ -642,10 +642,11 @@ class Game {
     }
     async startGameLoop(timeStamp = 0) {
         this.gameTimer.elapsed = timeStamp - this.gameTimer.start;
+        if (this.lineClearActive) return;
         if (this.gameTimer.elapsed > this.state.speed) {
             this.gameTimer.start = timeStamp;
             if (this.piece.isLocked) await this.handleLockedPiece();
-            this.movePiece({
+            else this.movePiece({
                 direction: (0, _game.DIRECTIONS).DOWN
             });
             if (this.state.isGameOver) return;
@@ -663,7 +664,7 @@ class Game {
     }
     movePiece(params) {
         const { direction , initialDrop , userInput  } = params;
-        if (this.state.isPaused || !this.piece.isMoveValid({
+        if (!this.piece.isMoveValid({
             direction
         })) {
             if (initialDrop) this.gameOver();
@@ -677,13 +678,14 @@ class Game {
         this.board.draw();
     }
     rotatePiece(rotation) {
-        if (this.state.isPaused || !this.piece.isMoveValid({
+        if (!this.piece.isMoveValid({
             rotation
         })) return;
         this.piece.rotate(rotation);
         this.board.draw();
     }
     hardDrop() {
+        if (this.piece.isLocked) return;
         const cellsDropped = this.piece.hardDrop();
         this.state.dropScore = this.state.dropScore + cellsDropped * (0, _game.BASE_SCORE_HARD_DROP);
         this.board.draw();
@@ -700,6 +702,7 @@ class Game {
         return JSON.parse(JSON.stringify((0, _tetrominos.TETROMINOS)[index]));
     }
     async handleLockedPiece() {
+        this.lineClearActive = true;
         this.stopGameLoop();
         await this.checkLinesClear();
         this.state.updateScore();
@@ -711,6 +714,7 @@ class Game {
             direction: (0, _game.DIRECTIONS).NO_CHANGE,
             initialDrop: true
         });
+        this.lineClearActive = false;
         this.startGameLoop();
     }
     async checkLinesClear() {
@@ -1146,7 +1150,7 @@ class Board {
     }
 }
 
-},{"./constants/game":"be0O0","./constants/colors":"dVpQr","./constants/tetrominos":"dVpHQ","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"be0O0":[function(require,module,exports) {
+},{"./constants/game":"be0O0","./constants/tetrominos":"dVpHQ","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants/colors":"dVpQr"}],"be0O0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLS", ()=>COLS);
@@ -1234,7 +1238,541 @@ const MAX_LEVEL = 20;
 const LEVEL_LIMIT = 10;
 const LINE_CLEAR_DELAY = 400;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpQr":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpHQ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
+var _colors = require("./colors");
+const TETROMINOS = [
+    {
+        id: 1,
+        color: (0, _colors.COLORS).yellow,
+        shapes: [
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ]
+        ]
+    },
+    {
+        id: 2,
+        color: (0, _colors.COLORS).blue,
+        shapes: [
+            [
+                [
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 3,
+        color: (0, _colors.COLORS).orange,
+        shapes: [
+            [
+                [
+                    0,
+                    0,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 4,
+        color: (0, _colors.COLORS).green,
+        shapes: [
+            [
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 5,
+        color: (0, _colors.COLORS).red,
+        shapes: [
+            [
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    0,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 6,
+        color: (0, _colors.COLORS).purple,
+        shapes: [
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 7,
+        color: (0, _colors.COLORS).cyan,
+        shapes: [
+            [
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ]
+            ]
+        ]
+    }
+];
+
+},{"./colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpQr":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLORS", ()=>COLORS);
@@ -1878,541 +2416,7 @@ var create = function() {
 module.exports = create();
 module.exports.createColors = create;
 
-},{}],"dVpHQ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
-var _colors = require("./colors");
-const TETROMINOS = [
-    {
-        id: 1,
-        color: (0, _colors.COLORS).yellow,
-        shapes: [
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ]
-        ]
-    },
-    {
-        id: 2,
-        color: (0, _colors.COLORS).blue,
-        shapes: [
-            [
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 3,
-        color: (0, _colors.COLORS).orange,
-        shapes: [
-            [
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 4,
-        color: (0, _colors.COLORS).green,
-        shapes: [
-            [
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 5,
-        color: (0, _colors.COLORS).red,
-        shapes: [
-            [
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 6,
-        color: (0, _colors.COLORS).purple,
-        shapes: [
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 7,
-        color: (0, _colors.COLORS).cyan,
-        shapes: [
-            [
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ]
-            ]
-        ]
-    }
-];
-
-},{"./colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7ma2M":[function(require,module,exports) {
+},{}],"7ma2M":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Utils", ()=>Utils);
@@ -2431,7 +2435,7 @@ class Utils {
     }
 }
 
-},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"68iIp":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants/game":"be0O0"}],"68iIp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "gameTemplate", ()=>(0, _game.gameTemplate));
@@ -2784,7 +2788,7 @@ class NextPieceBoard {
     }
 }
 
-},{"lit-html":"1cmQt","./templates":"68iIp","./constants/game":"be0O0","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4wLIF":[function(require,module,exports) {
+},{"lit-html":"1cmQt","./templates":"68iIp","./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./Utils":"7ma2M"}],"4wLIF":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "GameState", ()=>GameState);

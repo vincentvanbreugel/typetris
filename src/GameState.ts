@@ -34,9 +34,9 @@ export class GameState {
     private renderScoreTemplate(): void {
         render(
             scoreTemplate({
-                score: this.score,
-                clearedLines: this.totalLinesCleared,
-                level: this.level,
+                score: this.score.toString().padStart(6, '0'),
+                clearedLines: this.totalLinesCleared.toString().padStart(3, '0'),
+                level: this.level.toString().padStart(2, '0'),
             }),
             this.scoreElement
         );
@@ -46,7 +46,6 @@ export class GameState {
         this.totalLinesCleared = 0;
         this.dropScore = 0;
         this.score = 0;
-        this.level = 0;
         this.speed = GAME_SPEEDS[this.level];
         this.isPaused = false;
         this.isGameOver = false;

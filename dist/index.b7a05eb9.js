@@ -551,6 +551,7 @@ class Game {
     gameOptionsId = "gameOptions";
     overlayId = "gameOverlay";
     boardId = "board";
+    levelBtnAttr = "[data-level-btn]";
     gameTimer = {
         start: 0,
         elapsed: 0
@@ -600,8 +601,9 @@ class Game {
     renderOverlayTemplate(state) {
         const data = {
             text: state === "paused" ? "Paused" : "Game over",
-            hide: state === "hide" ? true : false,
-            restartGame: this.restartGame.bind(this)
+            btnText: state === "paused" ? "Resume" : "Start new Game",
+            action: state === "paused" ? this.handleClickPause.bind(this) : this.restartGame.bind(this),
+            hide: state === "hide" ? true : false
         };
         (0, _litHtml.render)((0, _templates.overlayTemplate)(data), this.overlayElement);
     }
@@ -639,6 +641,17 @@ class Game {
                     break;
             }
         });
+        const levelSelectButtons = document.querySelectorAll(this.levelBtnAttr);
+        levelSelectButtons.forEach((btn)=>{
+            HTMLButtonElement;
+            btn.addEventListener("click", (e)=>{
+                levelSelectButtons.forEach((element)=>{
+                    element.classList.remove("active");
+                });
+                const target = e.target;
+                if (target) target.classList.add("active");
+            });
+        });
     }
     async startGameLoop(timeStamp = 0) {
         this.gameTimer.elapsed = timeStamp - this.gameTimer.start;
@@ -657,7 +670,7 @@ class Game {
         cancelAnimationFrame(this.requestId);
     }
     setGameOptions() {
-        const selectedLevel = document.querySelector('input[name="level-select"]:checked')?.value;
+        const selectedLevel = document.querySelector(`${this.levelBtnAttr}.active`)?.value;
         this.state.setGameOptions({
             level: parseInt(selectedLevel, 10)
         });
@@ -1150,7 +1163,7 @@ class Board {
     }
 }
 
-},{"./constants/game":"be0O0","./constants/tetrominos":"dVpHQ","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants/colors":"dVpQr"}],"be0O0":[function(require,module,exports) {
+},{"./constants/game":"be0O0","./constants/colors":"dVpQr","./constants/tetrominos":"dVpHQ","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"be0O0":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLS", ()=>COLS);
@@ -1238,541 +1251,7 @@ const MAX_LEVEL = 20;
 const LEVEL_LIMIT = 10;
 const LINE_CLEAR_DELAY = 400;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpHQ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
-var _colors = require("./colors");
-const TETROMINOS = [
-    {
-        id: 1,
-        color: (0, _colors.COLORS).yellow,
-        shapes: [
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1
-                ]
-            ]
-        ]
-    },
-    {
-        id: 2,
-        color: (0, _colors.COLORS).blue,
-        shapes: [
-            [
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 3,
-        color: (0, _colors.COLORS).orange,
-        shapes: [
-            [
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 4,
-        color: (0, _colors.COLORS).green,
-        shapes: [
-            [
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 5,
-        color: (0, _colors.COLORS).red,
-        shapes: [
-            [
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 6,
-        color: (0, _colors.COLORS).purple,
-        shapes: [
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0
-                ]
-            ]
-        ]
-    },
-    {
-        id: 7,
-        color: (0, _colors.COLORS).cyan,
-        shapes: [
-            [
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            [
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    0,
-                    0
-                ]
-            ]
-        ]
-    }
-];
-
-},{"./colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpQr":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpQr":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLORS", ()=>COLORS);
@@ -2416,7 +1895,541 @@ var create = function() {
 module.exports = create();
 module.exports.createColors = create;
 
-},{}],"7ma2M":[function(require,module,exports) {
+},{}],"dVpHQ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
+var _colors = require("./colors");
+const TETROMINOS = [
+    {
+        id: 1,
+        color: (0, _colors.COLORS).yellow,
+        shapes: [
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1
+                ]
+            ]
+        ]
+    },
+    {
+        id: 2,
+        color: (0, _colors.COLORS).blue,
+        shapes: [
+            [
+                [
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 3,
+        color: (0, _colors.COLORS).orange,
+        shapes: [
+            [
+                [
+                    0,
+                    0,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 4,
+        color: (0, _colors.COLORS).green,
+        shapes: [
+            [
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 5,
+        color: (0, _colors.COLORS).red,
+        shapes: [
+            [
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    0,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 6,
+        color: (0, _colors.COLORS).purple,
+        shapes: [
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0
+                ]
+            ]
+        ]
+    },
+    {
+        id: 7,
+        color: (0, _colors.COLORS).cyan,
+        shapes: [
+            [
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            ],
+            [
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    0,
+                    0
+                ]
+            ]
+        ]
+    }
+];
+
+},{"./colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7ma2M":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Utils", ()=>Utils);
@@ -2435,7 +2448,7 @@ class Utils {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./constants/game":"be0O0"}],"68iIp":[function(require,module,exports) {
+},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"68iIp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "gameTemplate", ()=>(0, _game.gameTemplate));
@@ -2474,7 +2487,7 @@ const gameTemplate = ()=>{
     </div>`;
 };
 
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./controls":"cKwU5"}],"cKwU5":[function(require,module,exports) {
+},{"lit-html":"1cmQt","./controls":"cKwU5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cKwU5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "controlsTemplate", ()=>controlsTemplate);
@@ -2482,7 +2495,7 @@ var _litHtml = require("lit-html");
 const controlsTemplate = ()=>{
     return (0, _litHtml.html)`<div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900">
         <div class="border-2 border-slate-100 rounded-sm">
-            <div class="text-center uppercase font-bold pt-1">Controls</div>
+            <div class="text-center uppercase font-bold tracking-wide pt-1">Controls</div>
             <div class="p-2">
                 <div class="flex justify-between">
                     <span class="bold">&#8592; &#8594; &#8595;</span>
@@ -2493,7 +2506,7 @@ const controlsTemplate = ()=>{
                     <span class="action">Hard Drop</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="button">D A</span>
+                    <span class="button">D S</span>
                     <span class="action">Rotate</span>
                 </div>
                 <div class="flex justify-between">
@@ -2510,26 +2523,93 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "gameOptionsTemplate", ()=>gameOptionsTemplate);
 var _litHtml = require("lit-html");
+var _primaryButton = require("./primaryButton");
 const levels = Array.from(Array(10).keys());
 const gameOptionsTemplate = (data)=>{
     return (0, _litHtml.html)`<div
-        class="game-options absolute top-2 right-2 bottom-2 left-2 bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
+        class="game-options absolute top-1 right-1 bottom-1 left-1 bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
     >
-        <form class="mb-4">
-            <fieldset>
-                <legend>Level select</legend>
-                ${levels.map((level)=>{
-        return (0, _litHtml.html)`<div>
-                            <label for="level${level}">${level}</label>
-                            <input type="radio" name="level-select" id="level${level}" value=${level} ?checked=${level === 0}></input>
-                        </div>`;
+        <div class="mb-12 font-bold tracking-[-.075em] text-5xl">
+            <span class="text-blue-500">T</span>
+            <span class="text-green-500">Y</span>
+            <span class="text-red-500">P</span>
+            <span class="text-orange-500">E</span>
+            <span class="text-yellow-500">T</span>
+            <span class="text-green-500">R</span>
+            <span class="text-cyan-500">I</span>
+            <span class="text-purple-500">S</span>
+        </div>
+
+        <div class="uppercase font-bold tracking-wide mb-3">Speed Level</div>
+        <div
+            class="flex flex-wrap justify-center mx-6 border-l-2 border-t-2 border-slate-100 mb-16"
+        >
+            ${levels.map((level)=>{
+        return (0, _litHtml.html)`<div
+                    class="grow
+                            border-r-2 
+                            border-b-2
+                            border-slate-100
+                            text-slate-100
+                            flex
+                            font-bold"
+                >
+                    <button
+                        type="button"
+                        data-level-btn
+                        value="${level}"
+                        class="grow 
+                        px-4 
+                        py-2 
+                        opacity-25 
+                        hover:opacity-100 
+                        transition 
+                        duration-150 
+                        ease-in-out
+                        ${level === 0 ? "active" : ""}"
+                    >
+                        ${level}
+                    </button>
+                </div>`;
     })}
-            </fieldset>
-        </form>
-        <button type="button" @click=${data.startGame} class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-            Start
-        </button>
+        </div>
+
+        ${(0, _primaryButton.primaryButtonTemplate)({
+        text: "Ready",
+        action: data.startGame
+    })}
     </div>`;
+};
+
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./primaryButton":"4l21m"}],"4l21m":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "primaryButtonTemplate", ()=>primaryButtonTemplate);
+var _litHtml = require("lit-html");
+const primaryButtonTemplate = (data)=>{
+    return (0, _litHtml.html)`<button
+        type="button"
+        @click=${data.action}
+        class="w-full 
+    uppercase 
+    tracking-wider 
+    py-3 
+    px-6 
+    bg-gradient-to-l 
+    from-gray-600
+    to-transparent
+    hover:bg-gray-600 
+    border-t-2 
+    border-b-2 
+    border-slate-100 
+    text-slate-100 
+    font-bold 
+    transition 
+    duration-200 
+    ease-in-out"
+    >
+        ${data.text}
+    </button>`;
 };
 
 },{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"khlyX":[function(require,module,exports) {
@@ -2540,7 +2620,7 @@ var _litHtml = require("lit-html");
 const nextPieceTemplate = ()=>{
     return (0, _litHtml.html)`<div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
         <div class="border-2 border-slate-100 rounded-sm">
-            <div class="text-center uppercase font-bold pt-1">Next</div>
+            <div class="text-center uppercase font-bold tracking-wide pt-1">Next</div>
             <div class="next-piece-container h-[140px] w-[140px] mx-auto mb-3 flex items-center justify-center">
                 <canvas id="nextPieceBoard" class="next-piece-canvas"></canvas>
             </div>
@@ -2553,37 +2633,39 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "overlayTemplate", ()=>overlayTemplate);
 var _litHtml = require("lit-html");
+var _primaryButton = require("./primaryButton");
 const overlayTemplate = (data)=>{
     return (0, _litHtml.html)`<div
         class="game-overlay absolute top-[4px] right-[4px] bottom-[4px] left-[4px] bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
     >
-        <span class="mb-4">${data.text}</span>
-        <button type="button" @click=${data.restartGame} class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-            Start new game
-        </button>
+        <span class="mb-8">${data.text}</span>
+        ${(0, _primaryButton.primaryButtonTemplate)({
+        text: data.btnText,
+        action: data.action
+    })}
     </div>`;
 };
 
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"e22W5":[function(require,module,exports) {
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./primaryButton":"4l21m"}],"e22W5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "scoreTemplate", ()=>scoreTemplate);
 var _litHtml = require("lit-html");
 const scoreTemplate = (data)=>{
     return (0, _litHtml.html)`<div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
-            <div class="border-2 border-slate-100 rounded-sm text-center font-bold py-1">
+            <div class="border-2 border-slate-100 rounded-sm text-center font-bold tracking-wide py-1">
                 <div class="uppercase">Score</div>
                 <div class="text-lg">${data.score}</div>
             </div>
         </div>
         <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
-            <div class="border-2 border-slate-100 rounded-sm text-center font-bold py-1">
+            <div class="border-2 border-slate-100 rounded-sm text-center font-bold tracking-wide py-1">
                 <div class="uppercase">Lines</div>
                 <div class="text-lg">${data.clearedLines}</div>
             </div>
         </div>
         <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
-            <div class="border-2 border-slate-100 rounded-sm text-center font-bold py-1">
+            <div class="border-2 border-slate-100 rounded-sm text-center font-bold tracking-wide py-1">
                 <div class="uppercase">Speed LV</div>
                 <div class="text-lg">${data.level}</div>
             </div>
@@ -2792,7 +2874,7 @@ class NextPieceBoard {
     }
 }
 
-},{"lit-html":"1cmQt","./templates":"68iIp","./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./Utils":"7ma2M"}],"4wLIF":[function(require,module,exports) {
+},{"lit-html":"1cmQt","./templates":"68iIp","./constants/game":"be0O0","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4wLIF":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "GameState", ()=>GameState);
@@ -2816,16 +2898,15 @@ class GameState {
     }
     renderScoreTemplate() {
         (0, _litHtml.render)((0, _templates.scoreTemplate)({
-            score: this.score,
-            clearedLines: this.totalLinesCleared,
-            level: this.level
+            score: this.score.toString().padStart(6, "0"),
+            clearedLines: this.totalLinesCleared.toString().padStart(3, "0"),
+            level: this.level.toString().padStart(2, "0")
         }), this.scoreElement);
     }
     reset() {
         this.totalLinesCleared = 0;
         this.dropScore = 0;
         this.score = 0;
-        this.level = 0;
         this.speed = (0, _game.GAME_SPEEDS)[this.level];
         this.isPaused = false;
         this.isGameOver = false;
@@ -2862,6 +2943,6 @@ class GameState {
     }
 }
 
-},{"lit-html":"1cmQt","./templates":"68iIp","./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
+},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./templates":"68iIp","lit-html":"1cmQt"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
 
 //# sourceMappingURL=index.b7a05eb9.js.map

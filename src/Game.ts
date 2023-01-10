@@ -1,7 +1,7 @@
 import { render } from 'lit-html';
 import { Board } from './Board';
 import { TETROMINOS, Tetromino, Point } from './constants/tetrominos';
-import { BASE_SCORE_HARD_DROP, DIRECTIONS, KEYS } from './constants/game';
+import { DIRECTIONS, KEYS } from './constants/game';
 import { gameTemplate, overlayTemplate, gameOptionsTemplate } from './templates';
 import type { Rotations } from './types';
 import { Piece } from './Piece';
@@ -16,6 +16,7 @@ export class Game {
     private overlayElement: HTMLElement;
     private boardId = 'board';
     private board: Board;
+    private levelBtnAttr = '[data-level-btn]';
     private nextPieceBoard: NextPieceBoard;
     private piece: Piece;
     private nextPiece: Piece;
@@ -70,8 +71,9 @@ export class Game {
     private renderOverlayTemplate(state: 'paused' | 'gameOver' | 'hide') {
         const data = {
             text: state === 'paused' ? 'Paused' : 'Game over',
+            btnText: state === 'paused' ? 'Resume' : 'Start new Game',
+            action: state === 'paused' ? this.handleClickPause.bind(this) : this.restartGame.bind(this),
             hide: state === 'hide' ? true : false,
-            restartGame: this.restartGame.bind(this),
         };
         render(overlayTemplate(data), this.overlayElement);
     }
@@ -83,7 +85,7 @@ export class Game {
             }
 
             if (this.lineClearActive || this.state.isPaused) {
-                return
+                return;
             }
 
             switch (event.key) {
@@ -106,6 +108,21 @@ export class Game {
                     this.rotatePiece('counterClockwise');
                     break;
             }
+        });
+
+        const levelSelectButtons = document.querySelectorAll(this.levelBtnAttr);
+        levelSelectButtons.forEach((btn) => {HTMLButtonElement
+            btn.addEventListener('click', (e) => {
+                levelSelectButtons.forEach((element) => {
+                    element.classList.remove('active');
+                });
+
+                const target = e.target as Element;
+
+                if (target) {
+                    target.classList.add('active');
+                }
+            });
         });
     }
 
@@ -137,9 +154,7 @@ export class Game {
     }
 
     private setGameOptions(): void {
-        const selectedLevel = (<HTMLOptionElement>(
-            document.querySelector('input[name="level-select"]:checked')
-        ))?.value;
+        const selectedLevel = (<HTMLButtonElement>document.querySelector(`${this.levelBtnAttr}.active`))?.value;        
         this.state.setGameOptions({ level: parseInt(selectedLevel, 10) });
     }
 
@@ -185,7 +200,7 @@ export class Game {
         }
 
         const cellsDropped = this.piece.hardDrop();
-        this.state.incrementDropScore(cellsDropped, true)
+        this.state.incrementDropScore(cellsDropped, true);
 
         this.board.draw();
 
@@ -210,7 +225,7 @@ export class Game {
         return JSON.parse(JSON.stringify(TETROMINOS[index])) as Tetromino;
     }
 
-    private async handleLockedPiece(): Promise<void> {        
+    private async handleLockedPiece(): Promise<void> {
         this.lineClearActive = true;
         this.stopGameLoop();
         await this.checkLinesClear();

@@ -1,12 +1,12 @@
-import { BLOCK_SIZE } from './constants/game';
-import { COLOR } from './constants/colors';
+import { BLOCK_SIZE } from '../constants/gameConstants';
+import { Color } from '../types/types';
 
 export class Utils {
     static sleep(ms: number): Promise<number> {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
-    static drawMino(x: number, y: number, context: CanvasRenderingContext2D, color: COLOR): void {
+    static drawMino(x: number, y: number, context: CanvasRenderingContext2D, color: Color): void {
         const borderWidth = 1 / BLOCK_SIZE;   
         const offset = borderWidth * 2;
 

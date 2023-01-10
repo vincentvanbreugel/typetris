@@ -1,6 +1,6 @@
-import { ROWS, COLS, BLOCK_SIZE, LINE_CLEAR_DELAY } from './constants/game';
-import { COLORS } from './constants/colors';
-import { TETROMINOS } from './constants/tetrominos';
+import { ROWS, COLS, BLOCK_SIZE, LINE_CLEAR_DELAY } from '../constants/gameConstants';
+import { COLORS } from '../constants/colorConstants';
+import { TETROMINOS } from '../constants/tetrominosConstants';
 import { Utils } from './Utils';
 
 export class Board {

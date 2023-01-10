@@ -1,11 +1,11 @@
 import { render } from 'lit-html';
 import { Board } from './Board';
-import { TETROMINOS, Tetromino, Point } from './constants/tetrominos';
-import { DIRECTIONS, KEYS } from './constants/game';
-import { gameTemplate, overlayTemplate, gameOptionsTemplate } from './templates';
-import type { Rotations } from './types';
+import { TETROMINOS } from '../constants/tetrominosConstants';
+import { DIRECTIONS, KEYS } from '../constants/gameConstants';
+import { gameLayoutTemplate, newGameTemplate, pauseTemplate, gameOverTemplate } from '../templates';
+import type { Rotations, Tetromino, Point } from '../types/types';
 import { Piece } from './Piece';
-import { NextPieceBoard } from './NextPieceBoard';
+import { NextPieceBoard } from './NextPiece';
 import { GameState } from './GameState';
 
 export class Game {
@@ -25,9 +25,9 @@ export class Game {
     private lineClearActive = false;
 
     constructor(elementId: string) {
-        this.renderGameTemplate(elementId);
+        this.renderGameLayoutTemplate(elementId);
         this.gameOptionsElement = document.getElementById(this.gameOptionsId) as HTMLElement;
-        this.renderGameOptionsTemplate();
+        this.renderNewGameTemplate();
         this.overlayElement = document.getElementById(this.overlayId) as HTMLElement;
         this.state = new GameState(this);
         this.board = new Board(this.boardId);
@@ -37,45 +37,35 @@ export class Game {
         this.attachEventHandlers();
     }
 
-    startGame(): void {
-        this.setGameOptions();
-        this.renderGameOptionsTemplate('hide');
-        this.movePiece({ direction: DIRECTIONS.NO_CHANGE });
-        this.nextPieceBoard.draw(this.nextPiece);
-        this.startGameLoop();
-    }
-
-    restartGame(): void {
-        this.stopGameLoop();
-        this.state.reset();
-        this.board = new Board(this.boardId);
-        this.piece = this.getRandomPiece();
-        this.nextPiece = this.getRandomPiece();
-        this.renderOverlayTemplate('hide');
-        this.renderGameOptionsTemplate();
-    }
-
-    private renderGameTemplate(elementId: string) {
+    private renderGameLayoutTemplate(elementId: string): void {
         const element = document.getElementById(elementId) as HTMLElement;
-        render(gameTemplate(), element);
+        render(gameLayoutTemplate(), element);
     }
 
-    private renderGameOptionsTemplate(state = 'show') {
+    private renderNewGameTemplate(hide = false): void {
         const data = {
-            hide: state === 'hide' ? true : false,
+            hide,
             startGame: this.startGame.bind(this),
+            selectLevel: this.selectLevel.bind(this),
         };
-        render(gameOptionsTemplate(data), this.gameOptionsElement);
+        render(newGameTemplate(data), this.gameOptionsElement);
     }
 
-    private renderOverlayTemplate(state: 'paused' | 'gameOver' | 'hide') {
+    private renderGameOverTemplate(hide = false): void {
         const data = {
-            text: state === 'paused' ? 'Paused' : 'Game over',
-            btnText: state === 'paused' ? 'Resume' : 'Start new Game',
-            action: state === 'paused' ? this.handleClickPause.bind(this) : this.restartGame.bind(this),
-            hide: state === 'hide' ? true : false,
+            action: this.restartGame.bind(this),
+            hide,
         };
-        render(overlayTemplate(data), this.overlayElement);
+        render(gameOverTemplate(data), this.overlayElement);
+    }
+
+    private renderPauseTemplate(hide = false): void {
+        const data = {
+            resumeAction: this.handleClickPause.bind(this),
+            newGameAction: this.restartGame.bind(this),
+            hide,
+        };
+        render(pauseTemplate(data), this.overlayElement);
     }
 
     private attachEventHandlers(): void {
@@ -109,24 +99,28 @@ export class Game {
                     break;
             }
         });
-
-        const levelSelectButtons = document.querySelectorAll(this.levelBtnAttr);
-        levelSelectButtons.forEach((btn) => {HTMLButtonElement
-            btn.addEventListener('click', (e) => {
-                levelSelectButtons.forEach((element) => {
-                    element.classList.remove('active');
-                });
-
-                const target = e.target as Element;
-
-                if (target) {
-                    target.classList.add('active');
-                }
-            });
-        });
     }
 
-    private async startGameLoop(timeStamp: DOMHighResTimeStamp = 0): Promise<void> {
+    startGame(): void {
+        this.setGameOptions();
+        this.renderNewGameTemplate(true);
+        this.movePiece({ direction: DIRECTIONS.NO_CHANGE });
+        this.nextPieceBoard.draw(this.nextPiece);
+        this.startGameLoop();
+    }
+
+    restartGame(): void {
+        this.stopGameLoop();
+        this.state.reset();
+        this.board = new Board(this.boardId);
+        this.piece = this.getRandomPiece();
+        this.nextPiece = this.getRandomPiece();
+        this.renderPauseTemplate(true);
+        this.renderGameOverTemplate(true);
+        this.renderNewGameTemplate();
+    }
+
+    async startGameLoop(timeStamp: DOMHighResTimeStamp = 0): Promise<void> {
         this.gameTimer.elapsed = timeStamp - this.gameTimer.start;
         if (this.lineClearActive) {
             return;
@@ -149,13 +143,8 @@ export class Game {
         this.requestId = requestAnimationFrame(this.startGameLoop.bind(this));
     }
 
-    private stopGameLoop(): void {
+    stopGameLoop(): void {
         cancelAnimationFrame(this.requestId as number);
-    }
-
-    private setGameOptions(): void {
-        const selectedLevel = (<HTMLButtonElement>document.querySelector(`${this.levelBtnAttr}.active`))?.value;        
-        this.state.setGameOptions({ level: parseInt(selectedLevel, 10) });
     }
 
     private movePiece(params: {
@@ -239,7 +228,7 @@ export class Game {
         this.startGameLoop();
     }
 
-    private async checkLinesClear() {
+    private async checkLinesClear(): Promise<void> {
         const linesCleared = this.board.getLinesCleared();
         if (linesCleared.length) {
             await this.board.handleClearLines(linesCleared);
@@ -247,20 +236,39 @@ export class Game {
         }
     }
 
-    private handleClickPause() {
-        this.state.togglePause();
-        if (!this.state.isPaused) {
-            this.startGameLoop();
-            this.renderOverlayTemplate('hide');
-        } else {
-            this.stopGameLoop();
-            this.renderOverlayTemplate('paused');
+    selectLevel(e: Event): void {
+        const levelSelectButtons = document.querySelectorAll(this.levelBtnAttr);
+        levelSelectButtons.forEach((element) => {
+            element.classList.remove('selected', 'opacity-100');
+            element.classList.add('opacity-25');
+        });
+
+        const target = e.target as Element;
+        if (target) {
+            target.classList.add('selected', 'opacity-100');
+            target.classList.remove('opacity-25');
         }
     }
 
-    private gameOver() {
+    private setGameOptions(): void {
+        const selectedLevel = (<HTMLButtonElement>document.querySelector(`${this.levelBtnAttr}.selected`))?.value;        
+        this.state.setGameOptions({ level: parseInt(selectedLevel, 10) });
+    }
+
+    private handleClickPause(): void {
+        this.state.togglePause();
+        if (!this.state.isPaused) {
+            this.startGameLoop();
+            this.renderPauseTemplate(true);
+        } else {
+            this.stopGameLoop();
+            this.renderPauseTemplate();
+        }
+    }
+
+    private gameOver(): void {
         this.state.isGameOver = true;
         this.nextPieceBoard.clear();
-        this.renderOverlayTemplate('gameOver');
+        this.renderGameOverTemplate();
     }
 }

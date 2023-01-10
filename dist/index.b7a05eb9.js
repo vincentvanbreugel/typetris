@@ -532,20 +532,20 @@ function hmrAcceptRun(bundle, id) {
 }
 
 },{}],"jeorp":[function(require,module,exports) {
-var _game = require("./Game");
+var _game = require("./classes/Game");
 const game = new (0, _game.Game)("tetris");
 
-},{"./Game":"TyEjs"}],"TyEjs":[function(require,module,exports) {
+},{"./classes/Game":"7PvWf"}],"7PvWf":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Game", ()=>Game);
 var _litHtml = require("lit-html");
 var _board = require("./Board");
-var _tetrominos = require("./constants/tetrominos");
-var _game = require("./constants/game");
-var _templates = require("./templates");
+var _tetrominosConstants = require("../constants/tetrominosConstants");
+var _gameConstants = require("../constants/gameConstants");
+var _templates = require("../templates");
 var _piece = require("./Piece");
-var _nextPieceBoard = require("./NextPieceBoard");
+var _nextPiece = require("./NextPiece");
 var _gameState = require("./GameState");
 class Game {
     gameOptionsId = "gameOptions";
@@ -558,22 +558,84 @@ class Game {
     };
     lineClearActive = false;
     constructor(elementId){
-        this.renderGameTemplate(elementId);
+        this.renderGameLayoutTemplate(elementId);
         this.gameOptionsElement = document.getElementById(this.gameOptionsId);
-        this.renderGameOptionsTemplate();
+        this.renderNewGameTemplate();
         this.overlayElement = document.getElementById(this.overlayId);
         this.state = new (0, _gameState.GameState)(this);
         this.board = new (0, _board.Board)(this.boardId);
-        this.nextPieceBoard = new (0, _nextPieceBoard.NextPieceBoard)();
+        this.nextPieceBoard = new (0, _nextPiece.NextPieceBoard)();
         this.piece = this.getRandomPiece();
         this.nextPiece = this.getRandomPiece();
         this.attachEventHandlers();
     }
+    renderGameLayoutTemplate(elementId) {
+        const element = document.getElementById(elementId);
+        (0, _litHtml.render)((0, _templates.gameLayoutTemplate)(), element);
+    }
+    renderNewGameTemplate(hide = false) {
+        const data = {
+            hide,
+            startGame: this.startGame.bind(this),
+            selectLevel: this.selectLevel.bind(this)
+        };
+        (0, _litHtml.render)((0, _templates.newGameTemplate)(data), this.gameOptionsElement);
+    }
+    renderGameOverTemplate(hide = false) {
+        const data = {
+            action: this.restartGame.bind(this),
+            hide
+        };
+        (0, _litHtml.render)((0, _templates.gameOverTemplate)(data), this.overlayElement);
+    }
+    renderPauseTemplate(hide = false) {
+        const data = {
+            resumeAction: this.handleClickPause.bind(this),
+            newGameAction: this.restartGame.bind(this),
+            hide
+        };
+        (0, _litHtml.render)((0, _templates.pauseTemplate)(data), this.overlayElement);
+    }
+    attachEventHandlers() {
+        document.addEventListener("keydown", (event)=>{
+            if (event.key === (0, _gameConstants.KEYS).PAUSE) this.handleClickPause();
+            if (this.lineClearActive || this.state.isPaused) return;
+            switch(event.key){
+                case (0, _gameConstants.KEYS).HARD_DROP:
+                    this.hardDrop();
+                    break;
+                case (0, _gameConstants.KEYS).DOWN:
+                    this.movePiece({
+                        direction: (0, _gameConstants.DIRECTIONS).DOWN,
+                        userInput: true
+                    });
+                    break;
+                case (0, _gameConstants.KEYS).LEFT:
+                    this.movePiece({
+                        direction: (0, _gameConstants.DIRECTIONS).LEFT,
+                        userInput: true
+                    });
+                    break;
+                case (0, _gameConstants.KEYS).RIGHT:
+                    this.movePiece({
+                        direction: (0, _gameConstants.DIRECTIONS).RIGHT,
+                        userInput: true
+                    });
+                    break;
+                case (0, _gameConstants.KEYS).ROTATE_CLOCKWISE:
+                    this.rotatePiece("clockwise");
+                    break;
+                case (0, _gameConstants.KEYS).ROTATE_COUNTER_CLOCKWISE:
+                    this.rotatePiece("counterClockwise");
+                    break;
+            }
+        });
+    }
     startGame() {
         this.setGameOptions();
-        this.renderGameOptionsTemplate("hide");
+        this.renderNewGameTemplate(true);
         this.movePiece({
-            direction: (0, _game.DIRECTIONS).NO_CHANGE
+            direction: (0, _gameConstants.DIRECTIONS).NO_CHANGE
         });
         this.nextPieceBoard.draw(this.nextPiece);
         this.startGameLoop();
@@ -584,74 +646,9 @@ class Game {
         this.board = new (0, _board.Board)(this.boardId);
         this.piece = this.getRandomPiece();
         this.nextPiece = this.getRandomPiece();
-        this.renderOverlayTemplate("hide");
-        this.renderGameOptionsTemplate();
-    }
-    renderGameTemplate(elementId) {
-        const element = document.getElementById(elementId);
-        (0, _litHtml.render)((0, _templates.gameTemplate)(), element);
-    }
-    renderGameOptionsTemplate(state = "show") {
-        const data = {
-            hide: state === "hide" ? true : false,
-            startGame: this.startGame.bind(this)
-        };
-        (0, _litHtml.render)((0, _templates.gameOptionsTemplate)(data), this.gameOptionsElement);
-    }
-    renderOverlayTemplate(state) {
-        const data = {
-            text: state === "paused" ? "Paused" : "Game over",
-            btnText: state === "paused" ? "Resume" : "Start new Game",
-            action: state === "paused" ? this.handleClickPause.bind(this) : this.restartGame.bind(this),
-            hide: state === "hide" ? true : false
-        };
-        (0, _litHtml.render)((0, _templates.overlayTemplate)(data), this.overlayElement);
-    }
-    attachEventHandlers() {
-        document.addEventListener("keydown", (event)=>{
-            if (event.key === (0, _game.KEYS).PAUSE) this.handleClickPause();
-            if (this.lineClearActive || this.state.isPaused) return;
-            switch(event.key){
-                case (0, _game.KEYS).HARD_DROP:
-                    this.hardDrop();
-                    break;
-                case (0, _game.KEYS).DOWN:
-                    this.movePiece({
-                        direction: (0, _game.DIRECTIONS).DOWN,
-                        userInput: true
-                    });
-                    break;
-                case (0, _game.KEYS).LEFT:
-                    this.movePiece({
-                        direction: (0, _game.DIRECTIONS).LEFT,
-                        userInput: true
-                    });
-                    break;
-                case (0, _game.KEYS).RIGHT:
-                    this.movePiece({
-                        direction: (0, _game.DIRECTIONS).RIGHT,
-                        userInput: true
-                    });
-                    break;
-                case (0, _game.KEYS).ROTATE_CLOCKWISE:
-                    this.rotatePiece("clockwise");
-                    break;
-                case (0, _game.KEYS).ROTATE_COUNTER_CLOCKWISE:
-                    this.rotatePiece("counterClockwise");
-                    break;
-            }
-        });
-        const levelSelectButtons = document.querySelectorAll(this.levelBtnAttr);
-        levelSelectButtons.forEach((btn)=>{
-            HTMLButtonElement;
-            btn.addEventListener("click", (e)=>{
-                levelSelectButtons.forEach((element)=>{
-                    element.classList.remove("active");
-                });
-                const target = e.target;
-                if (target) target.classList.add("active");
-            });
-        });
+        this.renderPauseTemplate(true);
+        this.renderGameOverTemplate(true);
+        this.renderNewGameTemplate();
     }
     async startGameLoop(timeStamp = 0) {
         this.gameTimer.elapsed = timeStamp - this.gameTimer.start;
@@ -660,7 +657,7 @@ class Game {
             this.gameTimer.start = timeStamp;
             if (this.piece.isLocked) await this.handleLockedPiece();
             else this.movePiece({
-                direction: (0, _game.DIRECTIONS).DOWN
+                direction: (0, _gameConstants.DIRECTIONS).DOWN
             });
             if (this.state.isGameOver) return;
         }
@@ -668,12 +665,6 @@ class Game {
     }
     stopGameLoop() {
         cancelAnimationFrame(this.requestId);
-    }
-    setGameOptions() {
-        const selectedLevel = document.querySelector(`${this.levelBtnAttr}.active`)?.value;
-        this.state.setGameOptions({
-            level: parseInt(selectedLevel, 10)
-        });
     }
     movePiece(params) {
         const { direction , initialDrop , userInput  } = params;
@@ -684,7 +675,7 @@ class Game {
             return;
         }
         this.piece.move(direction);
-        if (userInput && direction === (0, _game.DIRECTIONS).DOWN) {
+        if (userInput && direction === (0, _gameConstants.DIRECTIONS).DOWN) {
             this.state.incrementDropScore();
             if (this.piece.isLocked) this.handleLockedPiece();
         }
@@ -711,8 +702,8 @@ class Game {
         return new (0, _piece.Piece)(tetromino, this.board);
     }
     getRandomTetromino() {
-        const index = Math.floor(Math.random() * (0, _tetrominos.TETROMINOS).length);
-        return JSON.parse(JSON.stringify((0, _tetrominos.TETROMINOS)[index]));
+        const index = Math.floor(Math.random() * (0, _tetrominosConstants.TETROMINOS).length);
+        return JSON.parse(JSON.stringify((0, _tetrominosConstants.TETROMINOS)[index]));
     }
     async handleLockedPiece() {
         this.lineClearActive = true;
@@ -724,7 +715,7 @@ class Game {
         this.nextPiece = this.getRandomPiece();
         this.nextPieceBoard.draw(this.nextPiece);
         this.movePiece({
-            direction: (0, _game.DIRECTIONS).NO_CHANGE,
+            direction: (0, _gameConstants.DIRECTIONS).NO_CHANGE,
             initialDrop: true
         });
         this.lineClearActive = false;
@@ -737,24 +728,42 @@ class Game {
             this.state.newLinesCleared = linesCleared.length;
         }
     }
+    selectLevel(e) {
+        const levelSelectButtons = document.querySelectorAll(this.levelBtnAttr);
+        levelSelectButtons.forEach((element)=>{
+            element.classList.remove("selected", "opacity-100");
+            element.classList.add("opacity-25");
+        });
+        const target = e.target;
+        if (target) {
+            target.classList.add("selected", "opacity-100");
+            target.classList.remove("opacity-25");
+        }
+    }
+    setGameOptions() {
+        const selectedLevel = document.querySelector(`${this.levelBtnAttr}.selected`)?.value;
+        this.state.setGameOptions({
+            level: parseInt(selectedLevel, 10)
+        });
+    }
     handleClickPause() {
         this.state.togglePause();
         if (!this.state.isPaused) {
             this.startGameLoop();
-            this.renderOverlayTemplate("hide");
+            this.renderPauseTemplate(true);
         } else {
             this.stopGameLoop();
-            this.renderOverlayTemplate("paused");
+            this.renderPauseTemplate();
         }
     }
     gameOver() {
         this.state.isGameOver = true;
         this.nextPieceBoard.clear();
-        this.renderOverlayTemplate("gameOver");
+        this.renderGameOverTemplate();
     }
 }
 
-},{"lit-html":"1cmQt","./Board":"4daYq","./constants/tetrominos":"dVpHQ","./constants/game":"be0O0","./templates":"68iIp","./Piece":"6E5CQ","./NextPieceBoard":"dSE8P","./GameState":"4wLIF","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1cmQt":[function(require,module,exports) {
+},{"lit-html":"1cmQt","./Board":"dleXs","./GameState":"9qsQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../templates":"68iIp","./NextPiece":"8srqN","../constants/gameConstants":"eg1HW","../constants/tetrominosConstants":"9MJer","./Piece":"hk2Go"}],"1cmQt":[function(require,module,exports) {
 /**
  * @license
  * Copyright 2017 Google LLC
@@ -1081,13 +1090,13 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"4daYq":[function(require,module,exports) {
+},{}],"dleXs":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Board", ()=>Board);
-var _game = require("./constants/game");
-var _colors = require("./constants/colors");
-var _tetrominos = require("./constants/tetrominos");
+var _gameConstants = require("../constants/gameConstants");
+var _colorConstants = require("../constants/colorConstants");
+var _tetrominosConstants = require("../constants/tetrominosConstants");
 var _utils = require("./Utils");
 class Board {
     animatedLines = [];
@@ -1098,15 +1107,15 @@ class Board {
     constructor(boardId){
         this.canvas = document.getElementById(boardId);
         this.context = this.canvas.getContext("2d");
-        this.state = Array.from(Array((0, _game.ROWS)), ()=>Array((0, _game.COLS)).fill(0));
+        this.state = Array.from(Array((0, _gameConstants.ROWS)), ()=>Array((0, _gameConstants.COLS)).fill(0));
         this.create();
     }
     draw() {
         this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
-        this.context.fillStyle = (0, _colors.COLORS).gray["darker"];
+        this.context.fillStyle = (0, _colorConstants.COLORS).gray["darker"];
         this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
         for(let y = 0; y < this.state.length; y++)for(let x = 0; x < this.state[0].length; x++){
-            const tetromino = (0, _tetrominos.TETROMINOS).find((tetromino)=>{
+            const tetromino = (0, _tetrominosConstants.TETROMINOS).find((tetromino)=>{
                 return tetromino.id === this.state[y][x];
             });
             tetromino && (0, _utils.Utils).drawMino(x, y, this.context, tetromino.color);
@@ -1115,7 +1124,7 @@ class Board {
     async handleClearLines(lines) {
         this.animatedLines = lines;
         this.animateClearedLines();
-        await (0, _utils.Utils).sleep((0, _game.LINE_CLEAR_DELAY));
+        await (0, _utils.Utils).sleep((0, _gameConstants.LINE_CLEAR_DELAY));
         cancelAnimationFrame(this.requestId);
         this.animatedLines = [];
         this.clearLines(lines);
@@ -1137,9 +1146,9 @@ class Board {
         });
     }
     animateClearedLines(timeStamp = 0) {
-        this.context.fillStyle = (0, _colors.COLORS).gray["darker"];
+        this.context.fillStyle = (0, _colorConstants.COLORS).gray["darker"];
         this.animationTimer.elapsed = timeStamp - this.animationTimer.start;
-        if (this.animationTimer.elapsed >= (0, _game.LINE_CLEAR_DELAY) / 5) {
+        if (this.animationTimer.elapsed >= (0, _gameConstants.LINE_CLEAR_DELAY) / 5) {
             this.animationTimer.start = timeStamp;
             this.animatedLines.forEach((line)=>{
                 const lastClearedIndexFromLeft = this.state[line].indexOf(0);
@@ -1157,13 +1166,32 @@ class Board {
         this.requestId = requestAnimationFrame(this.animateClearedLines.bind(this));
     }
     create() {
-        this.context.canvas.width = (0, _game.COLS) * (0, _game.BLOCK_SIZE);
-        this.context.canvas.height = (0, _game.ROWS) * (0, _game.BLOCK_SIZE);
-        this.context.scale((0, _game.BLOCK_SIZE), (0, _game.BLOCK_SIZE));
+        this.context.canvas.width = (0, _gameConstants.COLS) * (0, _gameConstants.BLOCK_SIZE);
+        this.context.canvas.height = (0, _gameConstants.ROWS) * (0, _gameConstants.BLOCK_SIZE);
+        this.context.scale((0, _gameConstants.BLOCK_SIZE), (0, _gameConstants.BLOCK_SIZE));
     }
 }
 
-},{"./constants/game":"be0O0","./constants/colors":"dVpQr","./constants/tetrominos":"dVpHQ","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"be0O0":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./Utils":"4PvMH","../constants/colorConstants":"eg4AD","../constants/gameConstants":"eg1HW","../constants/tetrominosConstants":"9MJer"}],"4PvMH":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Utils", ()=>Utils);
+var _gameConstants = require("../constants/gameConstants");
+class Utils {
+    static sleep(ms) {
+        return new Promise((resolve)=>setTimeout(resolve, ms));
+    }
+    static drawMino(x, y, context, color) {
+        const borderWidth = 1 / (0, _gameConstants.BLOCK_SIZE);
+        const offset = borderWidth * 2;
+        context.fillStyle = color["light"];
+        context.fillRect(x, y, 1, 1);
+        context.fillStyle = color["neutral"];
+        context.fillRect(x + borderWidth, y + borderWidth, 1 - offset, 1 - offset);
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../constants/gameConstants":"eg1HW"}],"eg1HW":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLS", ()=>COLS);
@@ -1251,7 +1279,7 @@ const MAX_LEVEL = 20;
 const LEVEL_LIMIT = 10;
 const LINE_CLEAR_DELAY = 400;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dVpQr":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"eg4AD":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLORS", ()=>COLORS);
@@ -1895,15 +1923,15 @@ var create = function() {
 module.exports = create();
 module.exports.createColors = create;
 
-},{}],"dVpHQ":[function(require,module,exports) {
+},{}],"9MJer":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "TETROMINOS", ()=>TETROMINOS);
-var _colors = require("./colors");
+var _colorConstants = require("./colorConstants");
 const TETROMINOS = [
     {
         id: 1,
-        color: (0, _colors.COLORS).yellow,
+        color: (0, _colorConstants.COLORS).yellow,
         shapes: [
             [
                 [
@@ -1949,7 +1977,7 @@ const TETROMINOS = [
     },
     {
         id: 2,
-        color: (0, _colors.COLORS).blue,
+        color: (0, _colorConstants.COLORS).blue,
         shapes: [
             [
                 [
@@ -2023,7 +2051,7 @@ const TETROMINOS = [
     },
     {
         id: 3,
-        color: (0, _colors.COLORS).orange,
+        color: (0, _colorConstants.COLORS).orange,
         shapes: [
             [
                 [
@@ -2097,7 +2125,7 @@ const TETROMINOS = [
     },
     {
         id: 4,
-        color: (0, _colors.COLORS).green,
+        color: (0, _colorConstants.COLORS).green,
         shapes: [
             [
                 [
@@ -2171,7 +2199,7 @@ const TETROMINOS = [
     },
     {
         id: 5,
-        color: (0, _colors.COLORS).red,
+        color: (0, _colorConstants.COLORS).red,
         shapes: [
             [
                 [
@@ -2245,7 +2273,7 @@ const TETROMINOS = [
     },
     {
         id: 6,
-        color: (0, _colors.COLORS).purple,
+        color: (0, _colorConstants.COLORS).purple,
         shapes: [
             [
                 [
@@ -2319,7 +2347,7 @@ const TETROMINOS = [
     },
     {
         id: 7,
-        color: (0, _colors.COLORS).cyan,
+        color: (0, _colorConstants.COLORS).cyan,
         shapes: [
             [
                 [
@@ -2429,65 +2457,96 @@ const TETROMINOS = [
     }
 ];
 
-},{"./colors":"dVpQr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7ma2M":[function(require,module,exports) {
+},{"./colorConstants":"eg4AD","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9qsQt":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Utils", ()=>Utils);
-var _game = require("./constants/game");
-class Utils {
-    static sleep(ms) {
-        return new Promise((resolve)=>setTimeout(resolve, ms));
+parcelHelpers.export(exports, "GameState", ()=>GameState);
+var _litHtml = require("lit-html");
+var _templates = require("../templates");
+var _gameConstants = require("../constants/gameConstants");
+class GameState {
+    score = 0;
+    level = 0;
+    isPaused = false;
+    isGameOver = false;
+    totalLinesCleared = 0;
+    dropScore = 0;
+    newLinesCleared = 0;
+    scoreElementId = "gameScore";
+    constructor(game){
+        this.game = game;
+        this.speed = (0, _gameConstants.GAME_SPEEDS)[this.level];
+        this.scoreElement = document.getElementById(this.scoreElementId);
+        this.renderScoreTemplate();
     }
-    static drawMino(x, y, context, color) {
-        const borderWidth = 1 / (0, _game.BLOCK_SIZE);
-        const offset = borderWidth * 2;
-        context.fillStyle = color["light"];
-        context.fillRect(x, y, 1, 1);
-        context.fillStyle = color["neutral"];
-        context.fillRect(x + borderWidth, y + borderWidth, 1 - offset, 1 - offset);
+    renderScoreTemplate() {
+        (0, _litHtml.render)((0, _templates.scoreTemplate)({
+            score: this.score.toString().padStart(6, "0"),
+            clearedLines: this.totalLinesCleared.toString().padStart(3, "0"),
+            level: this.level.toString().padStart(2, "0")
+        }), this.scoreElement);
+    }
+    reset() {
+        this.totalLinesCleared = 0;
+        this.dropScore = 0;
+        this.score = 0;
+        this.speed = (0, _gameConstants.GAME_SPEEDS)[this.level];
+        this.isPaused = false;
+        this.isGameOver = false;
+        this.updateScore();
+    }
+    incrementDropScore(rowsDropped = 1, hardDrop = false) {
+        if (hardDrop) this.dropScore = this.dropScore + rowsDropped * (0, _gameConstants.BASE_SCORE_HARD_DROP);
+        else this.dropScore = this.dropScore + rowsDropped * (0, _gameConstants.BASE_SCORE_SOFT_DROP);
+    }
+    updateScore() {
+        if (this.newLinesCleared) {
+            this.score = this.score + (0, _gameConstants.BASE_SCORES_LINE_CLEAR)[this.newLinesCleared - 1] * (this.level + 1);
+            this.totalLinesCleared = this.totalLinesCleared + this.newLinesCleared;
+        }
+        if (this.dropScore) this.score = this.score + this.dropScore * (0, _gameConstants.BASE_SCORE_SOFT_DROP);
+        this.newLinesCleared = 0;
+        this.dropScore = 0;
+        this.renderScoreTemplate();
+    }
+    setGameOptions(config) {
+        const { level  } = config;
+        this.setLevel(level);
+    }
+    setLevel(level) {
+        this.level = level;
+        this.speed = (0, _gameConstants.GAME_SPEEDS)[this.level];
+        this.renderScoreTemplate();
+    }
+    checkLevelChange() {
+        if (this.totalLinesCleared > (this.level + 1) * (0, _gameConstants.LEVEL_LIMIT) && this.level < (0, _gameConstants.MAX_LEVEL)) this.setLevel(this.level + 1);
+    }
+    togglePause() {
+        this.isPaused = !this.isPaused;
     }
 }
 
-},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"68iIp":[function(require,module,exports) {
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../templates":"68iIp","../constants/gameConstants":"eg1HW"}],"68iIp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "gameTemplate", ()=>(0, _game.gameTemplate));
-parcelHelpers.export(exports, "gameOptionsTemplate", ()=>(0, _gameOptions.gameOptionsTemplate));
-parcelHelpers.export(exports, "nextPieceTemplate", ()=>(0, _nextPiece.nextPieceTemplate));
-parcelHelpers.export(exports, "overlayTemplate", ()=>(0, _overlay.overlayTemplate));
-parcelHelpers.export(exports, "controlsTemplate", ()=>(0, _controls.controlsTemplate));
-parcelHelpers.export(exports, "scoreTemplate", ()=>(0, _score.scoreTemplate));
-var _game = require("./game");
-var _gameOptions = require("./gameOptions");
-var _nextPiece = require("./nextPiece");
-var _overlay = require("./overlay");
-var _controls = require("./controls");
-var _score = require("./score");
+parcelHelpers.export(exports, "gameLayoutTemplate", ()=>(0, _gameLayoutTemplate.gameLayoutTemplate));
+parcelHelpers.export(exports, "newGameTemplate", ()=>(0, _newGameTemplate.newGameTemplate));
+parcelHelpers.export(exports, "nextPieceTemplate", ()=>(0, _nextPieceTemplate.nextPieceTemplate));
+parcelHelpers.export(exports, "controlsTemplate", ()=>(0, _controlsTemplate.controlsTemplate));
+parcelHelpers.export(exports, "scoreTemplate", ()=>(0, _scoreTemplate.scoreTemplate));
+parcelHelpers.export(exports, "primaryButtonTemplate", ()=>(0, _primaryButtonTemplate.primaryButtonTemplate));
+parcelHelpers.export(exports, "gameOverTemplate", ()=>(0, _gameOverTemplate.gameOverTemplate));
+parcelHelpers.export(exports, "pauseTemplate", ()=>(0, _pauseTemplate.pauseTemplate));
+var _gameLayoutTemplate = require("./gameLayoutTemplate");
+var _newGameTemplate = require("./newGameTemplate");
+var _nextPieceTemplate = require("./nextPieceTemplate");
+var _controlsTemplate = require("./controlsTemplate");
+var _scoreTemplate = require("./scoreTemplate");
+var _primaryButtonTemplate = require("./primaryButtonTemplate");
+var _gameOverTemplate = require("./gameOverTemplate");
+var _pauseTemplate = require("./pauseTemplate");
 
-},{"./game":"gPbNQ","./gameOptions":"bJHL9","./nextPiece":"khlyX","./overlay":"kPR7L","./controls":"cKwU5","./score":"e22W5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gPbNQ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "gameTemplate", ()=>gameTemplate);
-var _litHtml = require("lit-html");
-var _controls = require("./controls");
-const gameTemplate = ()=>{
-    return (0, _litHtml.html)`<div class="flex gap-4 justify-around mx-auto mt-8">
-        <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3 relative ml-auto">
-            <div class="h-[604px] w-[304px] border-2 border-slate-100 rounded-sm">
-                <canvas id="board" class="board"></canvas>
-                <div id="gameOptions"></div>
-                <div id="gameOverlay"></div>
-            </div>
-        </div>
-        <div class="mr-auto w-[200px]">
-            <div id="gameScore"></div>
-            <div id="nextPiece"></div>
-            ${(0, _controls.controlsTemplate)()}
-        </div>
-    </div>`;
-};
-
-},{"lit-html":"1cmQt","./controls":"cKwU5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cKwU5":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./controlsTemplate":"2EOhl","./nextPieceTemplate":"4pAxa","./scoreTemplate":"kY8fT","./primaryButtonTemplate":"rSXVW","./newGameTemplate":"cPa7E","./gameOverTemplate":"bFIVR","./pauseTemplate":"i6QFp","./gameLayoutTemplate":"boe7S"}],"2EOhl":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "controlsTemplate", ()=>controlsTemplate);
@@ -2518,18 +2577,91 @@ const controlsTemplate = ()=>{
     </div> `;
 };
 
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bJHL9":[function(require,module,exports) {
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4pAxa":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "gameOptionsTemplate", ()=>gameOptionsTemplate);
+parcelHelpers.export(exports, "nextPieceTemplate", ()=>nextPieceTemplate);
 var _litHtml = require("lit-html");
-var _primaryButton = require("./primaryButton");
+const nextPieceTemplate = ()=>{
+    return (0, _litHtml.html)`<div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
+        <div class="border-2 border-slate-100 rounded-sm">
+            <div class="text-center uppercase font-bold tracking-wide pt-1">Next</div>
+            <div class="next-piece-container h-[140px] w-[140px] mx-auto mb-3 flex items-center justify-center">
+                <canvas id="nextPieceBoard" class="next-piece-canvas"></canvas>
+            </div>
+        </div>
+    </div>`;
+};
+
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kY8fT":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "scoreTemplate", ()=>scoreTemplate);
+var _litHtml = require("lit-html");
+const scoreTemplate = (data)=>{
+    return (0, _litHtml.html)`<div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
+            <div class="border-2 border-slate-100 rounded-sm text-center font-bold tracking-wide py-1">
+                <div class="uppercase">Score</div>
+                <div class="text-lg">${data.score}</div>
+            </div>
+        </div>
+        <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
+            <div class="border-2 border-slate-100 rounded-sm text-center font-bold tracking-wide py-1">
+                <div class="uppercase">Lines</div>
+                <div class="text-lg">${data.clearedLines}</div>
+            </div>
+        </div>
+        <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
+            <div class="border-2 border-slate-100 rounded-sm text-center font-bold tracking-wide py-1">
+                <div class="uppercase">Speed LV</div>
+                <div class="text-lg">${data.level}</div>
+            </div>
+        </div>`;
+};
+
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"rSXVW":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "primaryButtonTemplate", ()=>primaryButtonTemplate);
+var _litHtml = require("lit-html");
+const primaryButtonTemplate = (data)=>{
+    return (0, _litHtml.html)`<button
+        type="button"
+        @click=${data.action}
+        class="w-full 
+            uppercase 
+            tracking-wider 
+            py-3 
+            px-6 
+            bg-gradient-to-l 
+            from-gray-600
+            to-transparent
+            hover:bg-gray-600 
+            border-t-2 
+            border-b-2 
+            border-slate-100 
+            text-slate-100 
+            font-bold 
+            transition 
+            duration-200 
+            ease-in-out"
+    >
+        ${data.text}
+    </button>`;
+};
+
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cPa7E":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "newGameTemplate", ()=>newGameTemplate);
+var _litHtml = require("lit-html");
+var _index = require("./index");
 const levels = Array.from(Array(10).keys());
-const gameOptionsTemplate = (data)=>{
+const newGameTemplate = (data)=>{
     return (0, _litHtml.html)`<div
         class="game-options absolute top-1 right-1 bottom-1 left-1 bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
     >
-        <div class="mb-12 font-bold tracking-[-.075em] text-5xl">
+        <div class="mb-12 font-bold tracking-wide text-5xl flex">
             <span class="text-blue-500">T</span>
             <span class="text-green-500">Y</span>
             <span class="text-red-500">P</span>
@@ -2558,15 +2690,15 @@ const gameOptionsTemplate = (data)=>{
                         type="button"
                         data-level-btn
                         value="${level}"
+                        @click=${data.selectLevel}
                         class="grow 
                         px-4 
                         py-2 
-                        opacity-25 
                         hover:opacity-100 
                         transition 
                         duration-150 
                         ease-in-out
-                        ${level === 0 ? "active" : ""}"
+                        ${level === 0 ? "opacity-100 selected" : "opacity-25"}"
                     >
                         ${level}
                     </button>
@@ -2574,114 +2706,146 @@ const gameOptionsTemplate = (data)=>{
     })}
         </div>
 
-        ${(0, _primaryButton.primaryButtonTemplate)({
+        ${(0, _index.primaryButtonTemplate)({
         text: "Ready",
         action: data.startGame
     })}
     </div>`;
 };
 
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./primaryButton":"4l21m"}],"4l21m":[function(require,module,exports) {
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./index":"68iIp"}],"bFIVR":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "primaryButtonTemplate", ()=>primaryButtonTemplate);
+parcelHelpers.export(exports, "gameOverTemplate", ()=>gameOverTemplate);
 var _litHtml = require("lit-html");
-const primaryButtonTemplate = (data)=>{
-    return (0, _litHtml.html)`<button
-        type="button"
-        @click=${data.action}
-        class="w-full 
-    uppercase 
-    tracking-wider 
-    py-3 
-    px-6 
-    bg-gradient-to-l 
-    from-gray-600
-    to-transparent
-    hover:bg-gray-600 
-    border-t-2 
-    border-b-2 
-    border-slate-100 
-    text-slate-100 
-    font-bold 
-    transition 
-    duration-200 
-    ease-in-out"
-    >
-        ${data.text}
-    </button>`;
-};
-
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"khlyX":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "nextPieceTemplate", ()=>nextPieceTemplate);
-var _litHtml = require("lit-html");
-const nextPieceTemplate = ()=>{
-    return (0, _litHtml.html)`<div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
-        <div class="border-2 border-slate-100 rounded-sm">
-            <div class="text-center uppercase font-bold tracking-wide pt-1">Next</div>
-            <div class="next-piece-container h-[140px] w-[140px] mx-auto mb-3 flex items-center justify-center">
-                <canvas id="nextPieceBoard" class="next-piece-canvas"></canvas>
-            </div>
-        </div>
-    </div>`;
-};
-
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kPR7L":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "overlayTemplate", ()=>overlayTemplate);
-var _litHtml = require("lit-html");
-var _primaryButton = require("./primaryButton");
-const overlayTemplate = (data)=>{
+var _index = require("./index");
+const gameOverTemplate = (data)=>{
     return (0, _litHtml.html)`<div
         class="game-overlay absolute top-[4px] right-[4px] bottom-[4px] left-[4px] bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
     >
-        <span class="mb-8">${data.text}</span>
-        ${(0, _primaryButton.primaryButtonTemplate)({
-        text: data.btnText,
+        <div class="mb-12 font-bold tracking-wide text-4xl flex">
+            <span class="text-blue-500">G</span>
+            <span class="text-green-500">A</span>
+            <span class="text-red-500">M</span>
+            <span class="text-orange-500">E</span>
+            <span>&nbsp;</span>
+            <span class="text-yellow-500">O</span>
+            <span class="text-green-500">V</span>
+            <span class="text-cyan-500">E</span>
+            <span class="text-purple-500">R</span>
+        </div>
+        ${(0, _index.primaryButtonTemplate)({
+        text: "Start new game",
         action: data.action
     })}
     </div>`;
 };
 
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./primaryButton":"4l21m"}],"e22W5":[function(require,module,exports) {
+},{"lit-html":"1cmQt","./index":"68iIp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"i6QFp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "scoreTemplate", ()=>scoreTemplate);
+parcelHelpers.export(exports, "pauseTemplate", ()=>pauseTemplate);
 var _litHtml = require("lit-html");
-const scoreTemplate = (data)=>{
-    return (0, _litHtml.html)`<div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
-            <div class="border-2 border-slate-100 rounded-sm text-center font-bold tracking-wide py-1">
-                <div class="uppercase">Score</div>
-                <div class="text-lg">${data.score}</div>
-            </div>
+var _index = require("./index");
+const pauseTemplate = (data)=>{
+    return (0, _litHtml.html)`<div
+        class="game-overlay absolute top-[4px] right-[4px] bottom-[4px] left-[4px] bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
+    >
+        <div class="mb-12 font-bold tracking-wide text-4xl flex">
+            <span class="text-red-500">P</span>
+            <span class="text-orange-500">A</span>
+            <span class="text-yellow-500">U</span>
+            <span class="text-green-500">S</span>
+            <span class="text-cyan-500">E</span>
+            <span class="text-purple-500">D</span>
         </div>
-        <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
-            <div class="border-2 border-slate-100 rounded-sm text-center font-bold tracking-wide py-1">
-                <div class="uppercase">Lines</div>
-                <div class="text-lg">${data.clearedLines}</div>
-            </div>
+        <div class="mb-8 w-full">
+            ${(0, _index.primaryButtonTemplate)({
+        text: "Resume",
+        action: data.resumeAction
+    })}
         </div>
-        <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
-            <div class="border-2 border-slate-100 rounded-sm text-center font-bold tracking-wide py-1">
-                <div class="uppercase">Speed LV</div>
-                <div class="text-lg">${data.level}</div>
-            </div>
-        </div>`;
+
+        ${(0, _index.primaryButtonTemplate)({
+        text: "Start new game",
+        action: data.newGameAction
+    })}
+    </div>`;
 };
 
-},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6E5CQ":[function(require,module,exports) {
+},{"lit-html":"1cmQt","./index":"68iIp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"boe7S":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "gameLayoutTemplate", ()=>gameLayoutTemplate);
+var _litHtml = require("lit-html");
+var _index = require("./index");
+const gameLayoutTemplate = ()=>{
+    return (0, _litHtml.html)`<div class="text-slate-100 bg-gray-800 h-screen flex">
+            <div class="flex gap-4 justify-around m-auto pb-12">
+            <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3 relative ml-auto">
+                <div class="h-[604px] w-[304px] border-2 border-slate-100 rounded-sm">
+                    <canvas id="board" class="board"></canvas>
+                    <div id="gameOptions"></div>
+                    <div id="gameOverlay"></div>
+                </div>
+            </div>
+            <div class="mr-auto w-[200px]">
+                <div id="gameScore"></div>
+                <div id="nextPiece"></div>
+                ${(0, _index.controlsTemplate)()}
+            </div>
+        </div>
+    </div>`;
+};
+
+},{"lit-html":"1cmQt","./index":"68iIp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8srqN":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "NextPieceBoard", ()=>NextPieceBoard);
+var _litHtml = require("lit-html");
+var _templates = require("../templates");
+var _gameConstants = require("../constants/gameConstants");
+var _utils = require("./Utils");
+class NextPieceBoard {
+    nextPieceElementId = "nextPiece";
+    canvasId = "nextPieceBoard";
+    constructor(){
+        this.nextPieceElement = document.getElementById(this.nextPieceElementId);
+        this.renderNextPieceTemplate();
+        this.canvas = document.getElementById(this.canvasId);
+        this.context = this.canvas.getContext("2d");
+    }
+    renderNextPieceTemplate() {
+        (0, _litHtml.render)((0, _templates.nextPieceTemplate)(), this.nextPieceElement);
+    }
+    draw(piece) {
+        const shape = piece.shapes[0];
+        this.setCanvasDimensions(shape);
+        for(let y = 0; y < shape.length; y++){
+            for(let x = 0; x < shape[0].length; x++)if (shape[y][x] !== 0) (0, _utils.Utils).drawMino(x, y, this.context, piece.color);
+        }
+    }
+    clear() {
+        this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+    }
+    setCanvasDimensions(shape) {
+        const height = shape.length === 2 ? 2 : shape.length - 1;
+        this.context.canvas.width = shape.length * (0, _gameConstants.BLOCK_SIZE);
+        this.context.canvas.height = height * (0, _gameConstants.BLOCK_SIZE);
+        this.context.scale((0, _gameConstants.BLOCK_SIZE), (0, _gameConstants.BLOCK_SIZE));
+    }
+}
+
+},{"lit-html":"1cmQt","../templates":"68iIp","./Utils":"4PvMH","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../constants/gameConstants":"eg1HW"}],"hk2Go":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Piece", ()=>Piece);
-var _game = require("./constants/game");
+var _gameConstants = require("../constants/gameConstants");
 class Piece {
     isLocked = false;
     constructor(tetromino, board){
         this.id = tetromino.id;
-        this.anchorPoint = (0, _game.SPAWN_POSITION);
+        this.anchorPoint = (0, _gameConstants.SPAWN_POSITION);
         this.piecePosition = [];
         this.shapes = tetromino.shapes;
         this.color = tetromino.color;
@@ -2699,21 +2863,21 @@ class Piece {
     rotate(rotation) {
         if (rotation === "clockwise") this.incrementShapeIndex();
         else this.decrementShapeIndex();
-        this.move((0, _game.DIRECTIONS).NO_CHANGE);
+        this.move((0, _gameConstants.DIRECTIONS).NO_CHANGE);
     }
     hardDrop() {
         let cellsDropped = 0;
         while(this.isMoveValid({
-            direction: (0, _game.DIRECTIONS).DOWN
+            direction: (0, _gameConstants.DIRECTIONS).DOWN
         })){
-            this.move((0, _game.DIRECTIONS).DOWN);
+            this.move((0, _gameConstants.DIRECTIONS).DOWN);
             cellsDropped++;
         }
         return cellsDropped;
     }
     isPieceLocked() {
         const params = {
-            direction: (0, _game.DIRECTIONS).DOWN,
+            direction: (0, _gameConstants.DIRECTIONS).DOWN,
             piecePosition: this.getCopyPiecePosition()
         };
         return !this.isAboveFloor(params) || !this.isAboveOtherPieces(params);
@@ -2755,7 +2919,7 @@ class Piece {
             });
         });
     }
-    updateBoardPosition({ direction =(0, _game.DIRECTIONS).NO_CHANGE , value =0  }) {
+    updateBoardPosition({ direction =(0, _gameConstants.DIRECTIONS).NO_CHANGE , value =0  }) {
         this.anchorPoint = {
             x: this.anchorPoint.x + direction.x,
             y: this.anchorPoint.y + direction.y
@@ -2782,7 +2946,7 @@ class Piece {
         const { direction , piecePosition  } = params;
         return piecePosition.every((point)=>{
             const xPosition = direction ? point.x + direction.x : point.x;
-            return xPosition >= 0 && xPosition < (0, _game.COLS);
+            return xPosition >= 0 && xPosition < (0, _gameConstants.COLS);
         });
     }
     isAboveOtherPieces(params) {
@@ -2797,7 +2961,7 @@ class Piece {
         const { direction , piecePosition  } = params;
         return piecePosition.every((point)=>{
             const yPosition = direction ? point.y + direction.y : point.y;
-            return yPosition < (0, _game.ROWS);
+            return yPosition < (0, _gameConstants.ROWS);
         });
     }
     clearPiecePosition() {
@@ -2810,139 +2974,6 @@ class Piece {
     }
 }
 
-},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dSE8P":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "NextPieceBoard", ()=>NextPieceBoard);
-var _litHtml = require("lit-html");
-var _templates = require("./templates");
-var _game = require("./constants/game");
-var _utils = require("./Utils");
-class NextPieceBoard {
-    clearState = [
-        [
-            0,
-            0,
-            0,
-            0
-        ],
-        [
-            0,
-            0,
-            0,
-            0
-        ],
-        [
-            0,
-            0,
-            0,
-            0
-        ],
-        [
-            0,
-            0,
-            0,
-            0
-        ]
-    ];
-    nextPieceElementId = "nextPiece";
-    canvasId = "nextPieceBoard";
-    constructor(){
-        this.nextPieceElement = document.getElementById(this.nextPieceElementId);
-        this.renderNextPieceTemplate();
-        this.canvas = document.getElementById(this.canvasId);
-        this.context = this.canvas.getContext("2d");
-    }
-    renderNextPieceTemplate() {
-        (0, _litHtml.render)((0, _templates.nextPieceTemplate)(), this.nextPieceElement);
-    }
-    draw(piece) {
-        const shape = piece.shapes[0];
-        this.setCanvasDimensions(shape);
-        for(let y = 0; y < shape.length; y++){
-            for(let x = 0; x < shape[0].length; x++)if (shape[y][x] !== 0) (0, _utils.Utils).drawMino(x, y, this.context, piece.color);
-        }
-    }
-    clear() {
-        this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
-    }
-    setCanvasDimensions(shape) {
-        const height = shape.length === 2 ? 2 : shape.length - 1;
-        this.context.canvas.width = shape.length * (0, _game.BLOCK_SIZE);
-        this.context.canvas.height = height * (0, _game.BLOCK_SIZE);
-        this.context.scale((0, _game.BLOCK_SIZE), (0, _game.BLOCK_SIZE));
-    }
-}
-
-},{"lit-html":"1cmQt","./templates":"68iIp","./constants/game":"be0O0","./Utils":"7ma2M","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4wLIF":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "GameState", ()=>GameState);
-var _litHtml = require("lit-html");
-var _templates = require("./templates");
-var _game = require("./constants/game");
-class GameState {
-    score = 0;
-    level = 0;
-    isPaused = false;
-    isGameOver = false;
-    totalLinesCleared = 0;
-    dropScore = 0;
-    newLinesCleared = 0;
-    scoreElementId = "gameScore";
-    constructor(game){
-        this.game = game;
-        this.speed = (0, _game.GAME_SPEEDS)[this.level];
-        this.scoreElement = document.getElementById(this.scoreElementId);
-        this.renderScoreTemplate();
-    }
-    renderScoreTemplate() {
-        (0, _litHtml.render)((0, _templates.scoreTemplate)({
-            score: this.score.toString().padStart(6, "0"),
-            clearedLines: this.totalLinesCleared.toString().padStart(3, "0"),
-            level: this.level.toString().padStart(2, "0")
-        }), this.scoreElement);
-    }
-    reset() {
-        this.totalLinesCleared = 0;
-        this.dropScore = 0;
-        this.score = 0;
-        this.speed = (0, _game.GAME_SPEEDS)[this.level];
-        this.isPaused = false;
-        this.isGameOver = false;
-        this.updateScore();
-    }
-    incrementDropScore(rowsDropped = 1, hardDrop = false) {
-        if (hardDrop) this.dropScore = this.dropScore + rowsDropped * (0, _game.BASE_SCORE_HARD_DROP);
-        else this.dropScore = this.dropScore + rowsDropped * (0, _game.BASE_SCORE_SOFT_DROP);
-    }
-    updateScore() {
-        if (this.newLinesCleared) {
-            this.score = this.score + (0, _game.BASE_SCORES_LINE_CLEAR)[this.newLinesCleared - 1] * (this.level + 1);
-            this.totalLinesCleared = this.totalLinesCleared + this.newLinesCleared;
-        }
-        if (this.dropScore) this.score = this.score + this.dropScore * (0, _game.BASE_SCORE_SOFT_DROP);
-        this.newLinesCleared = 0;
-        this.dropScore = 0;
-        this.renderScoreTemplate();
-    }
-    setGameOptions(config) {
-        const { level  } = config;
-        this.setLevel(level);
-    }
-    setLevel(level) {
-        this.level = level;
-        this.speed = (0, _game.GAME_SPEEDS)[this.level];
-        this.renderScoreTemplate();
-    }
-    checkLevelChange() {
-        if (this.totalLinesCleared > (this.level + 1) * (0, _game.LEVEL_LIMIT) && this.level < (0, _game.MAX_LEVEL)) this.setLevel(this.level + 1);
-    }
-    togglePause() {
-        this.isPaused = !this.isPaused;
-    }
-}
-
-},{"./constants/game":"be0O0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./templates":"68iIp","lit-html":"1cmQt"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
+},{"../constants/gameConstants":"eg1HW","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["84Rv8","jeorp"], "jeorp", "parcelRequire477f")
 
 //# sourceMappingURL=index.b7a05eb9.js.map

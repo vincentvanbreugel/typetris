@@ -1,18 +1,5 @@
-import { COLORS } from './colors';
-import type { COLOR } from './colors';
-
-export type Point = {
-    y: number;
-    x: number;
-};
-
-export type Shape = number[][];
-
-export type Tetromino = {
-    id: number;
-    color: COLOR;
-    shapes: Shape[];
-};
+import { COLORS } from './colorConstants';
+import type { Tetromino } from '../types/types';
 
 export const TETROMINOS: Tetromino[] = [
     {

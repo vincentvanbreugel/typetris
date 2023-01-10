@@ -1,20 +1,13 @@
 import { render } from 'lit-html';
-import { nextPieceTemplate } from './templates';
-import { BLOCK_SIZE } from './constants/game';
-import { COLORS } from './constants/colors';
+import { nextPieceTemplate } from '../templates';
+import { BLOCK_SIZE } from '../constants/gameConstants';
 import { Piece } from './Piece';
-import { Shape } from './constants/tetrominos';
+import { Shape } from '../constants/tetrominosConstants';
 import { Utils } from './Utils';
 
 export class NextPieceBoard {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
-    private clearState = [
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-    ];
     private nextPieceElementId = 'nextPiece';
     private nextPieceElement: HTMLElement;
     private canvasId = 'nextPieceBoard';

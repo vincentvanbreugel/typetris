@@ -1,7 +1,6 @@
 import { render } from 'lit-html';
 import { Game } from './Game';
-import { scoreTemplate } from './templates';
-
+import { scoreTemplate } from '../templates';
 import {
     GAME_SPEEDS,
     BASE_SCORES_LINE_CLEAR,
@@ -9,7 +8,7 @@ import {
     BASE_SCORE_HARD_DROP,
     LEVEL_LIMIT,
     MAX_LEVEL,
-} from './constants/game';
+} from '../constants/gameConstants';
 
 export class GameState {
     game: Game;

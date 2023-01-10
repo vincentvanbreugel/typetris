@@ -1,15 +1,19 @@
-import { gameTemplate } from './game';
-import { gameOptionsTemplate } from './gameOptions';
-import { nextPieceTemplate } from './nextPiece';
-import { overlayTemplate } from './overlay';
-import { controlsTemplate } from './controls';
-import { scoreTemplate } from './score';
+import { gameLayoutTemplate } from './gameLayoutTemplate';
+import { newGameTemplate } from './newGameTemplate';
+import { nextPieceTemplate } from './nextPieceTemplate';
+import { controlsTemplate } from './controlsTemplate';
+import { scoreTemplate } from './scoreTemplate';
+import { primaryButtonTemplate } from './primaryButtonTemplate';
+import { gameOverTemplate } from './gameOverTemplate';
+import { pauseTemplate } from './pauseTemplate';
 
 export {
-    gameTemplate,
-    gameOptionsTemplate,
+    gameLayoutTemplate,
+    newGameTemplate,
     nextPieceTemplate,
-    overlayTemplate,
     controlsTemplate,
     scoreTemplate,
+    primaryButtonTemplate,
+    gameOverTemplate,
+    pauseTemplate,
 };

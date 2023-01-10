@@ -1,15 +1,19 @@
 import { html } from 'lit-html';
-import { primaryButtonTemplate } from './primaryButton';
+import { primaryButtonTemplate } from './index';
 
 const levels = Array.from(Array(10).keys());
 
-export const gameOptionsTemplate = (data: { hide: boolean; startGame: () => void }) => {
+export const newGameTemplate = (data: {
+    hide: boolean;
+    startGame: () => void;
+    selectLevel: (e: Event) => void;
+}) => {
     return html`<div
         class="game-options absolute top-1 right-1 bottom-1 left-1 bg-gray-900 items-center justify-center flex-col ${data.hide
             ? 'hidden'
             : 'flex'}"
     >
-        <div class="mb-12 font-bold tracking-[-.075em] text-5xl">
+        <div class="mb-12 font-bold tracking-wide text-5xl flex">
             <span class="text-blue-500">T</span>
             <span class="text-green-500">Y</span>
             <span class="text-red-500">P</span>
@@ -38,15 +42,15 @@ export const gameOptionsTemplate = (data: { hide: boolean; startGame: () => void
                         type="button"
                         data-level-btn
                         value="${level}"
+                        @click=${data.selectLevel}
                         class="grow 
                         px-4 
                         py-2 
-                        opacity-25 
                         hover:opacity-100 
                         transition 
                         duration-150 
                         ease-in-out
-                        ${level === 0 ? 'active' : ''}"
+                        ${level === 0 ? 'opacity-100 selected' : 'opacity-25'}"
                     >
                         ${level}
                     </button>

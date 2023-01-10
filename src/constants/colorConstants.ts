@@ -1,7 +1,4 @@
 import colors from 'tailwindcss/colors';
-export type COLOR = {
-    [key: string]: string;
-};
 
 export const COLORS = {
     gray: {

@@ -12,7 +12,7 @@ export const gameOverTemplate = (data: { hide: boolean; action: () => void }) =>
             <span class="text-green-500">A</span>
             <span class="text-red-500">M</span>
             <span class="text-orange-500">E</span>
-            <span>&nbsp;</span>
+            <span class="w-2"></span>
             <span class="text-yellow-500">O</span>
             <span class="text-green-500">V</span>
             <span class="text-cyan-500">E</span>

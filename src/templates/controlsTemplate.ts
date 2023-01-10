@@ -6,20 +6,20 @@ export const controlsTemplate = () => {
             <div class="text-center uppercase font-bold tracking-wide pt-1">Controls</div>
             <div class="p-2">
                 <div class="flex justify-between">
-                    <span class="bold">&#8592; &#8594; &#8595;</span>
-                    <span class="action">Move</span>
+                    <span>&#8592; &#8594; &#8595;</span>
+                    <span>Move</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="button">&#8593;</span>
-                    <span class="action">Hard Drop</span>
+                    <span>&#8593;</span>
+                    <span class="flex">Hard<span class="w-1"></span>Drop</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="button">D S</span>
-                    <span class="action">Rotate</span>
+                    <span class="flex">D<span class="w-2"></span>S</span>
+                    <span>Rotate</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="button">P</span>
-                    <span class="action">Pause</span>
+                    <span>P</span>
+                    <span>Pause</span>
                 </div>
             </div>
         </div>

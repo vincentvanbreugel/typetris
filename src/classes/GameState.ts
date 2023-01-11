@@ -15,6 +15,7 @@ export class GameState {
     score = 0;
     level = 0;
     speed: number;
+    isRunning = false;
     isPaused = false;
     isGameOver = false;
     totalLinesCleared = 0;

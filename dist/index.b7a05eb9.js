@@ -598,6 +598,7 @@ class Game {
     }
     attachEventHandlers() {
         document.addEventListener("keydown", (event)=>{
+            if (!this.state.isRunning) return;
             if (event.key === (0, _gameConstants.KEYS).PAUSE) this.handleClickPause();
             if (this.lineClearActive || this.state.isPaused) return;
             switch(event.key){
@@ -639,10 +640,12 @@ class Game {
         });
         this.nextPieceBoard.draw(this.nextPiece);
         this.startGameLoop();
+        this.state.isRunning = true;
     }
     restartGame() {
         this.stopGameLoop();
         this.state.reset();
+        this.nextPieceBoard.clear();
         this.board = new (0, _board.Board)(this.boardId);
         this.piece = this.getRandomPiece();
         this.nextPiece = this.getRandomPiece();
@@ -756,9 +759,11 @@ class Game {
             this.renderPauseTemplate();
         }
     }
-    gameOver() {
+    async gameOver() {
         this.state.isGameOver = true;
+        this.state.isRunning = false;
         this.nextPieceBoard.clear();
+        await this.board.handleGameOver();
         this.renderGameOverTemplate();
     }
 }
@@ -1125,9 +1130,14 @@ class Board {
         this.animatedLines = lines;
         this.animateClearedLines();
         await (0, _utils.Utils).sleep((0, _gameConstants.LINE_CLEAR_DELAY));
-        cancelAnimationFrame(this.requestId);
+        cancelAnimationFrame(this.lineClearAnimationId);
         this.animatedLines = [];
         this.clearLines(lines);
+    }
+    async handleGameOver() {
+        this.animateGameOver();
+        await (0, _utils.Utils).sleep((0, _gameConstants.GAME_OVER_DELAY) + 400);
+        cancelAnimationFrame(this.gameOverAnimationId);
     }
     getLinesCleared() {
         const linesCleared = this.state.reduce((array, row, index)=>{
@@ -1163,7 +1173,22 @@ class Board {
                 this.state[line][nextIndexFromRight] = 0;
             });
         }
-        this.requestId = requestAnimationFrame(this.animateClearedLines.bind(this));
+        this.lineClearAnimationId = requestAnimationFrame(this.animateClearedLines.bind(this));
+    }
+    animateGameOver(timeStamp = 0, rowCount = 0) {
+        if (!this.state[rowCount]) return;
+        this.animationTimer.elapsed = timeStamp - this.animationTimer.start;
+        if (this.animationTimer.elapsed >= (0, _gameConstants.GAME_OVER_DELAY) / (0, _gameConstants.ROWS)) {
+            this.animationTimer.start = timeStamp;
+            for(let x = 0; x < this.state[rowCount].length; x++){
+                const color = (0, _colorConstants.PIECE_COLOR_NAMES)[Math.floor(Math.random() * (0, _colorConstants.PIECE_COLOR_NAMES).length)];
+                (0, _utils.Utils).drawMino(x, rowCount, this.context, (0, _colorConstants.COLORS)[color]);
+            }
+            rowCount++;
+        }
+        this.gameOverAnimationId = requestAnimationFrame((timeStamp)=>{
+            this.animateGameOver(timeStamp, rowCount);
+        });
     }
     create() {
         this.context.canvas.width = (0, _gameConstants.COLS) * (0, _gameConstants.BLOCK_SIZE);
@@ -1188,6 +1213,7 @@ parcelHelpers.export(exports, "GAME_SPEEDS", ()=>GAME_SPEEDS);
 parcelHelpers.export(exports, "MAX_LEVEL", ()=>MAX_LEVEL);
 parcelHelpers.export(exports, "LEVEL_LIMIT", ()=>LEVEL_LIMIT);
 parcelHelpers.export(exports, "LINE_CLEAR_DELAY", ()=>LINE_CLEAR_DELAY);
+parcelHelpers.export(exports, "GAME_OVER_DELAY", ()=>GAME_OVER_DELAY);
 const COLS = 10;
 const ROWS = 20;
 const BLOCK_SIZE = 30;
@@ -1259,11 +1285,13 @@ const GAME_SPEEDS = [
 const MAX_LEVEL = 20;
 const LEVEL_LIMIT = 10;
 const LINE_CLEAR_DELAY = 400;
+const GAME_OVER_DELAY = 800;
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"eg4AD":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "COLORS", ()=>COLORS);
+parcelHelpers.export(exports, "PIECE_COLOR_NAMES", ()=>PIECE_COLOR_NAMES);
 var _colors = require("tailwindcss/colors");
 var _colorsDefault = parcelHelpers.interopDefault(_colors);
 const COLORS = {
@@ -1324,6 +1352,15 @@ const COLORS = {
         darker: (0, _colorsDefault.default).yellow[900]
     }
 };
+const PIECE_COLOR_NAMES = [
+    "red",
+    "orange",
+    "green",
+    "purple",
+    "blue",
+    "cyan",
+    "yellow"
+];
 
 },{"tailwindcss/colors":"3Lpw2","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3Lpw2":[function(require,module,exports) {
 let colors = require("./lib/public/colors");
@@ -2484,7 +2521,7 @@ parcelHelpers.export(exports, "gameLayoutTemplate", ()=>gameLayoutTemplate);
 var _litHtml = require("lit-html");
 var _index = require("./index");
 const gameLayoutTemplate = ()=>{
-    return (0, _litHtml.html)`<div class="text-slate-100 bg-gray-800 h-screen flex">
+    return (0, _litHtml.html)`<div class="game-layout text-slate-100 bg-gray-800 h-screen flex">
             <div class="flex gap-4 justify-around m-auto pb-12">
             <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3 relative ml-auto">
                 <div class="h-[604px] w-[304px] border-2 border-slate-100 rounded-sm">
@@ -2511,7 +2548,7 @@ var _index = require("./index");
 const levels = Array.from(Array(10).keys());
 const newGameTemplate = (data)=>{
     return (0, _litHtml.html)`<div
-        class="game-options absolute top-1 right-1 bottom-1 left-1 bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
+        class="absolute top-1 right-1 bottom-1 left-1 bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
     >
         <div class="mb-12 font-bold tracking-wide text-[40px] flex">
             <span class="text-blue-500">T</span>
@@ -2915,6 +2952,7 @@ var _gameConstants = require("../constants/gameConstants");
 class GameState {
     score = 0;
     level = 0;
+    isRunning = false;
     isPaused = false;
     isGameOver = false;
     totalLinesCleared = 0;

@@ -58,3 +58,14 @@ export const COLORS = {
         darker: colors.yellow[900],
     },
 };
+
+export const PIECE_COLOR_NAMES: (keyof typeof COLORS)[] = [
+    'red',
+    'orange',
+    'green',
+    'purple',
+    'blue',
+    'cyan',
+    'yellow'
+]
+

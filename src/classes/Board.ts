@@ -1,5 +1,5 @@
-import { ROWS, COLS, BLOCK_SIZE, LINE_CLEAR_DELAY } from '../constants/gameConstants';
-import { COLORS } from '../constants/colorConstants';
+import { ROWS, COLS, BLOCK_SIZE, LINE_CLEAR_DELAY, GAME_OVER_DELAY } from '../constants/gameConstants';
+import { COLORS, PIECE_COLOR_NAMES } from '../constants/colorConstants';
 import { TETROMINOS } from '../constants/tetrominosConstants';
 import { Utils } from './Utils';
 
@@ -9,7 +9,8 @@ export class Board {
     private context: CanvasRenderingContext2D;
     private animatedLines: number[] = [];
     private animationTimer = { start: 0, elapsed: 0 };
-    private requestId: number | undefined;
+    private lineClearAnimationId: number | undefined;
+    private gameOverAnimationId: number| undefined;
 
     constructor(boardId: string) {
         this.canvas = document.getElementById(boardId) as HTMLCanvasElement;
@@ -39,9 +40,15 @@ export class Board {
         this.animateClearedLines();
         await Utils.sleep(LINE_CLEAR_DELAY);
 
-        cancelAnimationFrame(this.requestId as number);
+        cancelAnimationFrame(this.lineClearAnimationId as number);
         this.animatedLines = [];
         this.clearLines(lines);
+    }
+
+    async handleGameOver(): Promise<void> {
+        this.animateGameOver();
+        await Utils.sleep(GAME_OVER_DELAY + 400);
+        cancelAnimationFrame(this.gameOverAnimationId as number);
     }
 
     getLinesCleared(): number[] {
@@ -101,7 +108,30 @@ export class Board {
             });
         }
 
-        this.requestId = requestAnimationFrame(this.animateClearedLines.bind(this));
+        this.lineClearAnimationId = requestAnimationFrame(this.animateClearedLines.bind(this));
+    }
+
+    private animateGameOver(timeStamp: DOMHighResTimeStamp = 0, rowCount = 0) : void {
+        if (!this.state[rowCount]) {
+            return
+        }
+
+        this.animationTimer.elapsed = timeStamp - this.animationTimer.start;
+        
+        if (this.animationTimer.elapsed >= GAME_OVER_DELAY / ROWS) {
+            this.animationTimer.start = timeStamp;
+
+            for (let x = 0; x < this.state[rowCount].length; x++) {
+                const color = PIECE_COLOR_NAMES[Math.floor(Math.random() * PIECE_COLOR_NAMES.length)]
+                Utils.drawMino(x, rowCount, this.context, COLORS[color]);
+            }
+
+            rowCount++;
+        }
+
+        this.gameOverAnimationId = requestAnimationFrame((timeStamp) => {
+            this.animateGameOver(timeStamp, rowCount)
+        });
     }
 
     private create(): void {

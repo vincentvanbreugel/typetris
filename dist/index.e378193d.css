@@ -178,7 +178,9 @@ img, video {
   display: none;
 }
 
-html {
+.game-layout {
+  background-image: linear-gradient(45deg, #111827 50%, #1f2937 50%);
+  background-size: 12px 12px;
   font-family: Pixel, system-ui, sans-serif;
 }
 
@@ -307,10 +309,6 @@ html {
   margin-bottom: 2rem;
 }
 
-.inline-block {
-  display: inline-block;
-}
-
 .flex {
   display: flex;
 }
@@ -331,6 +329,14 @@ html {
   height: 140px;
 }
 
+.w-1 {
+  width: .25rem;
+}
+
+.w-2 {
+  width: .5rem;
+}
+
 .w-\[304px\] {
   width: 304px;
 }
@@ -345,22 +351,6 @@ html {
 
 .w-full {
   width: 100%;
-}
-
-.w-0 {
-  width: 0;
-}
-
-.w-0\.5 {
-  width: .125rem;
-}
-
-.w-2 {
-  width: .5rem;
-}
-
-.w-1 {
-  width: .25rem;
 }
 
 .grow {
@@ -502,13 +492,13 @@ html {
   line-height: 2.5rem;
 }
 
+.text-\[40px\] {
+  font-size: 40px;
+}
+
 .text-lg {
   font-size: 1.125rem;
   line-height: 1.75rem;
-}
-
-.text-\[40px\] {
-  font-size: 40px;
 }
 
 .font-bold {
@@ -565,10 +555,6 @@ html {
 .text-purple-500 {
   --tw-text-opacity: 1;
   color: rgb(168 85 247 / var(--tw-text-opacity));
-}
-
-.text-\[5xl\] {
-  color: 5xl;
 }
 
 .opacity-100 {

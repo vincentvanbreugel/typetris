@@ -70,6 +70,10 @@ export class Game {
 
     private attachEventHandlers(): void {
         document.addEventListener('keydown', (event) => {
+            if (!this.state.isRunning) {
+                return;
+            }
+
             if (event.key === KEYS.PAUSE) {
                 this.handleClickPause();
             }
@@ -107,11 +111,13 @@ export class Game {
         this.movePiece({ direction: DIRECTIONS.NO_CHANGE });
         this.nextPieceBoard.draw(this.nextPiece);
         this.startGameLoop();
+        this.state.isRunning = true;
     }
 
     restartGame(): void {
         this.stopGameLoop();
         this.state.reset();
+        this.nextPieceBoard.clear();
         this.board = new Board(this.boardId);
         this.piece = this.getRandomPiece();
         this.nextPiece = this.getRandomPiece();
@@ -266,9 +272,11 @@ export class Game {
         }
     }
 
-    private gameOver(): void {
+    private async gameOver(): Promise<void> {
         this.state.isGameOver = true;
+        this.state.isRunning = false;
         this.nextPieceBoard.clear();
+        await this.board.handleGameOver();
         this.renderGameOverTemplate();
     }
 }

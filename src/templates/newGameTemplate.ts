@@ -9,7 +9,7 @@ export const newGameTemplate = (data: {
     selectLevel: (e: Event) => void;
 }) => {
     return html`<div
-        class="game-options absolute top-1 right-1 bottom-1 left-1 bg-gray-900 items-center justify-center flex-col ${data.hide
+        class="absolute top-1 right-1 bottom-1 left-1 bg-gray-900 items-center justify-center flex-col ${data.hide
             ? 'hidden'
             : 'flex'}"
     >

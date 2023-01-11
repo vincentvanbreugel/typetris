@@ -7,7 +7,7 @@ export const gameOverTemplate = (data: { hide: boolean; action: () => void }) =>
             ? 'hidden'
             : 'flex'}"
     >
-        <div class="mb-12 font-bold tracking-wide text-4xl flex font-outline">
+        <div class="mb-12 font-bold tracking-wide text-[40px] flex font-outline">
             <span class="text-blue-400 font-outline-blue">G</span>
             <span class="text-green-400 font-outline-green">A</span>
             <span class="text-red-400 font-outline-red">M</span>

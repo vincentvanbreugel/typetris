@@ -13,7 +13,7 @@ export const newGameTemplate = (data: {
             ? 'hidden'
             : 'flex'}"
     >
-        <div class="mb-12 font-bold tracking-wide text-[40px] flex font-outline">
+        <div class="mb-12 font-bold tracking-wide text-[44px] flex font-outline">
             <span class="text-blue-400 font-outline-blue">T</span>
             <span class="text-green-400 font-outline-green">Y</span>
             <span class="text-red-400 font-outline-red">P</span>
@@ -36,6 +36,7 @@ export const newGameTemplate = (data: {
                             border-slate-100
                             text-slate-100
                             flex
+                            text-xl
                             font-bold"
                 >
                     <button

@@ -11,7 +11,7 @@ export const pauseTemplate = (data: {
             ? 'hidden'
             : 'flex'}"
     >
-        <div class="mb-12 font-bold tracking-wide text-4xl flex font-outline">
+        <div class="mb-12 font-bold tracking-wide text-[40px] flex font-outline">
             <span class="text-red-400 font-outline-red">P</span>
             <span class="text-orange-400 font-outline-orange">A</span>
             <span class="text-yellow-300 font-outline-yellow">U</span>

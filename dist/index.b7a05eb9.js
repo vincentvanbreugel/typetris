@@ -1216,7 +1216,7 @@ parcelHelpers.export(exports, "LINE_CLEAR_DELAY", ()=>LINE_CLEAR_DELAY);
 parcelHelpers.export(exports, "GAME_OVER_DELAY", ()=>GAME_OVER_DELAY);
 const COLS = 10;
 const ROWS = 20;
-const BLOCK_SIZE = 30;
+const BLOCK_SIZE = 33;
 const SPAWN_POSITION = {
     x: 4,
     y: 0
@@ -2525,25 +2525,25 @@ parcelHelpers.export(exports, "gameLayoutTemplate", ()=>gameLayoutTemplate);
 var _litHtml = require("lit-html");
 var _index = require("./index");
 const gameLayoutTemplate = ()=>{
-    return (0, _litHtml.html)`<div class="game-layout text-slate-100 bg-gray-800 h-screen flex">
-            <div class="flex gap-4 justify-around m-auto pb-12">
-            <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3 relative ml-auto">
-                <div class="h-[604px] w-[304px] border-2 border-slate-100 rounded-sm">
+    return (0, _litHtml.html)`<div class="game-layout text-slate-100 bg-gray-800 h-screen flex text-lg">
+        <div class="flex gap-4 justify-around m-auto pb-12">
+            <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 relative ml-auto">
+                <div class="h-[664px] w-[334px] border-2 border-slate-100 rounded-sm">
                     <canvas id="board" class="board"></canvas>
                     <div id="gameOptions"></div>
                     <div id="gameOverlay"></div>
                 </div>
             </div>
-            <div class="mr-auto w-[200px]">
+            <div class="mr-auto w-[220px] flex flex-col">
                 <div id="gameScore"></div>
                 <div id="nextPiece"></div>
-                ${(0, _index.controlsTemplate)()}
+                <div class="mt-auto">${(0, _index.controlsTemplate)()}</div>
             </div>
         </div>
     </div>`;
 };
 
-},{"lit-html":"1cmQt","./index":"68iIp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cPa7E":[function(require,module,exports) {
+},{"lit-html":"1cmQt","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./index":"68iIp"}],"cPa7E":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "newGameTemplate", ()=>newGameTemplate);
@@ -2554,7 +2554,7 @@ const newGameTemplate = (data)=>{
     return (0, _litHtml.html)`<div
         class="absolute top-1 right-1 bottom-1 left-1 bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
     >
-        <div class="mb-12 font-bold tracking-wide text-[40px] flex font-outline">
+        <div class="mb-12 font-bold tracking-wide text-[44px] flex font-outline">
             <span class="text-blue-400 font-outline-blue">T</span>
             <span class="text-green-400 font-outline-green">Y</span>
             <span class="text-red-400 font-outline-red">P</span>
@@ -2577,6 +2577,7 @@ const newGameTemplate = (data)=>{
                             border-slate-100
                             text-slate-100
                             flex
+                            text-xl
                             font-bold"
                 >
                     <button
@@ -2662,19 +2663,19 @@ const scoreTemplate = (data)=>{
     return (0, _litHtml.html)`<div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
             <div class="border-2 border-slate-100 rounded-sm text-center font-bold tracking-wide py-1">
                 <div class="uppercase">Score</div>
-                <div class="text-lg">${data.score}</div>
+                <div class="text-xl">${data.score}</div>
             </div>
         </div>
         <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
             <div class="border-2 border-slate-100 rounded-sm text-center font-bold tracking-wide py-1">
                 <div class="uppercase">Lines</div>
-                <div class="text-lg">${data.clearedLines}</div>
+                <div class="text-xl">${data.clearedLines}</div>
             </div>
         </div>
         <div class="p-[2px] border-2 border-slate-100 rounded bg-gray-900 mb-3">
             <div class="border-2 border-slate-100 rounded-sm text-center font-bold tracking-wide py-1">
                 <div class="uppercase">Speed LV</div>
-                <div class="text-lg">${data.level}</div>
+                <div class="text-xl">${data.level}</div>
             </div>
         </div>`;
 };
@@ -2720,7 +2721,7 @@ const gameOverTemplate = (data)=>{
     return (0, _litHtml.html)`<div
         class="game-overlay absolute top-[4px] right-[4px] bottom-[4px] left-[4px] bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
     >
-        <div class="mb-12 font-bold tracking-wide text-4xl flex font-outline">
+        <div class="mb-12 font-bold tracking-wide text-[40px] flex font-outline">
             <span class="text-blue-400 font-outline-blue">G</span>
             <span class="text-green-400 font-outline-green">A</span>
             <span class="text-red-400 font-outline-red">M</span>
@@ -2748,7 +2749,7 @@ const pauseTemplate = (data)=>{
     return (0, _litHtml.html)`<div
         class="game-overlay absolute top-[4px] right-[4px] bottom-[4px] left-[4px] bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
     >
-        <div class="mb-12 font-bold tracking-wide text-4xl flex font-outline">
+        <div class="mb-12 font-bold tracking-wide text-[40px] flex font-outline">
             <span class="text-red-400 font-outline-red">P</span>
             <span class="text-orange-400 font-outline-orange">A</span>
             <span class="text-yellow-300 font-outline-yellow">U</span>

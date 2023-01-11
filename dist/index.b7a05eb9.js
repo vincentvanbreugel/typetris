@@ -1297,58 +1297,58 @@ var _colorsDefault = parcelHelpers.interopDefault(_colors);
 const COLORS = {
     gray: {
         lighter: (0, _colorsDefault.default).gray[100],
-        light: (0, _colorsDefault.default).gray[300],
+        light: (0, _colorsDefault.default).gray[400],
         neutral: (0, _colorsDefault.default).gray[500],
-        dark: (0, _colorsDefault.default).gray[700],
+        dark: (0, _colorsDefault.default).gray[600],
         darker: (0, _colorsDefault.default).gray[900]
     },
     red: {
         lighter: (0, _colorsDefault.default).red[100],
-        light: (0, _colorsDefault.default).red[300],
+        light: (0, _colorsDefault.default).red[400],
         neutral: (0, _colorsDefault.default).red[500],
-        dark: (0, _colorsDefault.default).red[700],
+        dark: (0, _colorsDefault.default).red[600],
         darker: (0, _colorsDefault.default).red[900]
     },
     orange: {
         lighter: (0, _colorsDefault.default).orange[100],
-        light: (0, _colorsDefault.default).orange[300],
+        light: (0, _colorsDefault.default).orange[400],
         neutral: (0, _colorsDefault.default).orange[500],
-        dark: (0, _colorsDefault.default).orange[700],
+        dark: (0, _colorsDefault.default).orange[600],
         darker: (0, _colorsDefault.default).orange[900]
     },
     green: {
         lighter: (0, _colorsDefault.default).green[100],
-        light: (0, _colorsDefault.default).green[300],
+        light: (0, _colorsDefault.default).green[400],
         neutral: (0, _colorsDefault.default).green[500],
-        dark: (0, _colorsDefault.default).green[700],
+        dark: (0, _colorsDefault.default).green[600],
         darker: (0, _colorsDefault.default).green[900]
     },
     purple: {
         lighter: (0, _colorsDefault.default).purple[100],
-        light: (0, _colorsDefault.default).purple[300],
+        light: (0, _colorsDefault.default).purple[400],
         neutral: (0, _colorsDefault.default).purple[500],
-        dark: (0, _colorsDefault.default).purple[700],
+        dark: (0, _colorsDefault.default).purple[600],
         darker: (0, _colorsDefault.default).purple[900]
     },
     blue: {
         lighter: (0, _colorsDefault.default).blue[100],
-        light: (0, _colorsDefault.default).blue[300],
+        light: (0, _colorsDefault.default).blue[400],
         neutral: (0, _colorsDefault.default).blue[500],
-        dark: (0, _colorsDefault.default).blue[700],
+        dark: (0, _colorsDefault.default).blue[600],
         darker: (0, _colorsDefault.default).blue[900]
     },
     cyan: {
         lighter: (0, _colorsDefault.default).cyan[100],
         light: (0, _colorsDefault.default).cyan[300],
-        neutral: (0, _colorsDefault.default).cyan[500],
-        dark: (0, _colorsDefault.default).cyan[700],
+        neutral: (0, _colorsDefault.default).cyan[400],
+        dark: (0, _colorsDefault.default).cyan[500],
         darker: (0, _colorsDefault.default).cyan[900]
     },
     yellow: {
         lighter: (0, _colorsDefault.default).yellow[100],
         light: (0, _colorsDefault.default).yellow[300],
-        neutral: (0, _colorsDefault.default).yellow[500],
-        dark: (0, _colorsDefault.default).yellow[700],
+        neutral: (0, _colorsDefault.default).yellow[400],
+        dark: (0, _colorsDefault.default).yellow[500],
         darker: (0, _colorsDefault.default).yellow[900]
     }
 };
@@ -2485,12 +2485,16 @@ class Utils {
         return new Promise((resolve)=>setTimeout(resolve, ms));
     }
     static drawMino(x, y, context, color) {
-        const borderWidth = 1 / (0, _gameConstants.BLOCK_SIZE);
+        const borderWidth = 2 / (0, _gameConstants.BLOCK_SIZE);
+        const innerBorderWidth = borderWidth * 2;
         const offset = borderWidth * 2;
-        context.fillStyle = color["light"];
+        const innerOffset = offset * 2;
+        context.fillStyle = color["dark"];
         context.fillRect(x, y, 1, 1);
-        context.fillStyle = color["neutral"];
+        context.fillStyle = color["light"];
         context.fillRect(x + borderWidth, y + borderWidth, 1 - offset, 1 - offset);
+        context.fillStyle = color["neutral"];
+        context.fillRect(x + innerBorderWidth, y + innerBorderWidth, 1 - innerOffset, 1 - innerOffset);
     }
 }
 
@@ -2550,15 +2554,15 @@ const newGameTemplate = (data)=>{
     return (0, _litHtml.html)`<div
         class="absolute top-1 right-1 bottom-1 left-1 bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
     >
-        <div class="mb-12 font-bold tracking-wide text-[40px] flex">
-            <span class="text-blue-500">T</span>
-            <span class="text-green-500">Y</span>
-            <span class="text-red-500">P</span>
-            <span class="text-orange-500">E</span>
-            <span class="text-yellow-500">T</span>
-            <span class="text-green-500">R</span>
-            <span class="text-cyan-500">I</span>
-            <span class="text-purple-500">S</span>
+        <div class="mb-12 font-bold tracking-wide text-[40px] flex font-outline">
+            <span class="text-blue-400 font-outline-blue">T</span>
+            <span class="text-green-400 font-outline-green">Y</span>
+            <span class="text-red-400 font-outline-red">P</span>
+            <span class="text-orange-400 font-outline-orange">E</span>
+            <span class="text-yellow-300 font-outline-yellow">T</span>
+            <span class="text-green-400 font-outline-green">R</span>
+            <span class="text-cyan-300 font-outline-cyan">I</span>
+            <span class="text-purple-400 font-outline-purple">S</span>
         </div>
 
         <div class="uppercase font-bold tracking-wide mb-3">Speed Level</div>
@@ -2716,16 +2720,16 @@ const gameOverTemplate = (data)=>{
     return (0, _litHtml.html)`<div
         class="game-overlay absolute top-[4px] right-[4px] bottom-[4px] left-[4px] bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
     >
-        <div class="mb-12 font-bold tracking-wide text-4xl flex">
-            <span class="text-blue-500">G</span>
-            <span class="text-green-500">A</span>
-            <span class="text-red-500">M</span>
-            <span class="text-orange-500">E</span>
+        <div class="mb-12 font-bold tracking-wide text-4xl flex font-outline">
+            <span class="text-blue-400 font-outline-blue">G</span>
+            <span class="text-green-400 font-outline-green">A</span>
+            <span class="text-red-400 font-outline-red">M</span>
+            <span class="text-orange-400 font-outline-orange">E</span>
             <span class="w-2"></span>
-            <span class="text-yellow-500">O</span>
-            <span class="text-green-500">V</span>
-            <span class="text-cyan-500">E</span>
-            <span class="text-purple-500">R</span>
+            <span class="text-yellow-300 font-outline-yellow">O</span>
+            <span class="text-green-400 font-outline-green">V</span>
+            <span class="text-cyan-300 font-outline-cyan">E</span>
+            <span class="text-purple-400 font-outline-purple">R</span>
         </div>
         ${(0, _index.primaryButtonTemplate)({
         text: "Start new game",
@@ -2744,13 +2748,13 @@ const pauseTemplate = (data)=>{
     return (0, _litHtml.html)`<div
         class="game-overlay absolute top-[4px] right-[4px] bottom-[4px] left-[4px] bg-gray-900 items-center justify-center flex-col ${data.hide ? "hidden" : "flex"}"
     >
-        <div class="mb-12 font-bold tracking-wide text-4xl flex">
-            <span class="text-red-500">P</span>
-            <span class="text-orange-500">A</span>
-            <span class="text-yellow-500">U</span>
-            <span class="text-green-500">S</span>
-            <span class="text-cyan-500">E</span>
-            <span class="text-purple-500">D</span>
+        <div class="mb-12 font-bold tracking-wide text-4xl flex font-outline">
+            <span class="text-red-400 font-outline-red">P</span>
+            <span class="text-orange-400 font-outline-orange">A</span>
+            <span class="text-yellow-300 font-outline-yellow">U</span>
+            <span class="text-green-400 font-outline-green">S</span>
+            <span class="text-cyan-300 font-outline-cyan">E</span>
+            <span class="text-purple-400 font-outline-purple">D</span>
         </div>
         <div class="mb-8 w-full">
             ${(0, _index.primaryButtonTemplate)({
@@ -2758,7 +2762,6 @@ const pauseTemplate = (data)=>{
         action: data.resumeAction
     })}
         </div>
-
         ${(0, _index.primaryButtonTemplate)({
         text: "Start new game",
         action: data.newGameAction

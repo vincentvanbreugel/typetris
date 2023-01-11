@@ -13,15 +13,15 @@ export const newGameTemplate = (data: {
             ? 'hidden'
             : 'flex'}"
     >
-        <div class="mb-12 font-bold tracking-wide text-[40px] flex">
-            <span class="text-blue-500">T</span>
-            <span class="text-green-500">Y</span>
-            <span class="text-red-500">P</span>
-            <span class="text-orange-500">E</span>
-            <span class="text-yellow-500">T</span>
-            <span class="text-green-500">R</span>
-            <span class="text-cyan-500">I</span>
-            <span class="text-purple-500">S</span>
+        <div class="mb-12 font-bold tracking-wide text-[40px] flex font-outline">
+            <span class="text-blue-400 font-outline-blue">T</span>
+            <span class="text-green-400 font-outline-green">Y</span>
+            <span class="text-red-400 font-outline-red">P</span>
+            <span class="text-orange-400 font-outline-orange">E</span>
+            <span class="text-yellow-300 font-outline-yellow">T</span>
+            <span class="text-green-400 font-outline-green">R</span>
+            <span class="text-cyan-300 font-outline-cyan">I</span>
+            <span class="text-purple-400 font-outline-purple">S</span>
         </div>
 
         <div class="uppercase font-bold tracking-wide mb-3">Speed Level</div>

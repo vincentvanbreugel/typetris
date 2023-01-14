@@ -115,10 +115,13 @@ export class Game {
         this.nextPieceBoard.draw(this.nextPiece);
         this.startGameLoop();
         this.state.isRunning = true;
+        this.audio.track.play();
     }
 
     restartGame(): void {
         this.stopGameLoop();
+        this.audio.track.pause();
+        this.audio.track.currentTime = 0;
         this.state.reset();
         this.nextPieceBoard.clear();
         this.board = new Board(this.boardId);
@@ -188,6 +191,7 @@ export class Game {
             return;
         }
 
+        this.audio.rotate.play();
         this.piece.rotate(rotation);
         this.board.draw();
     }
@@ -269,15 +273,19 @@ export class Game {
         if (!this.state.isPaused) {
             this.startGameLoop();
             this.renderPauseTemplate(true);
+            this.audio.track.play();
         } else {
             this.stopGameLoop();
             this.renderPauseTemplate();
+            this.audio.track.pause();
         }
     }
 
     private async gameOver(): Promise<void> {
         this.state.isGameOver = true;
         this.state.isRunning = false;
+        this.audio.track.pause();
+        this.audio.track.currentTime = 0;
         this.nextPieceBoard.clear();
         await this.board.handleGameOver();
         this.renderGameOverTemplate();

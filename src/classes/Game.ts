@@ -1,25 +1,27 @@
 import { render } from 'lit-html';
 import { Board } from './Board';
+import { Piece } from './Piece';
+import { AudioPlayer } from './AudioPlayer';
+import { NextPieceBoard } from './NextPiece';
+import { GameState } from './GameState';
 import { TETROMINOS } from '../constants/tetrominosConstants';
 import { DIRECTIONS, KEYS } from '../constants/gameConstants';
 import { gameLayoutTemplate, newGameTemplate, pauseTemplate, gameOverTemplate } from '../templates';
 import type { Rotations, Tetromino, Point } from '../types/types';
-import { Piece } from './Piece';
-import { NextPieceBoard } from './NextPiece';
-import { GameState } from './GameState';
 
 export class Game {
     state: GameState;
+    private board: Board;
+    private audio: AudioPlayer;
+    private piece: Piece;
+    private nextPiece: Piece;
+    private nextPieceBoard: NextPieceBoard;
     private gameOptionsId = 'gameOptions';
     private gameOptionsElement: HTMLElement;
     private overlayId = 'gameOverlay';
     private overlayElement: HTMLElement;
     private boardId = 'board';
-    private board: Board;
     private levelBtnAttr = '[data-level-btn]';
-    private nextPieceBoard: NextPieceBoard;
-    private piece: Piece;
-    private nextPiece: Piece;
     private requestId: number | undefined;
     private gameTimer = { start: 0, elapsed: 0 };
     private lineClearActive = false;
@@ -29,6 +31,7 @@ export class Game {
         this.gameOptionsElement = document.getElementById(this.gameOptionsId) as HTMLElement;
         this.renderNewGameTemplate();
         this.overlayElement = document.getElementById(this.overlayId) as HTMLElement;
+        this.audio = new AudioPlayer();
         this.state = new GameState(this);
         this.board = new Board(this.boardId);
         this.nextPieceBoard = new NextPieceBoard();

@@ -12,7 +12,7 @@ import type { Rotations, Tetromino, Point } from '../types/types';
 export class Game {
     state: GameState;
     private board: Board;
-    private audio: AudioPlayer;
+    private audioPlayer: AudioPlayer;
     private piece: Piece;
     private nextPiece: Piece;
     private nextPieceBoard: NextPieceBoard;
@@ -22,6 +22,7 @@ export class Game {
     private overlayElement: HTMLElement;
     private boardId = 'board';
     private levelBtnAttr = '[data-level-btn]';
+    private musicBtnAttr = '[data-music-btn]';
     private requestId: number | undefined;
     private gameTimer = { start: 0, elapsed: 0 };
     private lineClearActive = false;
@@ -31,7 +32,7 @@ export class Game {
         this.gameOptionsElement = document.getElementById(this.gameOptionsId) as HTMLElement;
         this.renderNewGameTemplate();
         this.overlayElement = document.getElementById(this.overlayId) as HTMLElement;
-        this.audio = new AudioPlayer();
+        this.audioPlayer = new AudioPlayer();
         this.state = new GameState(this);
         this.board = new Board(this.boardId);
         this.nextPieceBoard = new NextPieceBoard();
@@ -50,6 +51,7 @@ export class Game {
             hide,
             startGame: this.startGame.bind(this),
             selectLevel: this.selectLevel.bind(this),
+            selectMusic: this.selectMusic.bind(this),
         };
         render(newGameTemplate(data), this.gameOptionsElement);
     }
@@ -115,13 +117,12 @@ export class Game {
         this.nextPieceBoard.draw(this.nextPiece);
         this.startGameLoop();
         this.state.isRunning = true;
-        this.audio.track.play();
+        this.audioPlayer.play('music');
     }
 
     restartGame(): void {
         this.stopGameLoop();
-        this.audio.track.pause();
-        this.audio.track.currentTime = 0;
+        this.audioPlayer.stop('music');
         this.state.reset();
         this.nextPieceBoard.clear();
         this.board = new Board(this.boardId);
@@ -173,6 +174,10 @@ export class Game {
             return;
         }
 
+        if (userInput) {
+            this.audioPlayer.play('move');
+        }
+
         this.piece.move(direction);
 
         if (userInput && direction === DIRECTIONS.DOWN) {
@@ -191,7 +196,7 @@ export class Game {
             return;
         }
 
-        this.audio.rotate.play();
+        this.audioPlayer.play('rotate');
         this.piece.rotate(rotation);
         this.board.draw();
     }
@@ -204,6 +209,7 @@ export class Game {
         const cellsDropped = this.piece.hardDrop();
         this.state.incrementDropScore(cellsDropped, true);
 
+        this.audioPlayer.play('hardDrop');
         this.board.draw();
 
         if (this.piece.isLocked) {
@@ -228,6 +234,7 @@ export class Game {
     }
 
     private async handleLockedPiece(): Promise<void> {
+        this.audioPlayer.play('lock');
         this.lineClearActive = true;
         this.stopGameLoop();
         await this.checkLinesClear();
@@ -244,6 +251,7 @@ export class Game {
     private async checkLinesClear(): Promise<void> {
         const linesCleared = this.board.getLinesCleared();
         if (linesCleared.length) {
+            this.audioPlayer.play('lineClear');
             await this.board.handleClearLines(linesCleared);
             this.state.newLinesCleared = linesCleared.length;
         }
@@ -263,8 +271,28 @@ export class Game {
         }
     }
 
+    selectMusic(e: Event): void {
+        const musicButtons = document.querySelectorAll(this.musicBtnAttr);
+        musicButtons.forEach((element) => {
+            element.classList.remove('selected', 'opacity-100');
+            element.classList.add('opacity-25');
+        });
+
+        const target = e.target as Element;
+        if (target) {
+            target.classList.add('selected', 'opacity-100');
+            target.classList.remove('opacity-25');
+        }
+    }
+
     private setGameOptions(): void {
-        const selectedLevel = (<HTMLButtonElement>document.querySelector(`${this.levelBtnAttr}.selected`))?.value;        
+        const musicSetting = (<HTMLButtonElement>(
+            document.querySelector(`${this.musicBtnAttr}.selected`)
+        ))?.value;
+        const selectedLevel = (<HTMLButtonElement>(
+            document.querySelector(`${this.levelBtnAttr}.selected`)
+        ))?.value;
+        this.audioPlayer.setVolume('music', musicSetting === 'on' ? 1 : 0);
         this.state.setGameOptions({ level: parseInt(selectedLevel, 10) });
     }
 
@@ -273,19 +301,19 @@ export class Game {
         if (!this.state.isPaused) {
             this.startGameLoop();
             this.renderPauseTemplate(true);
-            this.audio.track.play();
+            this.audioPlayer.resume('music');
         } else {
             this.stopGameLoop();
             this.renderPauseTemplate();
-            this.audio.track.pause();
+            this.audioPlayer.pause('music');
         }
     }
 
     private async gameOver(): Promise<void> {
         this.state.isGameOver = true;
         this.state.isRunning = false;
-        this.audio.track.pause();
-        this.audio.track.currentTime = 0;
+        this.audioPlayer.stop('music');
+        this.audioPlayer.play('gameOver');
         this.nextPieceBoard.clear();
         await this.board.handleGameOver();
         this.renderGameOverTemplate();

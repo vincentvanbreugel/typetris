@@ -7,6 +7,7 @@ export const newGameTemplate = (data: {
     hide: boolean;
     startGame: () => void;
     selectLevel: (e: Event) => void;
+    selectMusic: (e: Event) => void;
 }) => {
     return html`<div
         class="absolute top-1 right-1 bottom-1 left-1 bg-gray-900 items-center justify-center flex-col ${data.hide
@@ -25,9 +26,7 @@ export const newGameTemplate = (data: {
         </div>
 
         <div class="uppercase font-bold tracking-wide mb-3">Speed Level</div>
-        <div
-            class="flex flex-wrap justify-center mx-6 border-l-2 border-t-2 border-slate-100 mb-16"
-        >
+        <div class="flex flex-wrap justify-center mx-6 border-l-2 border-t-2 border-slate-100 mb-8">
             ${levels.map((level) => {
                 return html`<div
                     class="grow
@@ -46,7 +45,8 @@ export const newGameTemplate = (data: {
                         @click=${data.selectLevel}
                         class="grow 
                         px-4 
-                        py-2 
+                        py-2
+                        
                         hover:opacity-100 
                         transition 
                         duration-150 
@@ -57,6 +57,66 @@ export const newGameTemplate = (data: {
                     </button>
                 </div>`;
             })}
+        </div>
+
+        <div class="uppercase font-bold tracking-wide mb-3">Music</div>
+        <div class="flex justify-center mx-6 border-l-2 border-t-2 border-slate-100 mb-16">
+            <div
+                class="grow
+                        border-r-2 
+                        border-b-2
+                        border-slate-100
+                        text-slate-100
+                        flex
+                        text-lg
+                        font-bold"
+            >
+                <button
+                    type="button"
+                    data-music-btn
+                    value="on"
+                    @click=${data.selectMusic}
+                    class="grow 
+                            px-4 
+                            py-2
+                            w-20
+                            hover:opacity-100 
+                            transition 
+                            duration-150 
+                            ease-in-out
+                            opacity-100 selected"
+                >
+                    On
+                </button>
+            </div>
+            <div
+                class="grow
+                        border-r-2 
+                        border-b-2
+                        border-slate-100
+                        text-slate-100
+                        flex
+                        text-lg
+                        font-bold"
+            >
+                <button
+                    type="button"
+                    data-music-btn
+                    value="off"
+                    @click=${data.selectMusic}
+                    class="grow 
+                            px-4 
+                            py-2 
+                            w-20
+                            hover:opacity-100 
+                            transition 
+                            duration-150 
+                            ease-in-out
+                            opacity-25"
+                >
+                    Off
+                </button>
+            </div>
         </div>
 
         ${primaryButtonTemplate({

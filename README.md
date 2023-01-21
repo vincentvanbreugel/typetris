@@ -4,7 +4,6 @@ A TypeScript implementation of the popular Block Game.
 
 ## [Demo](https://vincentvanbreugel.github.io/typetris/dist/index.html)
 
-Game Settings             |  Game View
 :-------------------------:|:-------------------------:
 ![Start New Game](https://github.com/vincentvanbreugel/typetris/blob/main/public/typetris-start-new-game.png?raw=true "Start New Game")  |  ![Game View](https://github.com/vincentvanbreugel/typetris/blob/main/public/typetris-game-view.png "Game View")
 

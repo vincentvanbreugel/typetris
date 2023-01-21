@@ -4,10 +4,9 @@ A TypeScript implementation of the popular Block Game.
 
 ## [Demo](https://vincentvanbreugel.github.io/typetris/dist/index.html)
 
-<div style="display: flex">
-	<img src="https://github.com/vincentvanbreugel/typetris/blob/main/public/typetris-start-new-game.png"  style="margin-right: 20px;">
-	<img src="https://github.com/vincentvanbreugel/typetris/blob/main/public/typetris-game-view.png">
-</div>
+Game Settings             |  Game View
+:-------------------------:|:-------------------------:
+![Start New Game](https://github.com/vincentvanbreugel/typetris/blob/main/public/typetris-start-new-game.png?raw=true "Start New Game")  |  ![Game View](https://github.com/vincentvanbreugel/typetris/blob/main/public/typetris-game-view.png "Game View")
 
 ## Background
 

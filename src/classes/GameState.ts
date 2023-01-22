@@ -1,6 +1,5 @@
-import { render } from 'lit-html';
 import { Game } from './Game';
-import { scoreTemplate } from '../templates';
+import { Display } from './Display';
 import {
     GAME_SPEEDS,
     BASE_SCORES_LINE_CLEAR,
@@ -12,6 +11,7 @@ import {
 
 export class GameState {
     game: Game;
+    private display: Display;
     score = 0;
     level = 0;
     speed: number;
@@ -21,25 +21,20 @@ export class GameState {
     totalLinesCleared = 0;
     dropScore = 0;
     newLinesCleared = 0;
-    private scoreElementId = 'gameScore';
-    private scoreElement: HTMLElement;
 
     constructor(game: Game) {
         this.game = game;
+        this.display = new Display();
         this.speed = GAME_SPEEDS[this.level];
-        this.scoreElement = document.getElementById(this.scoreElementId) as HTMLElement;
         this.renderScoreTemplate();
     }
 
     private renderScoreTemplate(): void {
-        render(
-            scoreTemplate({
-                score: this.score.toString().padStart(6, '0'),
-                clearedLines: this.totalLinesCleared.toString().padStart(3, '0'),
-                level: this.level.toString().padStart(2, '0'),
-            }),
-            this.scoreElement
-        );
+        this.display.score({
+            score: this.score.toString().padStart(6, '0'),
+            clearedLines: this.totalLinesCleared.toString().padStart(3, '0'),
+            level: this.level.toString().padStart(2, '0'),
+        })
     }
 
     reset(): void {

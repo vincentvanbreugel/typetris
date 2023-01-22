@@ -1,25 +1,21 @@
-import { render } from 'lit-html';
 import { Board } from './Board';
 import { Piece } from './Piece';
 import { AudioPlayer } from './AudioPlayer';
 import { NextPieceBoard } from './NextPiece';
+import { Display } from './Display';
 import { GameState } from './GameState';
 import { TETROMINOS } from '../constants/tetrominosConstants';
 import { DIRECTIONS, KEYS } from '../constants/gameConstants';
-import { gameLayoutTemplate, newGameTemplate, pauseTemplate, gameOverTemplate } from '../templates';
 import type { Rotations, Tetromino, Point } from '../types/types';
 
 export class Game {
     state: GameState;
+    private display: Display;
     private board: Board;
     private audioPlayer: AudioPlayer;
     private piece: Piece;
     private nextPiece: Piece;
     private nextPieceBoard: NextPieceBoard;
-    private gameOptionsId = 'gameOptions';
-    private gameOptionsElement: HTMLElement;
-    private overlayId = 'gameOverlay';
-    private overlayElement: HTMLElement;
     private boardId = 'board';
     private levelBtnAttr = '[data-level-btn]';
     private musicBtnAttr = '[data-music-btn]';
@@ -28,10 +24,9 @@ export class Game {
     private lineClearActive = false;
 
     constructor(elementId: string) {
-        this.renderGameLayoutTemplate(elementId);
-        this.gameOptionsElement = document.getElementById(this.gameOptionsId) as HTMLElement;
+        this.display = new Display();
+        this.display.gameLayout(elementId);
         this.renderNewGameTemplate();
-        this.overlayElement = document.getElementById(this.overlayId) as HTMLElement;
         this.audioPlayer = new AudioPlayer();
         this.state = new GameState(this);
         this.board = new Board(this.boardId);
@@ -41,36 +36,28 @@ export class Game {
         this.attachEventHandlers();
     }
 
-    private renderGameLayoutTemplate(elementId: string): void {
-        const element = document.getElementById(elementId) as HTMLElement;
-        render(gameLayoutTemplate(), element);
-    }
-
     private renderNewGameTemplate(hide = false): void {
-        const data = {
+        this.display.newGame({
             hide,
             startGame: this.startGame.bind(this),
             selectLevel: this.selectLevel.bind(this),
             selectMusic: this.selectMusic.bind(this),
-        };
-        render(newGameTemplate(data), this.gameOptionsElement);
+        });
     }
 
     private renderGameOverTemplate(hide = false): void {
-        const data = {
+        this.display.gameOver({
             action: this.restartGame.bind(this),
             hide,
-        };
-        render(gameOverTemplate(data), this.overlayElement);
+        });
     }
 
     private renderPauseTemplate(hide = false): void {
-        const data = {
+        this.display.pause({
             resumeAction: this.handleClickPause.bind(this),
             newGameAction: this.restartGame.bind(this),
             hide,
-        };
-        render(pauseTemplate(data), this.overlayElement);
+        });
     }
 
     private attachEventHandlers(): void {

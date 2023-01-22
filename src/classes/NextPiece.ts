@@ -1,26 +1,20 @@
-import { render } from 'lit-html';
-import { nextPieceTemplate } from '../templates';
 import { BLOCK_SIZE } from '../constants/gameConstants';
+import { Display } from './Display';
 import { Piece } from './Piece';
-import { Shape } from '../constants/tetrominosConstants';
+import { Shape } from '../types/types';
 import { Utils } from './Utils';
 
 export class NextPieceBoard {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
-    private nextPieceElementId = 'nextPiece';
-    private nextPieceElement: HTMLElement;
     private canvasId = 'nextPieceBoard';
+    private display: Display;
 
     constructor() {
-        this.nextPieceElement = document.getElementById(this.nextPieceElementId) as HTMLElement;
-        this.renderNextPieceTemplate();
+        this.display = new Display();
+        this.display.nextPiece();
         this.canvas = document.getElementById(this.canvasId) as HTMLCanvasElement;
         this.context = this.canvas.getContext('2d') as CanvasRenderingContext2D;
-    }
-
-    private renderNextPieceTemplate() {
-        render(nextPieceTemplate(), this.nextPieceElement);
     }
 
     draw(piece: Piece): void {

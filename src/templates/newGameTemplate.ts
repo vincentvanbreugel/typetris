@@ -6,8 +6,7 @@ const levels = Array.from(Array(10).keys());
 export const newGameTemplate = (data: {
     hide: boolean;
     startGame: () => void;
-    selectLevel: (e: Event) => void;
-    selectMusic: (e: Event) => void;
+    selectGameOption: (e: Event) => void;
 }) => {
     return html`<div
         class="absolute top-1 right-1 bottom-1 left-1 bg-gray-900 items-center justify-center flex-col ${data.hide
@@ -40,9 +39,9 @@ export const newGameTemplate = (data: {
                 >
                     <button
                         type="button"
-                        data-level-btn
+                        game-option-btn="level"
                         value="${level}"
-                        @click=${data.selectLevel}
+                        @click=${data.selectGameOption}
                         class="grow 
                         px-4 
                         py-2
@@ -73,9 +72,9 @@ export const newGameTemplate = (data: {
             >
                 <button
                     type="button"
-                    data-music-btn
+                    game-option-btn="music"
                     value="on"
-                    @click=${data.selectMusic}
+                    @click=${data.selectGameOption}
                     class="grow 
                             px-4 
                             py-2
@@ -101,9 +100,9 @@ export const newGameTemplate = (data: {
             >
                 <button
                     type="button"
-                    data-music-btn
+                    game-option-btn="music"
                     value="off"
-                    @click=${data.selectMusic}
+                    @click=${data.selectGameOption}
                     class="grow 
                             px-4 
                             py-2 

@@ -15,6 +15,7 @@ export class Display {
     private scoreElement: HTMLElement;
     private gameOptionsId = 'gameOptions';
     private overlayId = 'gameOverlay';
+    private overlayElement: HTMLElement | null = null;
 
     constructor() {
         this.nextPieceElement = document.getElementById(this.nextPieceElementId) as HTMLElement;
@@ -29,8 +30,7 @@ export class Display {
     newGame(params: {
         hide: boolean;
         startGame: () => void;
-        selectLevel: (e: Event) => void;
-        selectMusic: (e: Event) => void;
+        selectGameOption: (e: Event) => void;
     }): void {
         const element = document.getElementById(this.gameOptionsId) as HTMLElement;
         render(newGameTemplate(params), element);
@@ -63,6 +63,11 @@ export class Display {
     }
 
     private getOverlayElement(): HTMLElement {
-        return document.getElementById(this.overlayId) as HTMLElement;
+        if (this.overlayElement) {
+            return this.overlayElement;
+        }
+
+        this.overlayElement = document.getElementById(this.overlayId) as HTMLElement;
+        return this.overlayElement;
     }
 }

@@ -4,8 +4,9 @@ import { AudioPlayer } from './AudioPlayer';
 import { NextPieceBoard } from './NextPiece';
 import { Display } from './Display';
 import { GameState } from './GameState';
+import { Inputs } from './Inputs';
 import { TETROMINOS } from '../constants/tetrominosConstants';
-import { DIRECTIONS, KEYS } from '../constants/gameConstants';
+import { DIRECTIONS } from '../constants/gameConstants';
 import type { Rotations, Tetromino, Point } from '../types/types';
 
 export class Game {
@@ -16,12 +17,12 @@ export class Game {
     private piece: Piece;
     private nextPiece: Piece;
     private nextPieceBoard: NextPieceBoard;
+    private inputs: Inputs;
     private boardId = 'board';
-    private levelBtnAttr = '[data-level-btn]';
-    private musicBtnAttr = '[data-music-btn]';
+    private gameOptionAttr = 'game-option-btn';
     private requestId: number | undefined;
     private gameTimer = { start: 0, elapsed: 0 };
-    private lineClearActive = false;
+    lineClearActive = false;
 
     constructor(elementId: string) {
         this.display = new Display();
@@ -33,67 +34,30 @@ export class Game {
         this.nextPieceBoard = new NextPieceBoard();
         this.piece = this.getRandomPiece();
         this.nextPiece = this.getRandomPiece();
-        this.attachEventHandlers();
+        this.inputs = new Inputs(this, this.state);
+        this.inputs.attachEventHandlers();
     }
 
     private renderNewGameTemplate(hide = false): void {
         this.display.newGame({
             hide,
             startGame: this.startGame.bind(this),
-            selectLevel: this.selectLevel.bind(this),
-            selectMusic: this.selectMusic.bind(this),
+            selectGameOption: this.selectGameOption.bind(this),
         });
     }
 
     private renderGameOverTemplate(hide = false): void {
         this.display.gameOver({
-            action: this.restartGame.bind(this),
             hide,
+            action: this.restartGame.bind(this),
         });
     }
 
     private renderPauseTemplate(hide = false): void {
         this.display.pause({
+            hide,
             resumeAction: this.handleClickPause.bind(this),
             newGameAction: this.restartGame.bind(this),
-            hide,
-        });
-    }
-
-    private attachEventHandlers(): void {
-        document.addEventListener('keydown', (event) => {
-            if (!this.state.isRunning) {
-                return;
-            }
-
-            if (event.key === KEYS.PAUSE) {
-                this.handleClickPause();
-            }
-
-            if (this.lineClearActive || this.state.isPaused) {
-                return;
-            }
-
-            switch (event.key) {
-                case KEYS.HARD_DROP:
-                    this.hardDrop();
-                    break;
-                case KEYS.DOWN:
-                    this.movePiece({ direction: DIRECTIONS.DOWN, userInput: true });
-                    break;
-                case KEYS.LEFT:
-                    this.movePiece({ direction: DIRECTIONS.LEFT, userInput: true });
-                    break;
-                case KEYS.RIGHT:
-                    this.movePiece({ direction: DIRECTIONS.RIGHT, userInput: true });
-                    break;
-                case KEYS.ROTATE_CLOCKWISE:
-                    this.rotatePiece('clockwise');
-                    break;
-                case KEYS.ROTATE_COUNTER_CLOCKWISE:
-                    this.rotatePiece('counterClockwise');
-                    break;
-            }
         });
     }
 
@@ -147,11 +111,7 @@ export class Game {
         cancelAnimationFrame(this.requestId as number);
     }
 
-    private movePiece(params: {
-        direction: Point;
-        initialDrop?: boolean;
-        userInput?: boolean;
-    }): void {
+    movePiece(params: { direction: Point; initialDrop?: boolean; userInput?: boolean }): void {
         const { direction, initialDrop, userInput } = params;
 
         if (!this.piece.isMoveValid({ direction })) {
@@ -178,7 +138,7 @@ export class Game {
         this.board.draw();
     }
 
-    private rotatePiece(rotation: Rotations): void {
+    rotatePiece(rotation: Rotations): void {
         if (!this.piece.isMoveValid({ rotation })) {
             return;
         }
@@ -188,7 +148,7 @@ export class Game {
         this.board.draw();
     }
 
-    private hardDrop(): void {
+    hardDrop(): void {
         if (this.piece.isLocked) {
             return;
         }
@@ -202,22 +162,6 @@ export class Game {
         if (this.piece.isLocked) {
             this.handleLockedPiece();
         }
-    }
-
-    private getRandomPiece(): Piece {
-        let tetromino = this.getRandomTetromino();
-
-        // re-roll once
-        if (this.piece && tetromino.id === this.piece.id) {
-            tetromino = this.getRandomTetromino();
-        }
-
-        return new Piece(tetromino, this.board);
-    }
-
-    private getRandomTetromino(): Tetromino {
-        const index = Math.floor(Math.random() * TETROMINOS.length);
-        return JSON.parse(JSON.stringify(TETROMINOS[index])) as Tetromino;
     }
 
     private async handleLockedPiece(): Promise<void> {
@@ -244,46 +188,22 @@ export class Game {
         }
     }
 
-    selectLevel(e: Event): void {
-        const levelSelectButtons = document.querySelectorAll(this.levelBtnAttr);
-        levelSelectButtons.forEach((element) => {
-            element.classList.remove('selected', 'opacity-100');
-            element.classList.add('opacity-25');
-        });
-
-        const target = e.target as Element;
-        if (target) {
-            target.classList.add('selected', 'opacity-100');
-            target.classList.remove('opacity-25');
+    private getRandomPiece(): Piece {
+        let tetromino = this.getRandomTetromino();
+        // re-roll once
+        if (this.piece && tetromino.id === this.piece.id) {
+            tetromino = this.getRandomTetromino();
         }
+
+        return new Piece(tetromino, this.board);
     }
 
-    selectMusic(e: Event): void {
-        const musicButtons = document.querySelectorAll(this.musicBtnAttr);
-        musicButtons.forEach((element) => {
-            element.classList.remove('selected', 'opacity-100');
-            element.classList.add('opacity-25');
-        });
-
-        const target = e.target as Element;
-        if (target) {
-            target.classList.add('selected', 'opacity-100');
-            target.classList.remove('opacity-25');
-        }
+    private getRandomTetromino(): Tetromino {
+        const index = Math.floor(Math.random() * TETROMINOS.length);
+        return JSON.parse(JSON.stringify(TETROMINOS[index])) as Tetromino;
     }
 
-    private setGameOptions(): void {
-        const musicSetting = (<HTMLButtonElement>(
-            document.querySelector(`${this.musicBtnAttr}.selected`)
-        ))?.value;
-        const selectedLevel = (<HTMLButtonElement>(
-            document.querySelector(`${this.levelBtnAttr}.selected`)
-        ))?.value;
-        this.audioPlayer.setVolume('music', musicSetting === 'on' ? 1 : 0);
-        this.state.setGameOptions({ level: parseInt(selectedLevel, 10) });
-    }
-
-    private handleClickPause(): void {
+    handleClickPause(): void {
         this.state.togglePause();
         if (!this.state.isPaused) {
             this.startGameLoop();
@@ -304,5 +224,32 @@ export class Game {
         this.nextPieceBoard.clear();
         await this.board.handleGameOver();
         this.renderGameOverTemplate();
+    }
+
+    private setGameOptions(): void {
+        const musicSetting = (<HTMLButtonElement>(
+            document.querySelector(`[${this.gameOptionAttr}="music"].selected`)
+        ))?.value;
+        const selectedLevel = (<HTMLButtonElement>(
+            document.querySelector(`[${this.gameOptionAttr}="level"].selected`)
+        ))?.value;
+
+        this.audioPlayer.setVolume('music', musicSetting === 'on' ? 1 : 0);
+        this.state.setGameOptions({ level: parseInt(selectedLevel, 10) });
+    }
+
+    selectGameOption(e: Event): void {
+        const target = e.target as Element;
+        const gameOptionType = target.getAttribute(this.gameOptionAttr);
+        const valueOptions = document.querySelectorAll(`[game-option-btn="${gameOptionType}"]`);
+        valueOptions.forEach((element) => {
+            element.classList.remove('selected', 'opacity-100');
+            element.classList.add('opacity-25');
+        });
+
+        if (target) {
+            target.classList.add('selected', 'opacity-100');
+            target.classList.remove('opacity-25');
+        }
     }
 }

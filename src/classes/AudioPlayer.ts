@@ -10,13 +10,13 @@ export class AudioPlayer {
     sounds: { [key: string]: HTMLAudioElement } = {};
 
     constructor() {
-        this.sounds.music = this.loadSound(musicFile, 0, true);
-        this.sounds.rotate = this.loadSound(rotateFile, 0);
-        this.sounds.move = this.loadSound(moveFile, 0);
-        this.sounds.lock = this.loadSound(lockFile, 0);
-        this.sounds.hardDrop = this.loadSound(hardDropFile, 0);
-        this.sounds.gameOver = this.loadSound(gameOverFile, 0);
-        this.sounds.lineClear = this.loadSound(lineClearFile, 0);
+        this.sounds.music = this.loadSound(musicFile, 1, true);
+        this.sounds.rotate = this.loadSound(rotateFile, 1);
+        this.sounds.move = this.loadSound(moveFile, 1);
+        this.sounds.lock = this.loadSound(lockFile, 1);
+        this.sounds.hardDrop = this.loadSound(hardDropFile, 1);
+        this.sounds.gameOver = this.loadSound(gameOverFile, 1);
+        this.sounds.lineClear = this.loadSound(lineClearFile, 1);
     }
 
     private loadSound(src: string, volume: number, loop = false): HTMLAudioElement {

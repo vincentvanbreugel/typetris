@@ -234,7 +234,7 @@ export class Game {
             document.querySelector(`[${this.gameOptionAttr}="level"].selected`)
         ))?.value;
 
-        this.audioPlayer.setVolume('music', musicSetting === 'on' ? 1 : 0);
+        this.audioPlayer.setVolume('music', musicSetting === 'on' ? 0.5 : 0);
         this.state.setGameOptions({ level: parseInt(selectedLevel, 10) });
     }
 

@@ -10,7 +10,7 @@ export class AudioPlayer {
     sounds: { [key: string]: HTMLAudioElement } = {};
 
     constructor() {
-        this.sounds.music = this.loadSound(musicFile, 1, true);
+        this.sounds.music = this.loadSound(musicFile, 0.8, true);
         this.sounds.rotate = this.loadSound(rotateFile, 1);
         this.sounds.move = this.loadSound(moveFile, 1);
         this.sounds.lock = this.loadSound(lockFile, 1);

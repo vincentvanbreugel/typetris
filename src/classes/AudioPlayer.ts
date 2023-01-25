@@ -1,3 +1,4 @@
+import { Howl } from 'howler';
 import musicFile from '../assets/audio/tetris-theme.mp3';
 import rotateFile from '../assets/audio/rotate.mp3';
 import moveFile from '../assets/audio/move.mp3';
@@ -7,7 +8,7 @@ import gameOverFile from '../assets/audio/game-over.mp3';
 import lineClearFile from '../assets/audio/line-clear.mp3';
 
 export class AudioPlayer {
-    sounds: { [key: string]: HTMLAudioElement } = {};
+    sounds: { [key: string]: Howl } = {};
 
     constructor() {
         this.sounds.music = this.loadSound(musicFile, 0.8, true);
@@ -19,21 +20,13 @@ export class AudioPlayer {
         this.sounds.lineClear = this.loadSound(lineClearFile, 1);
     }
 
-    private loadSound(src: string, volume: number, loop = false): HTMLAudioElement {
-        const sound = document.createElement('audio');
-        sound.src = src;
-        sound.volume = volume;
-        sound.loop = loop;
-        sound.style.display = 'none';
-        sound.setAttribute('preload', 'auto');
-        sound.setAttribute('type', 'audio/mp3');
-        document.body.appendChild(sound);
-        return sound;
+    private loadSound(src: string, volume: number, loop = false): Howl {
+        return new Howl({
+            src: [src],
+        });
     }
 
     play(sound: string): void {
-        this.sounds[sound].pause();
-        this.sounds[sound].currentTime = 0;
         this.sounds[sound].play();
     }
 
@@ -46,11 +39,10 @@ export class AudioPlayer {
     }
 
     stop(sound: string): void {
-        this.sounds[sound].pause();
-        this.sounds[sound].currentTime = 0;
+        this.sounds[sound].stop();
     }
 
     setVolume(sound: string, level: number) {
-        this.sounds[sound].volume = level;
+        this.sounds[sound].volume(level);
     }
 }

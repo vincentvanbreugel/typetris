@@ -19,7 +19,7 @@ export const KEYS = {
     ROTATE_CLOCKWISE: 'd',
     ROTATE_COUNTER_CLOCKWISE: 's',
     HARD_DROP: 'ArrowUp',
-    PAUSE: 'p',
+    PAUSE: 'Enter',
 };
 
 export const BASE_SCORES_LINE_CLEAR = [40, 100, 300, 1200];

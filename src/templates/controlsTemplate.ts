@@ -18,7 +18,7 @@ export const controlsTemplate = () => {
                     <span>Rotate</span>
                 </div>
                 <div class="flex justify-between">
-                    <span>P</span>
+                    <span>Enter</span>
                     <span>Pause</span>
                 </div>
             </div>

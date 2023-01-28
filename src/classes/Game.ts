@@ -94,6 +94,7 @@ export class Game {
             this.gameTimer.start = timeStamp;
 
             if (this.piece.isLocked) {
+                this.audioPlayer.play('lock');
                 await this.handleLockedPiece();
             } else {
                 this.movePiece({ direction: DIRECTIONS.DOWN });
@@ -121,7 +122,7 @@ export class Game {
             return;
         }
 
-        if (userInput) {
+        if (userInput && (direction === DIRECTIONS.LEFT || direction === DIRECTIONS.RIGHT)) {
             this.audioPlayer.play('move');
         }
 
@@ -131,6 +132,7 @@ export class Game {
             this.state.incrementDropScore();
 
             if (this.piece.isLocked) {
+                this.audioPlayer.play('lock');
                 this.handleLockedPiece();
             }
         }
@@ -165,7 +167,6 @@ export class Game {
     }
 
     private async handleLockedPiece(): Promise<void> {
-        this.audioPlayer.play('lock');
         this.lineClearActive = true;
         this.stopGameLoop();
         await this.checkLinesClear();

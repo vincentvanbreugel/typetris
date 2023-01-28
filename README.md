@@ -17,6 +17,7 @@ This game was created to challenge myself to write a game in TypeScript without 
 * **[TypeScript](https://www.typescriptlang.org/)** for all the game logic. 
 * **[Lit-html](https://lit.dev/docs/libraries/standalone-templates)** for some basic templating and for reducing the amount of manual DOM manipulations.
 * **[Tailwind CSS](https://tailwindcss.com)** for colors and for styling.
+* **[Howler.js](https://howlerjs.com/)** for music and SFX.
 * **[Parcel](https://parceljs.org/)** for local development and a build tool.
 
 ## Features

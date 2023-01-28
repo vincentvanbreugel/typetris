@@ -5,6 +5,7 @@ import { GameState } from './GameState';
 export class Inputs {
     game: Game;
     state: GameState;
+    private isHardDropActive = false;
 
     constructor(game: Game, state: GameState) {
         this.game = game;
@@ -27,6 +28,10 @@ export class Inputs {
 
             switch (event.key) {
                 case KEYS.HARD_DROP:
+                    if (this.isHardDropActive) {
+                        return;
+                    }
+                    this.isHardDropActive = true;
                     this.game.hardDrop();
                     break;
                 case KEYS.DOWN:
@@ -43,6 +48,14 @@ export class Inputs {
                     break;
                 case KEYS.ROTATE_COUNTER_CLOCKWISE:
                     this.game.rotatePiece('counterClockwise');
+                    break;
+            }
+        });
+
+        document.addEventListener('keyup', (event) => {
+            switch (event.key) {
+                case KEYS.HARD_DROP:
+                    this.isHardDropActive = false;
                     break;
             }
         });

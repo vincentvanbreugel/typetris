@@ -11,7 +11,7 @@ export class AudioPlayer {
     sounds: { [key: string]: Howl } = {};
 
     constructor() {
-        this.sounds.music = this.loadSound(musicFile, 0.8, true);
+        this.sounds.music = this.loadSound(musicFile, 1, true);
         this.sounds.rotate = this.loadSound(rotateFile, 1);
         this.sounds.move = this.loadSound(moveFile, 1);
         this.sounds.lock = this.loadSound(lockFile, 1);
@@ -20,13 +20,15 @@ export class AudioPlayer {
         this.sounds.lineClear = this.loadSound(lineClearFile, 1);
     }
 
-    private loadSound(src: string, volume: number, loop = false): Howl {
+    private loadSound(src: string, volume: number, loop = false): Howl {       
         return new Howl({
             src: [src],
+            volume,
+            loop,
         });
     }
 
-    play(sound: string): void {
+    play(sound: string): void {        
         this.sounds[sound].play();
     }
 

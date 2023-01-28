@@ -12,11 +12,11 @@ export class AudioPlayer {
 
     constructor() {
         this.sounds.music = this.loadSound(musicFile, 1, true);
-        this.sounds.rotate = this.loadSound(rotateFile, 1);
-        this.sounds.move = this.loadSound(moveFile, 1);
-        this.sounds.lock = this.loadSound(lockFile, 1);
-        this.sounds.hardDrop = this.loadSound(hardDropFile, 1);
-        this.sounds.gameOver = this.loadSound(gameOverFile, 1);
+        this.sounds.rotate = this.loadSound(rotateFile, 0.4);
+        this.sounds.move = this.loadSound(moveFile, 0.3);
+        this.sounds.lock = this.loadSound(lockFile, 0.3);
+        this.sounds.hardDrop = this.loadSound(hardDropFile, 0.75);
+        this.sounds.gameOver = this.loadSound(gameOverFile, 0.75);
         this.sounds.lineClear = this.loadSound(lineClearFile, 1);
     }
 

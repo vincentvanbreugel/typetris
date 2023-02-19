@@ -39,6 +39,7 @@ This game was created to challenge myself to write a game in TypeScript without 
 ## Future developments
 
 * Local High Score
+* Mobile support
 * Alternate Game mode
 * Show Piece Stats
 * Show 4-lines clear percentage
@@ -49,3 +50,7 @@ This game was created to challenge myself to write a game in TypeScript without 
 2. ```npm install```
 3. ```npm run dev```
 4. Go to http://localhost:1234
+
+## Running it locally
+
+Many thanks to Jorn Bijkersma for the awesome Soundtrack and Sound Effects! 

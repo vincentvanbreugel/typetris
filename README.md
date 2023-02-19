@@ -51,6 +51,6 @@ This game was created to challenge myself to write a game in TypeScript without 
 3. ```npm run dev```
 4. Go to http://localhost:1234
 
-## Running it locally
+## Acknowledgments
 
-Many thanks to Jorn Bijkersma for the awesome Soundtrack and Sound Effects! 
+Many thanks to **Jorn Bijkersma** for the awesome Soundtrack and Sound Effects! 

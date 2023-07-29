@@ -7,7 +7,7 @@ import { GameState } from './GameState';
 import { Inputs } from './Inputs';
 import { TETROMINOS } from '../constants/tetrominosConstants';
 import { DIRECTIONS } from '../constants/gameConstants';
-import type { Rotations, Tetromino, Point } from '../types/types';
+import type { Rotations, Tetromino, Point, MusicOptions } from '../types/types';
 
 export class Game {
     state: GameState;
@@ -228,14 +228,14 @@ export class Game {
     }
 
     private setGameOptions(): void {
-        const musicSetting = (<HTMLButtonElement>(
+        const musicSetting: MusicOptions = (<HTMLButtonElement>(
             document.querySelector(`[${this.gameOptionAttr}="music"].selected`)
-        ))?.value;
+        ))?.value as 'a' | 'b' | 'off';
         const selectedLevel = (<HTMLButtonElement>(
             document.querySelector(`[${this.gameOptionAttr}="level"].selected`)
         ))?.value;
 
-        this.audioPlayer.setVolume('music', musicSetting === 'on' ? 0.5 : 0);
+        this.audioPlayer.setMusic(musicSetting);
         this.state.setGameOptions({ level: parseInt(selectedLevel, 10) });
     }
 

@@ -16,3 +16,5 @@ export type Tetromino = {
     color: Color;
     shapes: Shape[];
 };
+
+export type MusicOptions = 'a' | 'b' | 'off';

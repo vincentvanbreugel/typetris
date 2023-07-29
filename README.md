@@ -33,7 +33,7 @@ This game was created to challenge myself to write a game in TypeScript without 
 * Restart Game
 * Line clear animation
 * Game over animation
-* Music On/Off
+* Music selection
 * SFX for all user inputs
 
 ## Future developments
@@ -53,4 +53,4 @@ This game was created to challenge myself to write a game in TypeScript without 
 
 ## Acknowledgments
 
-Many thanks to **Jorn Bijkersma** for the awesome Soundtrack and Sound Effects! 
+Many thanks to **Jorn Bijkersma** and **Rik Yff** for the awesome Soundtracks and Sound Effects!

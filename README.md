@@ -2,7 +2,7 @@
 
 A TypeScript implementation of the popular Block Game.
 
-## [Demo](https://vincentvanbreugel.github.io/typetris/dist)
+## [Try it out here](https://typetris.click)
 
 New Game Settings             |  Game View
 :-------------------------:|:-------------------------:
@@ -19,6 +19,8 @@ This game was created to challenge myself to write a game in TypeScript without 
 * **[Tailwind CSS](https://tailwindcss.com)** for colors and for styling.
 * **[Howler.js](https://howlerjs.com/)** for music and SFX.
 * **[Parcel](https://parceljs.org/)** for local development and a build tool.
+
+Hosted on AWS with a CI pipeline using a Github action, S3 and Cloudfront
 
 ## Features
 
